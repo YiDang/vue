@@ -10,7 +10,7 @@
 <script>
 
 export default {
-  name: 'list-view',
+  name: 'book-view',
   data () {
     return {
     	form:{

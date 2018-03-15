@@ -7,7 +7,7 @@ import UserInfoView from '@/views/UserInfoView'
 import ListView from '@/views/ListView'
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: '/',
@@ -46,3 +46,22 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log("log")
+  if(to.path == "/login") {
+    next()
+  }
+  console.log(this)
+  // if(this.$session.exists('login')) {
+   // next()
+  // }
+  // else {
+  //  next({ path: '/' })
+  // }
+  next()
+  
+
+})
+
+export default router

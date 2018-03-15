@@ -23,7 +23,18 @@
 				</el-row>
 			</el-form-item>
 		</el-form>
-		<router-view/>
+	<ul>
+		<search-list-item
+		v-for="(travel,index) in travels"
+		v-bind:key="travel.id"
+		v-bind:id="travel.id"
+		v-bind:from="travel.from"
+		v-bind:to="travel.to"
+		></search-list-item>
+		<!-- <li v-for="(travel,index) in travels"
+		>{{travel.from}},{{travel.to}}</li> -->
+
+	</ul>
 	</div>
 </template>
 
@@ -31,10 +42,11 @@
 
 <script>
 import HeaderBar from '../components/HeaderBar'
+import SearchListItem from '../components/SearchListItem'
 
 export default {
   name: 'book-view',
-  components: { HeaderBar },
+  components: { HeaderBar,SearchListItem },
   data () {
     return {
     	form:{
@@ -42,12 +54,21 @@ export default {
     		destination:'',
     		date1:'',
     		date2:'',
-    	}
+    	},
+    	travels:[
+
+    	]
     }
   },
   methods: {
   	onSubmit: function () {
-  		this.$router.push({name: 'ListView'})
+  		for(var i = 0; i < 10; i++){
+  			this.travels.push({
+  				id:i,
+    			from:'EWR',
+    			to:'JFK'
+    		})
+  		}
   	}
 
   }
