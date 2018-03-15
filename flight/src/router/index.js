@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
+import MainView from '@/views/MainView'
 import LoginView from '@/views/LoginView'
 import BookView from '@/views/BookView'
 import UserInfoView from '@/views/UserInfoView'
-import ListView from '@/views/ListView'
 Vue.use(Router)
 
-export default new Router({
+let router = new Router({
   routes: [
     {
       path: '/',
@@ -21,28 +21,46 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/login',
-      name: 'LoginView',
-      component: LoginView
-    },
-
-    {
-      path: '/book',
-      name: 'BookView',
-      component: BookView,
+      path: '/main',
+      name: 'MainView',
+      component: MainView,     
       children: [
-      	{
-      		path:'list',
-      		name:'ListView',
-      		component:ListView
-      		
-      	}
+       {
+         path:'book',
+         name:'BookView',
+         component:BookView
+          
+       },
+       {
+        path: 'user',
+        name: 'UserInfoView',
+        component: UserInfoView
+      }
       ]
     },
     {
-      path: '/user',
-      name: 'UserInfoView',
-      component: UserInfoView
+      path: '/login',
+      name: 'LoginView',
+      component: LoginView
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  console.log("log")
+  if(to.path == "/login") {
+    next()
+  }
+  console.log(this)
+  // if(this.$session.exists('login')) {
+   // next()
+  // }
+  // else {
+  //  next({ path: '/' })
+  // }
+  next()
+  
+
+})
+
+export default router

@@ -1,15 +1,19 @@
 <template>
   <div class="header-bar">
     <h1 class="title">
-    flight booking
+      flight booking
     </h1>
-    <div class="list-group">
-          <!--使用指令v-link进行导航-->
-          <!-- <a class="list-group-item" v-link="{ path: '/home'}">Home</a> -->
-          <!-- <a class="list-group-item" v-link="{ path: '/about'}">About</a> -->
-          <router-link to="/book">Book</router-link>
-          <router-link to="/user">UserInfo</router-link>
-        </div>
+    <!-- <el-button @click="logout">logout</el-button> -->
+<!--     <div class="list-group">
+      <router-link to="/book">Book</router-link>
+      <router-link to="/user">UserInfo</router-link>
+    </div> -->
+
+    <el-menu :default-active="activeIndex" router='true' class="el-menu-demo" mode="horizontal" >
+      <el-menu-item index="/main/book">Book</el-menu-item>
+      <el-menu-item index="/main/user">UserInfo</el-menu-item>
+      <el-menu-item index="/login">logout</el-menu-item>
+    </el-menu>
   </div>
 </template>
 
@@ -20,6 +24,11 @@ export default {
     return {}
   },
   methods: {
+    logout: function () {
+      // this.$session.remove('login')
+      this.$router.push({name: 'LoginView'})
+      // this.$router.push({ path: 'login' })
+    },
   }
 }
 </script>

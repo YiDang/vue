@@ -1,6 +1,5 @@
 <template>
   <div id = "userinfo-view">
-    <header-bar></header-bar>
     <h1>User page</h1>
     <p>{{msg}}</p>
   </div>
