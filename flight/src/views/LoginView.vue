@@ -70,7 +70,9 @@ export default {
         id : '',
         password : ''
       },
+
       isHidden : false,
+
       formr:{
         id : '',
         password : ''        
@@ -95,6 +97,7 @@ export default {
       // this.$session.set('login', 'true')//
       // 登陆检测做到后端
       this.$router.push({name: 'MainView'})
+
       // Login...
       // this.$store.dispatch({
       //   type: 'login',

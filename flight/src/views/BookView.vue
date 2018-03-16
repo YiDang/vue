@@ -24,12 +24,17 @@
 			</el-form-item>
 		</el-form>
 	<ul>
+
 		<!-- <search-list-item
+=======
+		<search-list-item
+>>>>>>> 19d7ed1de26a27d73b9f8b9699500d91f6d704d2
 		v-for="(travel,index) in travels"
 		v-bind:key="travel.id"
 		v-bind:id="travel.id"
 		v-bind:from="travel.from"
 		v-bind:to="travel.to"
+<<<<<<< HEAD
 		v-bind:stops="travel.stops"
 		></search-list-item> -->
 
@@ -38,6 +43,7 @@
 		v-bind:travels="travels"
 		></search-list-item>
 
+
 	</ul>
 	</div>
 </template>
@@ -45,12 +51,14 @@
 
 
 <script>
-// import HeaderBar from '../components/HeaderBar'
+
 import SearchListItem from '../components/SearchListItem'
 
 export default {
   name: 'book-view',
+
   components: {SearchListItem },
+
   data () {
     return {
     	form:{
@@ -66,11 +74,14 @@ export default {
   },
   methods: {
   	onSubmit: function () {
+
   		this.travels = []
+
   		for(var i = 0; i < 10; i++){
   			this.travels.push({
   				id:i,
     			from:'EWR',
+
     			to:'JFK',
     			depart:'00:00',
     			arrive:'00:00',
@@ -88,6 +99,7 @@ export default {
     				arrive:'00:00',
     			}
     			]
+
     		})
   		}
   	}
