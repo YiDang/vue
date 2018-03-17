@@ -13,12 +13,13 @@
       <el-menu-item index="/main/book">Book</el-menu-item>
       <el-menu-item index="/main/record">Record</el-menu-item>
       <el-menu-item index="/main/user">UserInfo</el-menu-item>
-      <el-menu-item index="/login">logout</el-menu-item>
+      <el-menu-item @click='logout' index="/login">logout</el-menu-item>
     </el-menu>
   </div>
 </template>
 
 <script>
+import store from 'store'
 export default {
   name: 'header-bar',
   data () {
@@ -28,7 +29,8 @@ export default {
   methods: {
     logout: function () {
       // this.$session.remove('login')
-      this.$router.push({name: 'LoginView'})
+      store.remove('token')
+      // this.$router.push({name: 'LoginView'})
       
     }
   }

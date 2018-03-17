@@ -50,20 +50,22 @@ let router = new Router({
     }
   ]
 })
-
+import store from 'store'
 router.beforeEach((to, from, next) => {
-  // console.log("log")
-  if(to.path == "/login") {
-    next()
+  console.log(to)
+  console.log(store.get('token'))
+  if(to.path != '/login' && !store.get('token')){
+    console.log('redirect')
+    next({path: '/login'})
   }
-  // console.log(this)
-  // if(this.$session.exists('login')) {
-   // next()
-  // }
-  // else {
-  //  next({ path: '/' })
-  // }
-  next()
+  // console.log("log")
+  //  var a = store.get('login')
+  // console.log('before' , a)
+
+  // store.set('login','xxx')
+  // a = store.get('login')
+  // console.log('after' , a)
+  else next()
   
 
 })

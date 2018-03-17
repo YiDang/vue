@@ -1,6 +1,6 @@
 <template>
   <div class="login-view">
-      <el-form ref="form" :model="form" label-width="80px">
+      <el-form ref="form" :model="form" label-width="80px" @click.submit.prevent>
         <el-form-item>
           <el-row type="flex" class="row-bg" justify="center">
             <el-col :span="4">
@@ -21,7 +21,7 @@
               <el-button @click="onSubmit">login</el-button>
             </el-col>
             <el-col :span="4">
-              <el-button @click="openRegister">register</el-button>
+              <el-button type = "submit" @click="openRegister">register</el-button>
             </el-col>
           </el-row>
         </el-form-item>
@@ -62,8 +62,9 @@
 </template>
 
 <script>
+import store from 'store'
 export default {
-  name: 'loginView',
+  name: 'login-view',
   data () {
     return {
       form : {
@@ -96,6 +97,7 @@ export default {
     onSubmit: function () {
       // this.$session.set('login', 'true')//
       // 登陆检测做到后端
+      store.set('token','xxx')
       this.$router.push({name: 'MainView'})
 
       // Login...
