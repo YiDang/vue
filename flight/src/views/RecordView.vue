@@ -1,10 +1,9 @@
 <template>
 	<div id = "record-view">
 		<record-list-item
+    :hidden = 'existData'
 		v-bind:travels="travels"
 		></record-list-item>
-
-	</ul>
 	</div>
 </template>
 
@@ -32,11 +31,17 @@ export default {
     	]
     }
   },
+  computed: {
+    existData: function () {
+      // console.log(this.travels.length)
+      return this.travels.length==0
+    },
+  },
   methods: {
   },
 
   created: function created() {
-    console.log("created")
+    // console.log("created")
     this.travels = []
 
     for(var i = 0; i < 10; i++){

@@ -22,16 +22,10 @@
 				</el-row>
 			</el-form-item>
 		</el-form>
-	<ul>
-
-
-
 		<search-list-item
-		v-bind:travels="travels"
-		></search-list-item>
-
-
-	</ul>
+			:hidden = 'existData'
+			v-bind:travels="travels">
+		</search-list-item>
 	</div>
 </template>
 
@@ -91,6 +85,12 @@ export default {
   		}
   	}
 
-  }
+  },
+  computed: {
+  	existData: function () {
+      // console.log(this.travels.length)
+      return this.travels.length==0
+    },
+  },
 }
 </script>
