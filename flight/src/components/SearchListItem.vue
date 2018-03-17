@@ -1,26 +1,17 @@
 <template>
-<!--   <li class="search-list-item">  
-  travel{{id}}:  
-    {{from}},
-    {{to}},
-    {{stops}}
-    <button @click = 'test'/>
-  </li> -->
   <div>
     <!-- {{travels}} -->
-  <el-table
+    <el-table
       border
       :data="travels"
       style="width: 100%">
       <el-table-column
         prop="id"
-        label="id"
-        width="180">
+        label="id">
       </el-table-column>
       <el-table-column
         prop="from"
-        label="from"
-        width="180">
+        label="from">
       </el-table-column>
       <el-table-column
         prop="to"
@@ -35,27 +26,35 @@
         label="arrive">
       </el-table-column>
       <el-table-column
-        label='stops'
-        >
+        label="stops">
         <template slot-scope="scope">
-        <el-popover trigger="hover" placement="top">
-          <!-- {{scope.row.stops}} -->
-          <el-table :data="scope.row.stops">
-            <el-table-column width="150" property="from" label="from"></el-table-column>
-            <el-table-column width="100" property="to" label="to"></el-table-column>
-            <el-table-column width="300" property="depart" label="depart"></el-table-column>
-            <el-table-column width="300" property="arrive" label="arrive"></el-table-column>
-          </el-table>
-          <div slot="reference" class="name-wrapper">
-            <el-tag size="medium">details</el-tag>
-          </div>
-        </el-popover>
+          <el-popover trigger="hover" placement="top">
+        <!-- {{scope.row.stops}} -->
+            <el-table :data="scope.row.stops">
+              <el-table-column property="from" label="from"></el-table-column>
+              <el-table-column property="to" label="to"></el-table-column>
+              <el-table-column property="depart" label="depart"></el-table-column>
+              <el-table-column property="arrive" label="arrive"></el-table-column>
+            </el-table>
+            <div slot="reference" class="name-wrapper">
+              <el-tag size="medium">details</el-tag>
+            </div>
+          </el-popover>
         </template>    
-    
+      </el-table-column>
+      <el-table-column
+        prop="price"
+        label="$price">
+      </el-table-column>
+      <el-table-column label="buy">
+        <template slot-scope="scope">
+          <el-button @click= 'buy(scope.row)'>buy
+          </el-button>
+        </template>
       </el-table-column>
 
-  </el-table>
-</div>
+    </el-table>
+  </div>
 </template>
 
 <script>
@@ -75,6 +74,9 @@ export default {
   methods:{
     test:function (){
       console.log(this.travels)
+    },
+    buy:function (a){
+      console.log(a)
     }
   }
 

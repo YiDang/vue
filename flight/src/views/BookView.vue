@@ -1,6 +1,5 @@
 <template>
 	<div id = "book-view">
-		<header-bar></header-bar>
 		<!-- <h1>Book page</h1> -->
 		<el-form ref="form" :model="form" label-width="80px">
 			<el-form-item label="">
@@ -25,18 +24,6 @@
 		</el-form>
 	<ul>
 
-		<!-- <search-list-item
-=======
-		<search-list-item
->>>>>>> 19d7ed1de26a27d73b9f8b9699500d91f6d704d2
-		v-for="(travel,index) in travels"
-		v-bind:key="travel.id"
-		v-bind:id="travel.id"
-		v-bind:from="travel.from"
-		v-bind:to="travel.to"
-<<<<<<< HEAD
-		v-bind:stops="travel.stops"
-		></search-list-item> -->
 
 
 		<search-list-item
@@ -81,10 +68,10 @@ export default {
   			this.travels.push({
   				id:i,
     			from:'EWR',
-
     			to:'JFK',
     			depart:'00:00',
     			arrive:'00:00',
+    			price:100,
     			stops:[
     			{
     				from:'a',

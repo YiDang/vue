@@ -14,22 +14,6 @@ Vue.use(ElementUI, { locale })
 Vue.use(VueSessionStorage)
 /* eslint-disable no-new */
 
-router.beforeEach((to, from, next) => {
-  console.log("log")
-  if(to.path == "/login") {
-  	next()
-  }
-  console.log(this)
-  // if(this.$session.exists('login')) {
-  // 	next()
-  // }
-  // else {
-  // 	next({ path: '/' })
-  // }
-  next()
-  
-
-})
 
 new Vue({
   el: '#app',

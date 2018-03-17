@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import MainView from '@/views/MainView'
 import LoginView from '@/views/LoginView'
 import BookView from '@/views/BookView'
+import RecordView from '@/views/RecordView'
 import UserInfoView from '@/views/UserInfoView'
 Vue.use(Router)
 
@@ -25,17 +26,21 @@ let router = new Router({
       name: 'MainView',
       component: MainView,     
       children: [
-       {
-         path:'book',
-         name:'BookView',
-         component:BookView
-          
-       },
-       {
-        path: 'user',
-        name: 'UserInfoView',
-        component: UserInfoView
-      }
+        {
+          path:'book',
+          name:'BookView',
+          component:BookView
+        },
+        {
+          path: 'user',
+          name: 'UserInfoView',
+          component: UserInfoView
+        },
+        {
+          path: 'record',
+          name: 'RecordView',
+          component: RecordView
+        } 
       ]
     },
     {
@@ -47,11 +52,11 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  console.log("log")
+  // console.log("log")
   if(to.path == "/login") {
     next()
   }
-  console.log(this)
+  // console.log(this)
   // if(this.$session.exists('login')) {
    // next()
   // }

@@ -9,8 +9,9 @@
       <router-link to="/user">UserInfo</router-link>
     </div> -->
 
-    <el-menu :default-active="activeIndex" router='true' class="el-menu-demo" mode="horizontal" >
+    <el-menu :router="true" class="el-menu-demo" mode="horizontal" >
       <el-menu-item index="/main/book">Book</el-menu-item>
+      <el-menu-item index="/main/record">Record</el-menu-item>
       <el-menu-item index="/main/user">UserInfo</el-menu-item>
       <el-menu-item index="/login">logout</el-menu-item>
     </el-menu>
@@ -21,14 +22,15 @@
 export default {
   name: 'header-bar',
   data () {
-    return {}
+    return {
+    }
   },
   methods: {
     logout: function () {
       // this.$session.remove('login')
       this.$router.push({name: 'LoginView'})
-      // this.$router.push({ path: 'login' })
-    },
+      
+    }
   }
 }
 </script>

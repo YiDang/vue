@@ -82,7 +82,7 @@ export default {
   methods: {
     created: function () {
       this.isHidden =false
-      console.log('here')
+      // console.log('here')
     },
     onSuccess: function (res) {
       this.$store.dispatch('login')
@@ -112,7 +112,7 @@ export default {
       // })
     },
     openRegister: function(){
-      console.log(this)
+      // console.log(this)
       // this.$store.dispatch('login') 
       // console.log("before",this.$store.state.login.loginState)
       // console.log(this.$session.exists('login'))
