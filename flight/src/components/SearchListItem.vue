@@ -4,7 +4,7 @@
     <el-table
       border
       :data="travels"
-      style="width: 100%">
+      style="width: 80%; margin: auto">
       <el-table-column
         prop="id"
         label="id">
@@ -48,11 +48,10 @@
       </el-table-column>
       <el-table-column label="buy">
         <template slot-scope="scope">
-          <el-button @click= 'buy(scope.row)'>buy
+          <el-button @click='buy(scope.row)'>buy
           </el-button>
         </template>
       </el-table-column>
-
     </el-table>
   </div>
 </template>

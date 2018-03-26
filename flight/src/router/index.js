@@ -6,6 +6,7 @@ import LoginView from '@/views/LoginView'
 import BookView from '@/views/BookView'
 import RecordView from '@/views/RecordView'
 import UserInfoView from '@/views/UserInfoView'
+import AdminView from '@/views/AdminView'
 Vue.use(Router)
 
 let router = new Router({
@@ -40,8 +41,18 @@ let router = new Router({
           path: 'record',
           name: 'RecordView',
           component: RecordView
-        } 
+        },
+        {
+          path: 'admin',
+          name: 'AdminView',
+          component: AdminView
+        }
       ]
+    },
+    {
+      path: '/user',
+      name: 'UserInfoView',
+      component: UserInfoView
     },
     {
       path: '/login',
@@ -52,10 +63,10 @@ let router = new Router({
 })
 import store from 'store'
 router.beforeEach((to, from, next) => {
-  console.log(to)
-  console.log(store.get('token'))
+  // console.log(to)
+  // console.log(store.get('token'))
   if(to.path != '/login' && !store.get('token')){
-    console.log('redirect')
+    // console.log('redirect')
     next({path: '/login'})
   }
   // console.log("log")

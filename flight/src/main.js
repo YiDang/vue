@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import axios from 'axios'
 // import store from './store'
 import store from 'store'
 import ElementUI from 'element-ui';
@@ -12,9 +13,8 @@ import VueSessionStorage from 'vue-sessionstorage'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI, { locale })
-Vue.use(VueSessionStorage)
 /* eslint-disable no-new */
-
+Vue.prototype.$axios= axios
 
 new Vue({
   el: '#app',

@@ -3,7 +3,7 @@
 		<!-- <h1>Book page</h1> -->
 		<el-form ref="form" :model="form" label-width="80px">
 			<el-form-item label="">
-				<el-row type="flex" class="row-bg" justify="center">
+				<el-row type="flex" class="row-bg" justify="center" :gutter="20">
 
 				<el-col :span="4">
 					<el-input placeholder="From airport" v-model="form.depart"></el-input>
@@ -15,6 +15,14 @@
 				<el-col :span="4">
 					<el-date-picker type="date" placeholder="Departure time" v-model="form.date1" style="width: 100%;"></el-date-picker>
 				</el-col>
+        <el-col :span="4">
+          <el-row type="flex" class="row-bg" justify="center">
+            <el-radio v-model="trip" label="oneway">one-way</el-radio>
+          </el-row>
+          <el-row type="flex" class="row-bg" justify="center">
+            <el-radio v-model="trip" label="roundtrip">round</el-radio>
+          </el-row>
+        </el-col>
 
 				<el-col :span="4">
 					<el-button type="primary" @click="onSubmit">Search</el-button>
@@ -26,6 +34,8 @@
 			:hidden = 'existData'
 			v-bind:travels="travels">
 		</search-list-item>
+		<el-pagination :hidden = 'existData' layout="prev, pager, next" :total="50" :page-size="10">
+		</el-pagination>
 	</div>
 </template>
 
@@ -42,6 +52,7 @@ export default {
 
   data () {
     return {
+      trip : 'oneway',
     	form:{
     		depart:'',
     		destination:'',

@@ -50,6 +50,7 @@
           </el-row>
         </el-form-item>
       </el-form>
+      <el-button @click="onTest">submit</el-button>
       <p>{{form.id}}</p>
       <p>{{form.password}}</p>
       <p>{{isHidden}}</p>
@@ -81,10 +82,6 @@ export default {
     }
   },
   methods: {
-    created: function () {
-      this.isHidden =false
-      // console.log('here')
-    },
     onSuccess: function (res) {
       this.$store.dispatch('login')
       // console.log('complete!')
@@ -98,30 +95,36 @@ export default {
       // this.$session.set('login', 'true')//
       // 登陆检测做到后端
       store.set('token','xxx')
-      this.$router.push({name: 'MainView'})
-
-      // Login...
-      // this.$store.dispatch({
-      //   type: 'login',
-      //   email: this.email,
-      //   token: this.token
-      // }).then(res => {
-      //   // Success handle
-      //   this.onSuccess(res)
-      // }, err => {
-      //   // Error handle
-      //   this.onError(err)
-      // })
+      if(this.form.id == '1') {
+        console.log('Manager login')
+        store.set('isManager',true) 
+        this.$router.push({name: 'AdminView'})
+      }
+      else{
+        console.log('Customer login')
+        store.set('isManager',false)  
+        this.$router.push({name: 'BookView'})
+      } 
+      
     },
     openRegister: function(){
-      // console.log(this)
-      // this.$store.dispatch('login') 
-      // console.log("before",this.$store.state.login.loginState)
-      // console.log(this.$session.exists('login'))
       this.isHidden = this.isHidden ? false:true 
     },
     onRegister: function(){
       
+    },
+    onTest:function(){
+      this.$axios({
+        method: 'post',
+        url:  '/api/',
+        data: 'data'
+      }).then(response => {
+        console.log(response.data)
+        console.log(response.status)
+        console.log(response.statusText)
+        console.log(response.headers)
+        console.log(response.config)
+      })
     }
   },
 }
