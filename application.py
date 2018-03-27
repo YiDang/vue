@@ -147,10 +147,6 @@ def get_sales_report():
 
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
-<<<<<<< HEAD
-=======
-
->>>>>>> d6fd143d666ab5aa83695db83575f4635255158c
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -193,10 +189,7 @@ def most_active_flight():
 
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
-<<<<<<< HEAD
 
-=======
->>>>>>> d6fd143d666ab5aa83695db83575f4635255158c
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
