@@ -109,6 +109,15 @@ def db_account_customer_generater(conn,num):
         sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
         db_insert(sql2,conn)
 
+def check_acccount(conn, name):
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    rec = db_select(count,conn)
+    if(rec[0][0] == 1):
+        return False
+    else:
+        return True
+    return True
+
 def create_customer(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
     count = "select count(*) from Account_dev"
     number_ = db_select(count,conn)[0][0]
