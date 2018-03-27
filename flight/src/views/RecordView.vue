@@ -30,6 +30,8 @@ export default {
 
   data () {
     return {
+      current: false,
+      history: false,
     	form:{
     		depart:'',
     		destination:'',
@@ -53,14 +55,18 @@ export default {
   created: function created() {
     // console.log("created")
     this.travels = []
-
+    var Date1=new Date(2018, 0, 17, 3, 24, 0)
+    
+    var Date2=new Date(2018, 5, 17, 3, 24, 0)
+  
     for(var i = 0; i < 10; i++){
       this.travels.push({
         id:i,
         from:'EWR',
         to:'JFK',
-        depart:'2000-00-00 00:00',
-        arrive:'2000-00-00 00:00',
+        depart: i<5 ? Date1.toString():Date2.toString(),
+        // depart:Date1.toString(),
+        arrive:'',
         price:100,
         history: true,
         current: true,

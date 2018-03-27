@@ -17,11 +17,11 @@
 
 <script>
 import HeaderBar from '../components/HeaderBar'
-import BookView from './BookView'
+// import BookView from './BookView'
 
 export default {
   name: 'main-view',
-  components: { HeaderBar, BookView },
+  components: { HeaderBar },
 
 }
 </script>

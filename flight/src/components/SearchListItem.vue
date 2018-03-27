@@ -1,14 +1,23 @@
 <template>
   <div>
-    <!-- {{travels}} -->
     <el-table
       border
       :data="travels"
       style="width: 80%; margin: auto">
       <el-table-column
+        label="id"
         prop="id"
-        label="id">
+        v-if="direction==0">
       </el-table-column>
+      <el-table-column
+        label="id"
+        v-else>
+        <template slot-scope="scope">
+          <el-radio v-model="radio1" @change='onChange(scope.row)' :label="scope.row.id">
+          </el-radio>
+        </template>
+      </el-table-column>
+
       <el-table-column
         prop="from"
         label="from">
@@ -29,7 +38,6 @@
         label="stops">
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
-        <!-- {{scope.row.stops}} -->
             <el-table :data="scope.row.stops">
               <el-table-column property="from" label="from"></el-table-column>
               <el-table-column property="to" label="to"></el-table-column>
@@ -46,12 +54,14 @@
         prop="price"
         label="$price">
       </el-table-column>
-      <el-table-column label="buy">
+<!--       <el-table-column label="buy">
         <template slot-scope="scope">
           <el-button @click='buy(scope.row)'>buy
           </el-button>
+          <el-radio v-model="radio1" :label="scope.row.id">
+          </el-radio>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
   </div>
 </template>
@@ -60,8 +70,12 @@
 
 export default {
   name: 'search-list-item',
-
-  props:['travels'],
+  data(){
+    return{
+      radio1:''
+    }
+  },
+  props:['travels','direction'],//direction 1:go 2:back 3:generate result
 
   // date:{
   //   id:'',
@@ -76,6 +90,10 @@ export default {
     },
     buy:function (a){
       console.log(a)
+    },
+    onChange:function(data){
+      // console.log(data)
+      this.$emit('childEvent', {data:data,direction:this.direction})
     }
   }
 

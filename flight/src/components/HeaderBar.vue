@@ -6,6 +6,8 @@
           <el-menu-item index="/main/book">Book</el-menu-item>
         </el-menu> 
       </el-col>
+      <el-col v-else :span="3" :offset="3">Admin 
+      </el-col>
       <el-col :span="3" :offset="15">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">

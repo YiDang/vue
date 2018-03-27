@@ -7,6 +7,17 @@ import BookView from '@/views/BookView'
 import RecordView from '@/views/RecordView'
 import UserInfoView from '@/views/UserInfoView'
 import AdminView from '@/views/AdminView'
+
+import ActiveFlightsView from '@/views/admin/ActiveFlightsView'
+import AllFlightsView from '@/views/admin/AllFlightsView'
+import FlightsOfAirportView from '@/views/admin/FlightsOfAirportView'
+import OnTimeView from '@/views/admin/OnTimeView'
+import ReservationView from '@/views/admin/ReservationView'
+import RevenueView from '@/views/admin/RevenueView'
+import SalesReportView from '@/views/admin/SalesReportView'
+import SeatReserveView from '@/views/admin/SeatReserveView'
+import UserManageView from '@/views/admin/UserManageView'
+
 Vue.use(Router)
 
 let router = new Router({
@@ -33,11 +44,6 @@ let router = new Router({
           component:BookView
         },
         {
-          path: 'user',
-          name: 'UserInfoView',
-          component: UserInfoView
-        },
-        {
           path: 'record',
           name: 'RecordView',
           component: RecordView
@@ -45,7 +51,55 @@ let router = new Router({
         {
           path: 'admin',
           name: 'AdminView',
-          component: AdminView
+          component: AdminView,
+          children: [
+              {
+                path: '/activeflights',
+                name: 'ActiveFlightsView',
+                component: ActiveFlightsView
+              },
+              {
+                path: '/allflights',
+                name: 'AllFlightsView',
+                component: AllFlightsView
+              },
+              {
+                path: '/flightsofairport',
+                name: 'FlightsOfAirportView',
+                component: FlightsOfAirportView
+              },
+              {
+                path: '/ontime',
+                name: 'OnTimeView',
+                component: OnTimeView
+              },
+              {
+                path: '/reservation',
+                name: 'ReservationView',
+                component: ReservationView
+              },
+              {
+                path: '/revenue',
+                name: 'RevenueView',
+                component: RevenueView
+              },
+              {
+                path: '/salesreport',
+                name: 'SalesReportView',
+                component: SalesReportView
+              },
+              {
+                path: '/seatreserve',
+                name: 'SeatReserveView',
+                component: SeatReserveView
+              },
+              {
+                path: '/usermanage',
+                name: 'UserManageView',
+                component: UserManageView
+              },
+
+          ]
         }
       ]
     },
