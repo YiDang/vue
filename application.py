@@ -79,7 +79,7 @@ def signUp():
         _email = request.form['Email']
         _telephone = request.form['Telephone']
         _credit = request.form['Credit']
-        rec = user_db.signup(conn,,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
+        rec = user_db.signup(conn,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
             return jsonify({'issignup':True})
         else:
@@ -147,9 +147,6 @@ def get_sales_report():
 
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
-<<<<<<< HEAD
-    return ""
-=======
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -173,7 +170,6 @@ def list_all_flights():
         cursor.close()
         conn.close()
     return jsonify(res)
->>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -193,9 +189,7 @@ def most_active_flight():
 
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
-<<<<<<< HEAD
-    return ""
-=======
+
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -233,7 +227,6 @@ def list_for_airports():
         cursor.close()
         conn.close()
     return jsonify(res)
->>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -343,18 +336,6 @@ def get_history():
 def get_best_seller():
     return ""
 
-#
-# Customer booking APIs
-@application.route('/api/searchFlight',methods=['POST','GET'])
-def search_flight():
-    roundtrip = False
-    if(request.form['roundtrip']==True){
-        roundtrip = True
-    }
-    date = []
-    date.append()
-
-    return ""
 
 if __name__ == "__main__":
     application.debug = True
