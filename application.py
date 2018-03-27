@@ -134,9 +134,47 @@ def get_most_rev():
 def most_active_flight():
     return ""
 
+#finished
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = {}
+    weekdaydic = {0:'Monday',
+                1: 'Tuesday',
+                2: 'Wednesday',
+                3: 'Thursday',
+                4: 'Friday',
+                5: 'Saturday',
+                6: 'Sunday'}
+    try:
+        airport = request.form["airportCode"]
+        cursor.execute("SELECT flight_no, departure_airport, departure_time, departure_date, arrival_airport, arrival_time, arrival_date, airlineName, duration, distance, plane FROM HistoryLegs WHERE departure_airport=%s", (airport))
+        id = 1
+        for data in cursor.fetchall():
+            dic = {}
+            date_format = '%m/%d/%Y'
+            dic["flight_no"] = data[0]
+            dic["departure_airport"] = data[1]
+            dic["departure_time"] = data[2]
+            dic["departure_weekday"] = weekdaydic[datetime.strptime(data[3],date_format).weekday()]
+            dic["arrival_airport"] = data[4]
+            dic["arrival_time"] = data[5]
+            dic["arrival_weekday"] = weekdaydic[datetime.strptime(data[6],date_format).weekday()]
+            dic["airlineName"] = data[7]
+            dic["duration"] = data[8]
+            dic["distance"] = data[9]
+            dic["plane"] = data[10]
+            res[id] = dic
+            id += 1
+
+    except Exception as e:
+        print e
+        res['error'] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -230,9 +268,8 @@ def get_best_seller():
 @application.route('/api/searchFlight',methods=['POST','GET'])
 def search_flight():
     roundtrip = False
-    if(request.form['roundtrip']==True){
+    if(request.form['roundtrip']==True):
         roundtrip = True
-    }
     date = []
     date.append()
 
