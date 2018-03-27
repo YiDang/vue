@@ -1,18 +1,3 @@
-from datetime import datetime
-
-def isDateFuture(date1):
-    date_format = '%m/%d/%Y'
-    date_formalized = datetime.strptime(date1, date_format)
-    delta = (datetime.today() - date_formalized).days
-    return delta < 0
-
-
-
-
-
-########################### ALL Funtion below is based on the pymysql ##################################
-
-
 import random, string
 import pymysql
 import names
@@ -62,7 +47,7 @@ def db_select(sql, conn):
     	result = cursor.fetchall()
     	return result
     except:
-    	print ("[ERROR]: CANNOT SELECT DATA")
+    	print "[ERROR]: CANNOT SELECT DATA"
 
 def db_insert(sql, conn):
     cursor = conn.cursor()
@@ -70,7 +55,7 @@ def db_insert(sql, conn):
         cursor.execute(sql)
         conn.commit()
     except:
-        print ("[ERROR]: CANNOT INSERT DATA")
+        print "[ERROR]: CANNOT INSERT DATA"
         conn.rollback()
 
 def db_update(sql, conn):
@@ -79,17 +64,26 @@ def db_update(sql, conn):
         cursor.execute(sql)
         conn.commit()
     except:
-        print ("[ERROR]: CANNOT UPDATE DATA")
+        print "[ERROR]: CANNOT UPDATE DATA"
         conn.rollback()
 
 def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-        conn.commit()
+        conn.commit() 
     except:
-        print ("[ERROR]: CANNOT DELETE DATA")
+        print "[ERROR]: CANNOT DELETE DATA"
         conn.rollback()
+
+def check_acccount(conn, name):
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    rec = db_select(count,conn)
+    if(rec[0][0] == 1):
+        return False
+    else:
+        return True
+    return True
 
 def db_account_customer_generater(conn,num):
     for i in range(num):
@@ -109,15 +103,6 @@ def db_account_customer_generater(conn,num):
         sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
         db_insert(sql2,conn)
 
-def check_acccount(conn, name):
-    count = "select count(*) from Account_dev where account_name = '%s'" %(name)
-    rec = db_select(count,conn)
-    if(rec[0][0] == 1):
-        return False
-    else:
-        return True
-    return True
-
 def create_customer(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
     count = "select count(*) from Account_dev"
     number_ = db_select(count,conn)[0][0]
@@ -127,6 +112,9 @@ def create_customer(conn,name, password,last_name,first_name,zipco,address="",em
            "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)]
     db_insert(sql[0],conn)
     db_insert(sql[1],conn)
+    # count = "select count(*) from Account_dev"
+    # sql = "insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password)
+    # sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
 
 def update_customer(conn,account_no,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
     sql = "update Customer_dev set last_name = '%s', first_name = '%s',address = '%s',email  = '%s',telephone = '%s', credit_catd_no  = '%s', preference  = '%s', zipco = '%s', account_date  = '%s' where account_no  = %s"%(last_name,first_name,address,email,telephone,credit,prefer,zipco,"3/18/2018",account_no)
@@ -138,9 +126,31 @@ def update_password(conn,account_name,account_password):
 
 def delete_customer(conn,account_no):
     sql = "delete from Account_dev where account_no = %s" %(account_no)
-
-def delete_customer(conn,account_no):
-    sql = "delete from Account_dev where account_no = %s" %(account_no)
     db_update(sql,conn)
 
-########################### ALL Funtion above is based on the pymysql ##################################
+def show_customer(conn,account_no):
+    sql = "select * from Customer_dev where account_no = %s" %(account_no)
+    rec = db_select(sql,conn) #that is a tuple like this ((xxx,xx,xxx,xxx),(xxx,xxx,xx))
+    # if(rec[0][5] == None):
+    #      print ("no things")
+    # else:
+    #     print("there is some thing")
+    return rec
+
+def login_in(conn,)
+conn = db_conn()
+db_check(conn)
+#db_account_customer_generater(conn,100)
+#create_customer(conn,"kkk","kkk","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
+#update_password(conn,"kkk","aws")
+#update_customer(conn,101,"ooo","ppp","111","111","111","111","111","111")
+# tmp = check_acccount(conn,"FxeXPdjE")
+# print tmp
+#show_customer(conn,1)
+db_close(conn)
+
+
+
+
+
+
