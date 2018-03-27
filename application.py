@@ -233,8 +233,6 @@ def list_for_airports():
 def book_flight():
     return ""
 
-
-
 # Finished
 # Get Reservation by account_no
 @application.route('/api/customer/getReserv',methods=['POST','GET'])
@@ -242,7 +240,6 @@ def get_reserv():
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
-    print (request.__dict__)
     try:
         account_no = request.form['account_no']
         cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
@@ -256,6 +253,7 @@ def get_reserv():
                     res[data[2]]['stops'] = {}
                     res[data[2]]['stops']['go'] = []
                     res[data[2]]['stops']['back'] = []
+                    res[data[2]]['RoundTrip'] = False
                 res[data[2]]['Departure'] = data[3]
                 res[data[2]]['Arrival'] = data[4]
                 temp = {}
@@ -283,6 +281,7 @@ def get_reserv():
                     res[data[13]]['stops']['go'].append(dict)
                 else:
                     res[data[13]]['stops']['back'].append(dict)
+                    res[data[13]]['RoundTrip'] = True
     except Exception as e:
         res['error'] = 'Search Error'
     finally:
