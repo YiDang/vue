@@ -267,13 +267,8 @@ def get_best_seller():
 # Customer booking APIs
 @application.route('/api/searchFlight',methods=['POST','GET'])
 def search_flight():
-    roundtrip = False
-    if(request.form['roundtrip']==True):
-        roundtrip = True
-    date = []
-    date.append()
 
-    return ""
+
 
 if __name__ == "__main__":
     application.debug = True
