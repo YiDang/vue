@@ -215,21 +215,23 @@ def get_reserv():
     res = {}
     try:
         account_no = request.form['account_no']
-        cursor.execute('SELECT Distinct name,ssn,reservation_no from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
-        res["passenger_info"] = []
-
+        cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
+        res_no = []
         for data in cursor.fetchall():
-            if(data[2] not in res.keys()):
-                res[data[2]] = {}
-                res[data[2]]['passenger_info'] = []
-                res[data[2]]['stops'] = {}
-                res[data[2]]['stops']['go'] = []
-                res[data[2]]['stops']['back'] = []
-            temp = {}
-            temp['name'] = data[0]
-            temp['ssn'] = data[1]
-            res[data[2]]["passenger_info"].append(temp)
-
+            if(data):
+                if(data[2] not in res.keys()):
+                    res_no.append(data[2])
+                    res[data[2]] = {}
+                    res[data[2]]['passenger_info'] = []
+                    res[data[2]]['stops'] = {}
+                    res[data[2]]['stops']['go'] = []
+                    res[data[2]]['stops']['back'] = []
+                res[data[2]]['Departure'] = data[3]
+                res[data[2]]['Arrival'] = data[4]
+                temp = {}
+                temp['name'] = data[0]
+                temp['ssn'] = data[1]
+                res[data[2]]["passenger_info"].append(temp)
         cursor.execute('SELECT distinct departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, trip_no, duration ,distance, date, reservation_no   from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
         for data in cursor.fetchall():
                 dict = {}
@@ -242,6 +244,7 @@ def get_reserv():
                 dict['airlineName'] = data[6]
                 dict['booking_fee'] = data[7]
                 dict['total_fare'] = data[8]
+                res[data[13]]['price']= data[8]
                 # dict['trip_no'] = data[9]
                 dict['duration'] = data[10]
                 dict['distance'] = data[11]
