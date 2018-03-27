@@ -145,12 +145,12 @@ def edit_user():
 def get_sales_report():
     return ""
 
+#finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
-    id = 1
+    res = []
     try:
         cursor.execute("SELECT flight_no, departure_airport, arrival_airport, departure_time, arrival_time, duration, airlineCode FROM LegsInfo GROUP BY flight_no")
         for data in cursor.fetchall():
@@ -162,10 +162,9 @@ def list_all_flights():
             dic["arrival_time"] = data[4]
             dic["duration"] = data[5]
             dic["airlineCode"] = data[6]
-            res[id] = dic
-            id += 1
+            res.append(dic)
     except Exception as e:
-        res["error"] = 'Search Error'
+        res = ['Search Error']
     finally:
         cursor.close()
         conn.close()
@@ -252,7 +251,7 @@ def list_reservation():
 
     except Exception as e:
         print e
-        res["error"] = 'Search Error'
+        res = ['Search Error']
     finally:
         cursor.close()
         conn.close()
@@ -271,12 +270,13 @@ def get_most_rev():
 def most_active_flight():
     return ""
 
+#finished
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
+    res = []
     weekdaydic = {0:'Monday',
                 1: 'Tuesday',
                 2: 'Wednesday',
@@ -287,7 +287,6 @@ def list_for_airports():
     try:
         airport = request.form["airportCode"]
         cursor.execute("SELECT flight_no, departure_airport, departure_time, departure_date, arrival_airport, arrival_time, arrival_date, airlineName, duration, distance, plane FROM HistoryLegs WHERE departure_airport=%s", (airport))
-        id = 1
         for data in cursor.fetchall():
             dic = {}
             date_format = '%m/%d/%Y'
@@ -302,11 +301,11 @@ def list_for_airports():
             dic["duration"] = data[8]
             dic["distance"] = data[9]
             dic["plane"] = data[10]
-            res[id] = dic
-            id += 1
+            res.append(dic)
 
     except Exception as e:
-        res['error'] = 'Search Error'
+        print e
+        res = ['Search Error']
     finally:
         cursor.close()
         conn.close()
@@ -444,4 +443,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.198.208',debug=True,)
+    application.run(host='172.31.230.181',debug=True,)
