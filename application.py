@@ -315,6 +315,5 @@ def search_flight():
 
 
 
-if __name__ == "__main__":
-    application.debug = True
-    application.run()
+if __name__ == "__main__":    
+    application.run(host='172.31.198.208',debug=True,)
