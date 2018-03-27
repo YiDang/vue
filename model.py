@@ -86,7 +86,7 @@ def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-        conn.commit() 
+        conn.commit()
     except:
         print "[ERROR]: CANNOT DELETE DATA"
         conn.rollback()
