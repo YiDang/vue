@@ -147,7 +147,33 @@ def get_sales_report():
 
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
+<<<<<<< HEAD
     return ""
+=======
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = {}
+    id = 1
+    try:
+        cursor.execute("SELECT flight_no, departure_airport, arrival_airport, departure_time, arrival_time, duration, airlineCode FROM LegsInfo GROUP BY flight_no")
+        for data in cursor.fetchall():
+            dic = {}
+            dic["flight_no"] = data[0]
+            dic["departure_airport"] = data[1]
+            dic["arrival_airport"] = data[2]
+            dic["departure_time"] = data[3]
+            dic["arrival_time"] = data[4]
+            dic["duration"] = data[5]
+            dic["airlineCode"] = data[6]
+            res[id] = dic
+            id += 1
+    except Exception as e:
+        res["error"] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+>>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -167,7 +193,47 @@ def most_active_flight():
 
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
+<<<<<<< HEAD
     return ""
+=======
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = {}
+    weekdaydic = {0:'Monday',
+                1: 'Tuesday',
+                2: 'Wednesday',
+                3: 'Thursday',
+                4: 'Friday',
+                5: 'Saturday',
+                6: 'Sunday'}
+    try:
+        airport = request.form["airportCode"]
+        cursor.execute("SELECT flight_no, departure_airport, departure_time, departure_date, arrival_airport, arrival_time, arrival_date, airlineName, duration, distance, plane FROM HistoryLegs WHERE departure_airport=%s", (airport))
+        id = 1
+        for data in cursor.fetchall():
+            dic = {}
+            date_format = '%m/%d/%Y'
+            dic["flight_no"] = data[0]
+            dic["departure_airport"] = data[1]
+            dic["departure_time"] = data[2]
+            dic["departure_weekday"] = weekdaydic[datetime.strptime(data[3],date_format).weekday()]
+            dic["arrival_airport"] = data[4]
+            dic["arrival_time"] = data[5]
+            dic["arrival_weekday"] = weekdaydic[datetime.strptime(data[6],date_format).weekday()]
+            dic["airlineName"] = data[7]
+            dic["duration"] = data[8]
+            dic["distance"] = data[9]
+            dic["plane"] = data[10]
+            res[id] = dic
+            id += 1
+
+    except Exception as e:
+        res['error'] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+>>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -185,44 +251,25 @@ def get_reserv():
     res = {}
     try:
         account_no = request.form['account_no']
-        cursor.execute('SELECT departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, class, seat_no, trip_no, duration ,distance, date, reservation_no  from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
-        for data in cursor.fetchall():
-            if(data and isDateFuture(data[14])):
-                if(data[15] not in res.keys()):
-                    res[data[15]] = []
-                dict = {}
-                dict['departure_airport'] = data[0]
-                dict['arrival_airport'] = data[1]
-                dict['departure_time'] = data[2]
-                dict['arrival_time'] = data[3]
-                dict['flight_no'] = data[4]
-                dict['airlineCode'] = data[5]
-                dict['airlineName'] = data[6]
-                dict['trip_no'] = data[11]
-                dict['distance'] = data[13]
-                dict['date'] = data[14]
-                res[data[15]].append(dict)
-    except Exception as e:
-        res['error'] = 'Search Error'
-    finally:
-        cursor.close()
-        conn.close()
-        return jsonify(res)
-
-# Finished
-# Get Travel Initary
-@application.route('/api/customer/getTravelInit',methods=['POST','GET'])
-def get_init():
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    res = {}
-    count = 1
-    try:
-        reservation_no = request.form['reservation_no']
-        cursor.execute('SELECT departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, class, seat_no, trip_no, duration ,distance, date, reservation_no  from Reservation natural join Reservation_Leg natural join LegsInfo where reservation_no = %s;',[reservation_no])
+        cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
+        res_no = []
         for data in cursor.fetchall():
             if(data):
-                res[count] = []
+                if(data[2] not in res.keys()):
+                    res_no.append(data[2])
+                    res[data[2]] = {}
+                    res[data[2]]['passenger_info'] = []
+                    res[data[2]]['stops'] = {}
+                    res[data[2]]['stops']['go'] = []
+                    res[data[2]]['stops']['back'] = []
+                res[data[2]]['Departure'] = data[3]
+                res[data[2]]['Arrival'] = data[4]
+                temp = {}
+                temp['name'] = data[0]
+                temp['ssn'] = data[1]
+                res[data[2]]["passenger_info"].append(temp)
+        cursor.execute('SELECT distinct departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, trip_no, duration ,distance, date, reservation_no   from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
+        for data in cursor.fetchall():
                 dict = {}
                 dict['departure_airport'] = data[0]
                 dict['arrival_airport'] = data[1]
@@ -233,20 +280,60 @@ def get_init():
                 dict['airlineName'] = data[6]
                 dict['booking_fee'] = data[7]
                 dict['total_fare'] = data[8]
-                dict['class'] = data[9]
-                dict['seat_no'] = data[10]
-                dict['trip_no'] = data[11]
-                dict['duration'] = data[12]
-                dict['distance'] = data[13]
-                dict['date'] = data[14]
-                res[count].append(dict)
-                count = count + 1
+                res[data[13]]['price']= data[8]
+                # dict['trip_no'] = data[9]
+                dict['duration'] = data[10]
+                dict['distance'] = data[11]
+                dict['date'] = data[12]
+                if(data[9]==1):
+                    res[data[13]]['stops']['go'].append(dict)
+                else:
+                    res[data[13]]['stops']['back'].append(dict)
     except Exception as e:
         res['error'] = 'Search Error'
     finally:
         cursor.close()
         conn.close()
         return jsonify(res)
+
+# Finished
+# Get Travel Initary
+# @application.route('/api/customer/getTravelInit',methods=['POST','GET'])
+# def get_init():
+#     conn = mysql.connect()
+#     cursor = conn.cursor()
+#     res = {}
+#     count = 1
+#     try:
+#         reservation_no = request.form['reservation_no']
+#         cursor.execute('SELECT departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, class, seat_no, trip_no, duration ,distance, date, reservation_no  from Reservation natural join Reservation_Leg natural join LegsInfo where reservation_no = %s;',[reservation_no])
+#         for data in cursor.fetchall():
+#             if(data):
+#                 res[count] = []
+#                 dict = {}
+#                 dict['departure_airport'] = data[0]
+#                 dict['arrival_airport'] = data[1]
+#                 dict['departure_time'] = data[2]
+#                 dict['arrival_time'] = data[3]
+#                 dict['flight_no'] = data[4]
+#                 dict['airlineCode'] = data[5]
+#                 dict['airlineName'] = data[6]
+#                 dict['booking_fee'] = data[7]
+#                 dict['total_fare'] = data[8]
+#                 dict['class'] = data[9]
+#                 dict['seat_no'] = data[10]
+#                 dict['trip_no'] = data[11]
+#                 dict['duration'] = data[12]
+#                 dict['distance'] = data[13]
+#                 dict['date'] = data[14]
+#                 res[count].append(dict)
+#                 count = count + 1
+#     except Exception as e:
+#         res['error'] = 'Search Error'
+#     finally:
+#         cursor.close()
+#         conn.close()
+#         return jsonify(res)
 
 @application.route('/api/customer/getHistory',methods=['POST','GET'])
 def get_history():
