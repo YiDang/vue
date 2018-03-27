@@ -4,7 +4,8 @@ from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.security import safe_str_cmp
 from model import isDateFuture
 from datetime import datetime
-import pdb
+import model
+import user_db
 mysql = MySQL()
 application = Flask(__name__)
 
@@ -42,31 +43,58 @@ def home():
 # sign up new user
 @application.route('/api/signUp',methods=['POST','GET'])
 def signUp():
+    # conn = mysql.connect()
+    # cursor = conn.cursor()
+    # res = {}
+    # try:
+    #     _name = request.form['Name']
+    #     _password = request.form['Password']
+    #     if _name and _password:
+    #         _hashed_password = generate_password_hash(_password)
+    #         cursor.callproc('sp_createUser',(_name,_hashed_password))
+    #         data = cursor.fetchall()
+    #         if len(data) is 0:
+    #             conn.commit()
+    #             res['success'] = True
+    #             res['exist'] = False
+    #             return jsonify(res)
+    #         else:
+    #             ## user name exist
+    #             return jsonify({'error':str(data[0])})
+    #     else:
+    #         return jsonify({'html':'<span>Enter the required fields</span>'})
+    # except Exception as e:
+    #     return jsonify({'error':str(e)})
+    # finally:
+    #     cursor.close()
+    #     conn.close()
     conn = mysql.connect()
-    cursor = conn.cursor()
-    res = {}
     try:
         _name = request.form['Name']
         _password = request.form['Password']
-        if _name and _password:
-            _hashed_password = generate_password_hash(_password)
-            cursor.callproc('sp_createUser',(_name,_hashed_password))
-            data = cursor.fetchall()
-            if len(data) is 0:
-                conn.commit()
-                res['success'] = True
-                res['exist'] = False
-                return jsonify(res)
-            else:
-                ## user name exist
-                return jsonify({'error':str(data[0])})
+        _last_name = request.form['Last_name']
+        _first_name = request.form['First_name']
+        _zipco = request.form['Zipco']
+        _address = request.form['Address']
+        _email = request.form['Email']
+        _telephone = request.form['Telephone']
+        _credit = request.form['Credit']
+        rec = user_db.signup(conn,,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
+        if(rec):
+            return jsonify({'issignup':True})
         else:
-            return jsonify({'html':'<span>Enter the required fields</span>'})
+            return jsonify({'issignup':False})
     except Exception as e:
         return jsonify({'error':str(e)})
-    finally:
-        cursor.close()
-        conn.close()
+
+
+# @application.route('/api/showuser',methods=['POST','GET'])
+# def showuser():
+    
+
+
+
+
 
 # sign up new user
 @application.route('/api/isUser',methods=['POST','GET'])
@@ -107,6 +135,8 @@ def verifyUser():
         return jsonify(res)
 
 
+
+
 @application.route('/api/manager/editUser',methods=['POST','GET'])
 def edit_user():
     return ""
@@ -115,9 +145,11 @@ def edit_user():
 def get_sales_report():
     return ""
 
-#finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
+<<<<<<< HEAD
+    return ""
+=======
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -141,6 +173,7 @@ def list_all_flights():
         cursor.close()
         conn.close()
     return jsonify(res)
+>>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -158,9 +191,11 @@ def get_most_rev():
 def most_active_flight():
     return ""
 
-#finished
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
+<<<<<<< HEAD
+    return ""
+=======
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -198,6 +233,7 @@ def list_for_airports():
         cursor.close()
         conn.close()
     return jsonify(res)
+>>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -311,9 +347,14 @@ def get_best_seller():
 # Customer booking APIs
 @application.route('/api/searchFlight',methods=['POST','GET'])
 def search_flight():
+    roundtrip = False
+    if(request.form['roundtrip']==True){
+        roundtrip = True
+    }
+    date = []
+    date.append()
+
     return ""
-
-
 
 if __name__ == "__main__":    
     application.run(host='172.31.198.208',debug=True,)
