@@ -12,10 +12,12 @@
     </el-row>
 		<record-list-item
     :hidden = 'existData'
-		v-bind:travels="filtered"
+		v-bind:travels="paged"
 		></record-list-item>
-    <el-pagination :hidden = 'existData' layout="prev, pager, next" :total="50" :page-size="10">
+    <el-pagination :hidden = 'existData' layout="prev, pager, 
+    next" :total="listw84page.length" :page-size="pageSize" :current-page.sync="currentPage">
     </el-pagination>
+    {{currentPage}}
 	</div>
 </template>
 
@@ -24,32 +26,33 @@
 <script>
 
 import RecordListItem from '../components/RecordListItem'
-
+import { page } from '../components/page.js'
 export default {
   name: 'record-view',
 
   components: {RecordListItem },
 
+  mixins:[page],
   data () {
     return {
       checkList:[],
+      // currentPage:1,
+      // pageSize:5,
     	form:{
     		depart:'',
     		destination:'',
     		date1:'',
     		date2:'',
     	},
-    	travels:[
-
-    	]
+    	travels:[]
     }
   },
   computed: {
     existData: function () {
       // console.log(this.travels.length)
-      return this.filtered.length==0
+      return this.listw84page.length==0
     },
-    filtered:function(){
+    listw84page:function(){
       var travels=[]
       var current=this.checkList.indexOf('current')>=0
       var history=this.checkList.indexOf('history')>=0
@@ -59,8 +62,19 @@ export default {
         if((d>n && current)||(d<n && history))
           travels.push(element)
       });
+      // console.log('filtered',travels.length)
       return travels
     }
+    // paged:function(){
+    //   var start = this.pageSize*(this.currentPage-1)
+    //   var end = this.pageSize*this.currentPage
+    //   var travels = []
+    //   for(var i=start; i<end && i < this.filtered.length; i++){
+    //     travels.push(this.filtered[i])
+    //   }
+    //   // console.log('paged',travels.length)
+    //   return travels
+    // }
   },
   methods: {
   },

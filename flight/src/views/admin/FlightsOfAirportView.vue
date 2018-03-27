@@ -1,6 +1,6 @@
 <template>
   <div id = "flights-of-airport-view">
-  <h1>Flight of given airport</h1>
+    <h1>Flight of given airport</h1>
     <el-row>
       <el-form ref="form" :model="form" label-width="0px">
         <el-row :gutter=10>
