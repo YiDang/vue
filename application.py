@@ -4,6 +4,7 @@ from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.security import safe_str_cmp
 from model import isDateFuture
 from datetime import datetime
+import pdb
 mysql = MySQL()
 application = Flask(__name__)
 
@@ -114,9 +115,33 @@ def edit_user():
 def get_sales_report():
     return ""
 
+#finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = {}
+    id = 1
+    try:
+        cursor.execute("SELECT flight_no, departure_airport, arrival_airport, departure_time, arrival_time, duration, airlineCode FROM LegsInfo GROUP BY flight_no")
+        for data in cursor.fetchall():
+            dic = {}
+            dic["flight_no"] = data[0]
+            dic["departure_airport"] = data[1]
+            dic["arrival_airport"] = data[2]
+            dic["departure_time"] = data[3]
+            dic["arrival_time"] = data[4]
+            dic["duration"] = data[5]
+            dic["airlineCode"] = data[6]
+            res[id] = dic
+            id += 1
+    except Exception as e:
+        print e
+        res["error"] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -267,6 +292,7 @@ def get_best_seller():
 # Customer booking APIs
 @application.route('/api/searchFlight',methods=['POST','GET'])
 def search_flight():
+    return ""
 
 
 
