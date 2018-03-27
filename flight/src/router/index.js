@@ -49,6 +49,11 @@ let router = new Router({
           component: RecordView
         },
         {
+          path: '/user',
+          name: 'UserInfoView',
+          component: UserInfoView
+        },
+        {
           path: 'admin',
           name: 'AdminView',
           component: AdminView,
@@ -102,11 +107,6 @@ let router = new Router({
           ]
         }
       ]
-    },
-    {
-      path: '/user',
-      name: 'UserInfoView',
-      component: UserInfoView
     },
     {
       path: '/login',
