@@ -71,7 +71,7 @@ export default {
     // var Date1=new Date(2018, 0, 17, 3, 24, 0)
     var Date1=new Date("2018-01-17 3:24:0")
     var Date2=new Date(2018, 5, 17, 3, 24, 0)
-  	
+  
     for(var i = 0; i < 10; i++){
       this.travels.push({
         id:i,

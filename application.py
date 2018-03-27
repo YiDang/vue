@@ -79,7 +79,7 @@ def signUp():
         _email = request.form['Email']
         _telephone = request.form['Telephone']
         _credit = request.form['Credit']
-        rec = user_db.signup(conn,,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
+        rec = user_db.signup(conn,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
             return jsonify({'issignup':True})
         else:
@@ -242,6 +242,7 @@ def get_reserv():
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
+    print (request.__dict__)
     try:
         account_no = request.form['account_no']
         cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
@@ -338,16 +339,16 @@ def get_best_seller():
 
 #
 # Customer booking APIs
-@application.route('/api/searchFlight',methods=['POST','GET'])
-def search_flight():
-    roundtrip = False
-    if(request.form['roundtrip']==True){
-        roundtrip = True
-    }
-    date = []
-    date.append()
-
-    return ""
+# @application.route('/api/searchFlight',methods=['POST','GET'])
+# def search_flight():
+#     roundtrip = False
+#     if(request.form['roundtrip']==True){
+#         roundtrip = True
+#     }
+#     date = []
+#     date.append()
+#
+#     return ""
 
 if __name__ == "__main__":
     application.run(host='172.31.198.208',debug=True,)
