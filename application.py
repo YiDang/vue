@@ -90,7 +90,7 @@ def signUp():
 
 # @application.route('/api/showuser',methods=['POST','GET'])
 # def showuser():
-    
+
 
 
 
@@ -147,9 +147,7 @@ def get_sales_report():
 
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
-<<<<<<< HEAD
-    return ""
-=======
+
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -173,7 +171,6 @@ def list_all_flights():
         cursor.close()
         conn.close()
     return jsonify(res)
->>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -193,9 +190,6 @@ def most_active_flight():
 
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
-<<<<<<< HEAD
-    return ""
-=======
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
@@ -233,7 +227,6 @@ def list_for_airports():
         cursor.close()
         conn.close()
     return jsonify(res)
->>>>>>> f83738b3bb133478f0018e244064d0c40f1341a4
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -356,5 +349,5 @@ def search_flight():
 
     return ""
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     application.run(host='172.31.198.208',debug=True,)
