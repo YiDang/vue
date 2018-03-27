@@ -48,33 +48,40 @@ def db_select(sql, conn):
     	return result
     except:
     	print "[ERROR]: CANNOT SELECT DATA"
+        return False
 
 def db_insert(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         conn.commit()
+        return True
     except:
         print "[ERROR]: CANNOT INSERT DATA"
         conn.rollback()
+        return False
 
 def db_update(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         conn.commit()
+        return True
     except:
         print "[ERROR]: CANNOT UPDATE DATA"
         conn.rollback()
+        return False
 
 def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         conn.commit() 
+        return True
     except:
         print "[ERROR]: CANNOT DELETE DATA"
         conn.rollback()
+        return False
 
 def check_acccount(conn, name):
     count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
@@ -107,26 +114,42 @@ def create_customer(conn,name, password,last_name,first_name,zipco,address="",em
     count = "select count(*) from Account_dev"
     number_ = db_select(count,conn)[0][0]
     number = number_ + 1
-    account_date = "3/18/2018"
+    account_date = ""
     sql = ["insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password),
            "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)]
-    db_insert(sql[0],conn)
-    db_insert(sql[1],conn)
+    flag1 = db_insert(sql[0],conn)
+    flag2 = db_insert(sql[1],conn)
+    if(flag1 and flag2):
+        return True
+    else:
+        return False
     # count = "select count(*) from Account_dev"
     # sql = "insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password)
     # sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
 
 def update_customer(conn,account_no,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
     sql = "update Customer_dev set last_name = '%s', first_name = '%s',address = '%s',email  = '%s',telephone = '%s', credit_catd_no  = '%s', preference  = '%s', zipco = '%s', account_date  = '%s' where account_no  = %s"%(last_name,first_name,address,email,telephone,credit,prefer,zipco,"3/18/2018",account_no)
-    db_update(sql,conn)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
 def update_password(conn,account_name,account_password):
     sql = "update Account_dev set account_pass = '%s' where account_name = '%s'"%(account_password,account_name)
-    db_update(sql,conn)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
 def delete_customer(conn,account_no):
     sql = "delete from Account_dev where account_no = %s" %(account_no)
-    db_update(sql,conn)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
 def show_customer(conn,account_no):
     sql = "select * from Customer_dev where account_no = %s" %(account_no)
@@ -135,9 +158,22 @@ def show_customer(conn,account_no):
     #      print ("no things")
     # else:
     #     print("there is some thing")
-    return rec
+    if(rec):
+        return rec
+    else:
+        return False
 
-def login_in(conn,)
+def signup(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
+    flag = check_acccount(conn,name)
+    if(flag):
+        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):    
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 conn = db_conn()
 db_check(conn)
 #db_account_customer_generater(conn,100)
@@ -147,6 +183,8 @@ db_check(conn)
 # tmp = check_acccount(conn,"FxeXPdjE")
 # print tmp
 #show_customer(conn,1)
+# flag = signup(conn,"qqq","qqq","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
+# print flag
 db_close(conn)
 
 
