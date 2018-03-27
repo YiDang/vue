@@ -62,7 +62,7 @@ def db_select(sql, conn):
     	result = cursor.fetchall()
     	return result
     except:
-    	print "[ERROR]: CANNOT SELECT DATA"
+    	print ("[ERROR]: CANNOT SELECT DATA")
 
 def db_insert(sql, conn):
     cursor = conn.cursor()
@@ -70,7 +70,7 @@ def db_insert(sql, conn):
         cursor.execute(sql)
         conn.commit()
     except:
-        print "[ERROR]: CANNOT INSERT DATA"
+        print ("[ERROR]: CANNOT INSERT DATA")
         conn.rollback()
 
 def db_update(sql, conn):
@@ -79,7 +79,7 @@ def db_update(sql, conn):
         cursor.execute(sql)
         conn.commit()
     except:
-        print "[ERROR]: CANNOT UPDATE DATA"
+        print ("[ERROR]: CANNOT UPDATE DATA")
         conn.rollback()
 
 def db_delete(sql, conn):
@@ -88,7 +88,7 @@ def db_delete(sql, conn):
         cursor.execute(sql)
         conn.commit()
     except:
-        print "[ERROR]: CANNOT DELETE DATA"
+        print ("[ERROR]: CANNOT DELETE DATA")
         conn.rollback()
 
 def db_account_customer_generater(conn,num):
@@ -110,7 +110,7 @@ def db_account_customer_generater(conn,num):
         db_insert(sql2,conn)
 
 def check_acccount(conn, name):
-    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name)
     rec = db_select(count,conn)
     if(rec[0][0] == 1):
         return False
