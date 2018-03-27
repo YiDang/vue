@@ -105,6 +105,7 @@ def verifyUser():
         conn.close()
         return jsonify(res)
 
+
 @application.route('/api/manager/editUser',methods=['POST','GET'])
 def edit_user():
     return ""
