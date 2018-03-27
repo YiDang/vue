@@ -145,7 +145,62 @@ def list_all_flights():
 
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = {}
+    id = 1
+    try:
+        name = request.form["username"]
+        flight_no = request.form["flight_no"]
+        id = 1
+        if name:
+            cursor.execute("SELECT DISTINCT Reservation.reservation_no, account_no, name, Reservation.date, reservation_date, booking_fee, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, FlightInfoAll.duration, FlightInfoAll.airline, FlightInfoAll.stops FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s;", (name))
+            for data in cursor.fetchall():
+                dic = {}
+                dic["reservation_no"] = data[0]
+                dic["account_no"] = data[1]
+                dic["name"] = data[2]
+                dic["departure_date"] = data[3]
+                dic["reservation_date"] = data[4]
+                dic["booking_fee"] = data[5]
+                dic["total_fare"] = data[6]
+                idFlight = data[7]
+                dic["departure_airport"] = data[8]
+                dic["arrival_airport"] = data[9]
+                dic["duartion"] = data[10]
+                dic["airline"] = data[11]
+                dic["stops"] = data[12]
+                dic["legs"] = []
+
+                cursor.execute("SELECT * FROM LegsInfo WHERE idFlight=%s", (idFlight))
+                for legdata in cursor.fetchall():
+                    legInfo = {}
+                    legInfo["distance"] = legdata[2]
+                    legInfo["duration"] = legdata[3]
+                    legInfo["departure_airport"] = legdata[4]
+                    legInfo["departure_time"] = legdata[5]
+                    legInfo["arrival_airport"] = legdata[7]
+                    legInfo["arrival_time"] = legdata[8]
+                    legInfo["flight_no"] = legdata[10]
+                    legInfo["airlineCode"] = legdata[14]
+                    dic["legs"].append(legInfo)
+
+                res[id] = dic
+                id += 1
+        else:
+            cursor.execute("SELECT idLegs FROM LegsInfo WHERE flight_no=%s", (flight_no))
+            LegsId = []
+            for idLegs in cursor.fetchall():
+                LegsId.append(idLegs[0])
+
+    except Exception as e:
+        print e
+        res["error"] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify(res)
 
 @application.route('/api/manager/getRevList',methods=['POST','GET'])
 def get_rev_list():
