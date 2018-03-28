@@ -355,17 +355,18 @@ def get_rev_list():
         if id=='flight':
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs in (SELECT idLegs From LegsInfo WHERE flight_no=%s);", (flight_no))
             dic["flight"] = flight_no
-            dic["revenue"] = cursor.fetchone()
+
         elif id=='city':
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg, FlightInfoAll WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idFlight=FlightInfoAll.idFlightInfo AND arrival LIKE %s ", ('%'+city))
             dic["city"] = city
-            dic["revenue"] = cursor.fetchone()
         else:
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND name=%s;", (customer))
             dic["customer"] = customer
-            dic["revenue"] = cursor.fetchone()
             most_customer_rev = get_most_rev()
             dic["mostCustomerRev"] = most_customer_rev[0]
+
+        revenue = cursor.fetchone()[0]
+        dic['revenue'] = revenue if revenue else 0
 
         res.append(dic)
     except Exception as e:
