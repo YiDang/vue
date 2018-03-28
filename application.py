@@ -191,6 +191,7 @@ def list_reservation():
                 for data in cursor.fetchall():
                     dic["passenger_info"] = [data[0]]
                     dic["date"] = data[1]
+                    dic["isCurrent"] = isDateFuture(data[1])
                     dic["price"] = data[2]
                     trip_no = data[6]
                     idFlight = data[3]
@@ -262,9 +263,28 @@ def list_reservation():
 def get_rev_list():
     return ""
 
+#finished
 @application.route('/api/manager/mostCustomerRev',methods=['POST','GET'])
 def get_most_rev():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("SELECT Reservation.account_no, first_name, last_name, SUM(total_fare) as total FROM Reservation, Customer_dev WHERE Reservation.account_no=Customer_dev.account_no GROUP BY account_no ORDER BY total DESC")
+        for data in cursor.fetchmany(30):
+            dic = {}
+            dic["account_no"] = data[0]
+            dic["first_name"] = data[1]
+            dic["last_name"] = data[2]
+            dic["revenue"] = data[3]
+            res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
 @application.route('/api/manager/mostActiveFlight',methods=['POST','GET'])
 def most_active_flight():
