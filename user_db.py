@@ -208,7 +208,13 @@ def sales_report(conn,month = '3',year = '2018'):
             return False
     return rec
 
-        
+def get_delay_flight(conn):
+    sql = "SELECT * FROM HistoryLegs where CAST(delay AS SIGNED) > 0"
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec
+    else:
+        return False
 
         
     
