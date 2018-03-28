@@ -145,12 +145,12 @@ def edit_user():
 def get_sales_report():
     return ""
 
+#finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
-    id = 1
+    res = []
     try:
         cursor.execute("SELECT flight_no, departure_airport, arrival_airport, departure_time, arrival_time, duration, airlineCode FROM LegsInfo GROUP BY flight_no")
         for data in cursor.fetchall():
@@ -162,37 +162,160 @@ def list_all_flights():
             dic["arrival_time"] = data[4]
             dic["duration"] = data[5]
             dic["airlineCode"] = data[6]
-            res[id] = dic
-            id += 1
+            res.append(dic)
     except Exception as e:
-        res["error"] = 'Search Error'
+        res = ['Search Error']
     finally:
         cursor.close()
         conn.close()
     return jsonify(res)
 
+#finished
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        name = request.form["username"]
+        flight_no = request.form["flight_no"]
+        if name:
+            cursor.execute("SELECT DISTINCT reservation_no FROM Reservation_Leg WHERE name=%s", (name))
+            for reservation_no in cursor.fetchall():
+
+                cursor.execute("SELECT DISTINCT name, Reservation.date, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, Reservation_Leg.trip_no, Reservation.reservation_no FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s AND Reservation.reservation_no=%s", (name, reservation_no[0]))
+
+                dic = {}
+                dic["reservation_no"] = reservation_no[0]
+                dic["stops"] = {"go":[],"back":[]} 
+                for data in cursor.fetchall():
+                    dic["passenger_info"] = [data[0]]
+                    dic["date"] = data[1]
+                    dic["isCurrent"] = isDateFuture(data[1])
+                    dic["price"] = data[2]
+                    trip_no = data[6]
+                    idFlight = data[3]
+                    if trip_no==1:
+                        dic["departure"] = data[4]
+                        dic["arrival"] = data[5]
+                    reservation_no = data[7]
+                    dic["isCurrent"] = isDateFuture(data[1])
+
+                    cursor.execute("SELECT * FROM LegsInfo WHERE idFlight=%s", (idFlight))
+                    for legdata in cursor.fetchall():
+                        legInfo = {}
+                        legInfo["departure_airport"] = legdata[4]
+                        legInfo["departure_time"] = legdata[5]
+                        legInfo["arrival_airport"] = legdata[7]
+                        legInfo["arrival_time"] = legdata[8]
+                        if trip_no==1:
+                            dic["stops"]["go"].append(legInfo)
+                        else:
+                            dic["stops"]["back"].append(legInfo)
+
+                res.append(dic)
+        else:
+            cursor.execute("SELECT idLegs FROM LegsInfo WHERE flight_no=%s", (flight_no))
+            LegsId = []
+            for data in cursor.fetchall():
+                LegsId.append(data[0])
+
+            for idLegs in LegsId:
+                reservation_no_set = set()
+                cursor.execute("SELECT Reservation.reservation_no, name, Reservation.date, Reservation.total_fare, trip_no, LegsInfo.departure_airport, LegsInfo.arrival_airport, LegsInfo.departure_time, LegsInfo.arrival_time FROM Reservation_Leg, Reservation, LegsInfo WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idLegs=%s", (idLegs))
+
+                for record in cursor.fetchall():
+                    reservation_no = record[0]
+                    if reservation_no in reservation_no_set:
+                        res[-1]["passenger_info"].append(record[1])
+                    else:
+                        dic = {}
+                        dic["stops"] = {"go":[],"back":[]}
+                        dic["reservation_no"] = record[0]
+                        dic["passenger_info"] = [record[1]]
+                        reservation_no_set.add(reservation_no)
+                        dic["date"] = record[2]
+                        dic["price"] = record[3]
+                        trip_no = record[4]
+                        dic["departure"] = record[5]
+                        dic["arrival"] = record[6]
+                        leg = {}
+                        leg["departure_time"] = record[7]
+                        leg["arrival_time"] = record[8]
+                        leg["departure_airport"] = record[5]
+                        leg["arrival_airport"] = record[6]
+                        if trip_no==1:
+                            dic["stops"]["go"].append(leg)
+                        else:
+                            dic["stops"]["back"].append(leg)
+                        res.append(dic)
+
+    except Exception as e:
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify(res)
 
 @application.route('/api/manager/getRevList',methods=['POST','GET'])
 def get_rev_list():
     return ""
 
+#finished
 @application.route('/api/manager/mostCustomerRev',methods=['POST','GET'])
 def get_most_rev():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("SELECT Reservation.account_no, first_name, last_name, SUM(total_fare) as total FROM Reservation, Customer_dev WHERE Reservation.account_no=Customer_dev.account_no GROUP BY account_no ORDER BY total DESC")
+        for data in cursor.fetchmany(30):
+            dic = {}
+            dic["account_no"] = data[0]
+            dic["first_name"] = data[1]
+            dic["last_name"] = data[2]
+            dic["revenue"] = data[3]
+            res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
+#finished
 @application.route('/api/manager/mostActiveFlight',methods=['POST','GET'])
 def most_active_flight():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("SELECT flight_no, COUNT(*) as num, airlineCode FROM LegsInfo, Reservation_Leg WHERE LegsInfo.idLegs=Reservation_Leg.idLegs GROUP BY flight_no ORDER BY num DESC")
+        for data in cursor.fetchall():
+            print data
+            dic = {}
+            dic["flight_no"] = data[0]
+            dic["active_number"] = data[1]
+            dic["airlineCode"] = data[2]
+            res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
+#finished
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
+    res = []
     weekdaydic = {0:'Monday',
                 1: 'Tuesday',
                 2: 'Wednesday',
@@ -203,7 +326,6 @@ def list_for_airports():
     try:
         airport = request.form["airportCode"]
         cursor.execute("SELECT flight_no, departure_airport, departure_time, departure_date, arrival_airport, arrival_time, arrival_date, airlineName, duration, distance, plane FROM HistoryLegs WHERE departure_airport=%s", (airport))
-        id = 1
         for data in cursor.fetchall():
             dic = {}
             date_format = '%m/%d/%Y'
@@ -218,11 +340,34 @@ def list_for_airports():
             dic["duration"] = data[8]
             dic["distance"] = data[9]
             dic["plane"] = data[10]
-            res[id] = dic
-            id += 1
+            res.append(dic)
 
     except Exception as e:
-        res['error'] = 'Search Error'
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+#finished
+@application.route('/api/manager/customerSeated',methods=['POST','GET'])
+def get_customer_seated():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        flight_no = request.form["flight_no"]
+        cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
+        dic = {}
+        dic["flight_no"] = flight_no
+        dic["passengers"] = []
+        for data in cursor.fetchall():
+            dic["passengers"].append(data[0])
+        res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
     finally:
         cursor.close()
         conn.close()
@@ -438,4 +583,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.198.208',debug=True,)
+    application.run(host='172.31.230.181',debug=True,)
