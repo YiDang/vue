@@ -1,14 +1,17 @@
 from datetime import datetime
 
+date_dict = {1:"04/01/2018",2:"04/02/2018",3:"04/03/2018",4:"04/04/2018",5:"04/05/2018",6:"04/06/2018",7:"04/07/2018"}
+
 def isDateFuture(date1):
     date_format = '%m/%d/%Y'
     date_formalized = datetime.strptime(date1, date_format)
     delta = (datetime.today() - date_formalized).days
     return delta < 0
 
-
-
-
+def get_db_date(dt):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(dt, date_format)
+    return date_dict[date_formalized.weekday()]
 
 ########################### ALL Funtion below is based on the pymysql ##################################
 

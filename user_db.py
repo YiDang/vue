@@ -31,6 +31,8 @@ def db_conn():
     #conn = pymysql.connect(host='cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com', port=3306, user='admin', passwd='***cs539***',db='cs539_dev')
     return conn
 
+
+
 def db_close(conn):
     conn.close()
 
@@ -76,7 +78,7 @@ def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-        conn.commit() 
+        conn.commit()
         return True
     except:
         print "[ERROR]: CANNOT DELETE DATA"
@@ -84,7 +86,7 @@ def db_delete(sql, conn):
         return False
 
 def check_acccount(conn, name):
-    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name)
     rec = db_select(count,conn)
     if(rec[0][0] == 1):
         return False
@@ -166,7 +168,7 @@ def show_customer(conn,account_no):
 def signup(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
     flag = check_acccount(conn,name)
     if(flag):
-        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):    
+        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):
             return True
         else:
             return False
@@ -186,9 +188,3 @@ db_check(conn)
 # flag = signup(conn,"qqq","qqq","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
 # print flag
 db_close(conn)
-
-
-
-
-
-
