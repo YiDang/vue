@@ -271,11 +271,13 @@ def get_rev_list():
         city = request.form["city"]
         customer = request.form['customer']
         id = request.form["groupby"]
+        print id
 
         dic = {}
         dic["flight"] = ''
         dic["city"] = ''
         dic['customer'] = ''
+        dic['mostCustomerRev'] = {}
         if id=='flight':
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs in (SELECT idLegs From LegsInfo WHERE flight_no=%s);", (flight_no))
             dic["flight"] = flight_no
@@ -288,6 +290,8 @@ def get_rev_list():
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND name=%s;", (customer))
             dic["customer"] = customer
             dic["revenue"] = cursor.fetchone()
+            most_customer_rev = get_most_rev()
+            dic["mostCustomerRev"] = most_customer_rev[0]
 
         res.append(dic)
     except Exception as e:
@@ -299,7 +303,6 @@ def get_rev_list():
     return jsonify(res)
 
 #finished
-@application.route('/api/manager/mostCustomerRev',methods=['POST','GET'])
 def get_most_rev():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -319,7 +322,7 @@ def get_most_rev():
     finally:
         cursor.close()
         conn.close()
-    return jsonify(res)
+    return res
 
 #finished
 @application.route('/api/manager/mostActiveFlight',methods=['POST','GET'])
