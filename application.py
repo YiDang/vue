@@ -1,5 +1,5 @@
 from flask import Flask, render_template, json, request, jsonify
-from flask.ext.mysql import MySQL
+from flaskext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.security import safe_str_cmp
 from model import isDateFuture
@@ -88,8 +88,29 @@ def signUp():
         return jsonify({'error':str(e)})
 
 
-# @application.route('/api/showuser',methods=['POST','GET'])
-# def showuser():
+@application.route('/api/showuser',methods=['POST','GET'])
+def showuser():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        # _account_no = 1
+        rec = user_db.show_customer(conn,_account_no)
+        dist = {}
+        if(rec == False):
+            return jsonify({'error':False})
+        dist['Account_no'] = rec[0][0]
+        dist['Last_name'] = rec[0][1]
+        dist['First_name'] = rec[0][2]
+        dist['Address'] = rec[0][3]
+        dist['Preference'] = rec[0][5]
+        dist['Email'] = rec[0][6]
+        dist['Telephone'] = rec[0][8]
+        dist['Account_date'] = rec[0][9]
+        dist['Zipco'] = rec[0][10]
+        dist['Credit'] = rec[0][11]
+        return jsonify(dist)
+    except Exception as e:
+        return jsonify({'error':str(e)})
 
 # sign up new user
 @application.route('/api/isUser',methods=['POST','GET'])
@@ -131,14 +152,21 @@ def verifyUser():
 
 
 
-
-@application.route('/api/manager/editUser',methods=['POST','GET'])
-def edit_user():
-    return ""
-
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
-    return ""
+    conn = mysql.connect()
+    try:
+        _month = request.form['Month']
+        _year = request.form['Year']
+        # _month = '3'
+        # _year = '2018'
+        rec = user_db.sales_report(conn,_month,_year)
+        if(rec == False):
+            return jsonify({'sales_report':False})
+        else:
+            return jsonify({'sales_report':rec})
+    except Exception as e:
+        return jsonify({'error':str(e)})
 
 #finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
@@ -266,23 +294,28 @@ def get_rev_list():
         city = request.form["city"]
         customer = request.form['customer']
         id = request.form["groupby"]
+        print id
 
         dic = {}
         dic["flight"] = ''
         dic["city"] = ''
         dic['customer'] = ''
+        dic['mostCustomerRev'] = {}
         if id=='flight':
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs in (SELECT idLegs From LegsInfo WHERE flight_no=%s);", (flight_no))
             dic["flight"] = flight_no
-            dic["revenue"] = cursor.fetchone()
+
         elif id=='city':
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg, FlightInfoAll WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idFlight=FlightInfoAll.idFlightInfo AND arrival LIKE %s ", ('%'+city))
             dic["city"] = city
-            dic["revenue"] = cursor.fetchone()
         else:
             cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND name=%s;", (customer))
             dic["customer"] = customer
-            dic["revenue"] = cursor.fetchone()
+            most_customer_rev = get_most_rev()
+            dic["mostCustomerRev"] = most_customer_rev[0]
+
+        revenue = round(cursor.fetchone()[0],2)
+        dic['revenue'] = revenue if revenue else 0
 
         res.append(dic)
     except Exception as e:
@@ -294,7 +327,6 @@ def get_rev_list():
     return jsonify(res)
 
 #finished
-@application.route('/api/manager/mostCustomerRev',methods=['POST','GET'])
 def get_most_rev():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -314,7 +346,7 @@ def get_most_rev():
     finally:
         cursor.close()
         conn.close()
-    return jsonify(res)
+    return res
 
 #finished
 @application.route('/api/manager/mostActiveFlight',methods=['POST','GET'])
@@ -325,7 +357,6 @@ def most_active_flight():
     try:
         cursor.execute("SELECT flight_no, COUNT(*) as num, airlineCode FROM LegsInfo, Reservation_Leg WHERE LegsInfo.idLegs=Reservation_Leg.idLegs GROUP BY flight_no ORDER BY num DESC")
         for data in cursor.fetchall():
-            print data
             dic = {}
             dic["flight_no"] = data[0]
             dic["active_number"] = data[1]
@@ -387,7 +418,7 @@ def get_customer_seated():
     cursor = conn.cursor()
     res = []
     try:
-        flight_no = request.form["flight_no"]
+        flight_no = request.form["flight"]
         cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
         dic = {}
         dic["flight_no"] = flight_no
