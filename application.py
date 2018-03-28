@@ -56,7 +56,6 @@ def signUp():
     except Exception as e:
         return jsonify({'error':str(e)})
 
-
 @application.route('/api/showuser',methods=['POST','GET'])
 def showuser():
     conn = mysql.connect()
@@ -129,9 +128,6 @@ def delete():
     except Exception as e:
         return jsonify({'error':str(e)})
 
-
-
-
 # sign up new user
 @application.route('/api/isUser',methods=['POST','GET'])
 def verifyUser():
@@ -169,8 +165,6 @@ def verifyUser():
         cursor.close()
         conn.close()
         return jsonify(res)
-
-
 
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
