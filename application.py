@@ -177,13 +177,14 @@ def list_reservation():
     cursor = conn.cursor()
     res = []
     try:
-        name = request.form["username"]
-        flight_no = request.form["flight_no"]
-        if name:
-            cursor.execute("SELECT DISTINCT reservation_no FROM Reservation_Leg WHERE name=%s", (name))
+        inputval = request.form["input"]
+        typeval = request.form["type"]
+        print inputval, typeval
+        if typeval=="name":
+            cursor.execute("SELECT DISTINCT reservation_no FROM Reservation_Leg WHERE name=%s", (inputval))
             for reservation_no in cursor.fetchall():
 
-                cursor.execute("SELECT DISTINCT name, Reservation.date, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, Reservation_Leg.trip_no, Reservation.reservation_no FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s AND Reservation.reservation_no=%s", (name, reservation_no[0]))
+                cursor.execute("SELECT DISTINCT name, Reservation.date, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, Reservation_Leg.trip_no, Reservation.reservation_no FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s AND Reservation.reservation_no=%s", (inputval, reservation_no[0]))
 
                 dic = {}
                 dic["reservation_no"] = reservation_no[0]
@@ -215,7 +216,7 @@ def list_reservation():
 
                 res.append(dic)
         else:
-            cursor.execute("SELECT idLegs FROM LegsInfo WHERE flight_no=%s", (flight_no))
+            cursor.execute("SELECT idLegs FROM LegsInfo WHERE flight_no=%s", (inputval))
             LegsId = []
             for data in cursor.fetchall():
                 LegsId.append(data[0])
@@ -259,6 +260,7 @@ def list_reservation():
 
     return jsonify(res)
 
+#finished
 @application.route('/api/manager/getRevList',methods=['POST','GET'])
 def get_rev_list():
     conn = mysql.connect()
