@@ -1,15 +1,39 @@
 from datetime import datetime
+import socket
+
+date_dict = {1:"04/01/2018",2:"04/02/2018",3:"04/03/2018",4:"04/04/2018",5:"04/05/2018",6:"04/06/2018",7:"04/07/2018"}
 
 def isDateFuture(date1):
     date_format = '%m/%d/%Y'
     date_formalized = datetime.strptime(date1, date_format)
     delta = (datetime.today() - date_formalized).days
-    return delta > 0
+    return delta < 0
 
+def get_db_date(dt):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(dt, date_format)
+    return date_dict[date_formalized.weekday()]
 
+def get_fair(fair,dt):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(dt, date_format)
+    delta = abs(datetime.today() - date_formalized).days
+    week = delta / 7
+    if(week<1):
+        return fair
+    elif (week<2):
+        return fair * 0.9
+    elif (week<3):
+        return fair * 0.8
+    elif (week < 4):
+        return fair * 0.7
+    else:
+        return fair * 0.6
 
-
-
+def get_ip_address():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    return s.getsockname()[0]
 ########################### ALL Funtion below is based on the pymysql ##################################
 
 

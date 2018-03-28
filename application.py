@@ -219,12 +219,12 @@ def get_sales_report():
     except Exception as e:
         return jsonify({'error':str(e)})
 
+#finished
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
-    id = 1
+    res = []
     try:
         cursor.execute("SELECT flight_no, departure_airport, arrival_airport, departure_time, arrival_time, duration, airlineCode FROM LegsInfo GROUP BY flight_no")
         for data in cursor.fetchall():
@@ -236,37 +236,197 @@ def list_all_flights():
             dic["arrival_time"] = data[4]
             dic["duration"] = data[5]
             dic["airlineCode"] = data[6]
-            res[id] = dic
-            id += 1
+            res.append(dic)
     except Exception as e:
-        res["error"] = 'Search Error'
+        res = ['Search Error']
     finally:
         cursor.close()
         conn.close()
     return jsonify(res)
 
+#finished
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        inputval = request.form["input"]
+        typeval = request.form["type"]
+        print inputval, typeval
+        if typeval=="name":
+            cursor.execute("SELECT DISTINCT reservation_no FROM Reservation_Leg WHERE name=%s", (inputval))
+            for reservation_no in cursor.fetchall():
 
+                cursor.execute("SELECT DISTINCT name, Reservation.date, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, Reservation_Leg.trip_no, Reservation.reservation_no FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s AND Reservation.reservation_no=%s", (inputval, reservation_no[0]))
+
+                dic = {}
+                dic["reservation_no"] = reservation_no[0]
+                dic["stops"] = {"go":[],"back":[]}
+                for data in cursor.fetchall():
+                    dic["passenger_info"] = [data[0]]
+                    dic["date"] = data[1]
+                    dic["isCurrent"] = isDateFuture(data[1])
+                    dic["price"] = data[2]
+                    trip_no = data[6]
+                    idFlight = data[3]
+                    if trip_no==1:
+                        dic["departure"] = data[4]
+                        dic["arrival"] = data[5]
+                    reservation_no = data[7]
+                    dic["isCurrent"] = isDateFuture(data[1])
+
+                    cursor.execute("SELECT * FROM LegsInfo WHERE idFlight=%s", (idFlight))
+                    for legdata in cursor.fetchall():
+                        legInfo = {}
+                        legInfo["departure_airport"] = legdata[4]
+                        legInfo["departure_time"] = legdata[5]
+                        legInfo["arrival_airport"] = legdata[7]
+                        legInfo["arrival_time"] = legdata[8]
+                        if trip_no==1:
+                            dic["stops"]["go"].append(legInfo)
+                        else:
+                            dic["stops"]["back"].append(legInfo)
+
+                res.append(dic)
+        else:
+            cursor.execute("SELECT idLegs FROM LegsInfo WHERE flight_no=%s", (inputval))
+            LegsId = []
+            for data in cursor.fetchall():
+                LegsId.append(data[0])
+
+            for idLegs in LegsId:
+                reservation_no_set = set()
+                cursor.execute("SELECT Reservation.reservation_no, name, Reservation.date, Reservation.total_fare, trip_no, LegsInfo.departure_airport, LegsInfo.arrival_airport, LegsInfo.departure_time, LegsInfo.arrival_time FROM Reservation_Leg, Reservation, LegsInfo WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idLegs=%s", (idLegs))
+
+                for record in cursor.fetchall():
+                    reservation_no = record[0]
+                    if reservation_no in reservation_no_set:
+                        res[-1]["passenger_info"].append(record[1])
+                    else:
+                        dic = {}
+                        dic["stops"] = {"go":[],"back":[]}
+                        dic["reservation_no"] = record[0]
+                        dic["passenger_info"] = [record[1]]
+                        reservation_no_set.add(reservation_no)
+                        dic["date"] = record[2]
+                        dic["price"] = record[3]
+                        trip_no = record[4]
+                        dic["departure"] = record[5]
+                        dic["arrival"] = record[6]
+                        leg = {}
+                        leg["departure_time"] = record[7]
+                        leg["arrival_time"] = record[8]
+                        leg["departure_airport"] = record[5]
+                        leg["arrival_airport"] = record[6]
+                        if trip_no==1:
+                            dic["stops"]["go"].append(leg)
+                        else:
+                            dic["stops"]["back"].append(leg)
+                        res.append(dic)
+
+    except Exception as e:
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify(res)
+
+#finished
 @application.route('/api/manager/getRevList',methods=['POST','GET'])
 def get_rev_list():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        flight_no = request.form["flight"]
+        city = request.form["city"]
+        customer = request.form['customer']
+        id = request.form["groupby"]
+        print id
 
-@application.route('/api/manager/mostCustomerRev',methods=['POST','GET'])
+        dic = {}
+        dic["flight"] = ''
+        dic["city"] = ''
+        dic['customer'] = ''
+        dic['mostCustomerRev'] = {}
+        if id=='flight':
+            cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs in (SELECT idLegs From LegsInfo WHERE flight_no=%s);", (flight_no))
+            dic["flight"] = flight_no
+            dic["revenue"] = cursor.fetchone()
+        elif id=='city':
+            cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg, FlightInfoAll WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idFlight=FlightInfoAll.idFlightInfo AND arrival LIKE %s ", ('%'+city))
+            dic["city"] = city
+            dic["revenue"] = cursor.fetchone()
+        else:
+            cursor.execute("SELECT SUM(booking_fee) FROM Reservation, Reservation_Leg WHERE Reservation.reservation_no=Reservation_Leg.reservation_no AND name=%s;", (customer))
+            dic["customer"] = customer
+            dic["revenue"] = cursor.fetchone()
+            most_customer_rev = get_most_rev()
+            dic["mostCustomerRev"] = most_customer_rev[0]
+
+        res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+#finished
 def get_most_rev():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("SELECT Reservation.account_no, first_name, last_name, SUM(total_fare) as total FROM Reservation, Customer_dev WHERE Reservation.account_no=Customer_dev.account_no GROUP BY account_no ORDER BY total DESC")
+        for data in cursor.fetchmany(30):
+            dic = {}
+            dic["account_no"] = data[0]
+            dic["first_name"] = data[1]
+            dic["last_name"] = data[2]
+            dic["revenue"] = data[3]
+            res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return res
 
+#finished
 @application.route('/api/manager/mostActiveFlight',methods=['POST','GET'])
 def most_active_flight():
-    return ""
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("SELECT flight_no, COUNT(*) as num, airlineCode FROM LegsInfo, Reservation_Leg WHERE LegsInfo.idLegs=Reservation_Leg.idLegs GROUP BY flight_no ORDER BY num DESC")
+        for data in cursor.fetchall():
+            dic = {}
+            dic["flight_no"] = data[0]
+            dic["active_number"] = data[1]
+            dic["airlineCode"] = data[2]
+            res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
 
+#finished
 @application.route('/api/manager/listForAirport',methods=['POST','GET'])
 def list_for_airports():
 
     conn = mysql.connect()
     cursor = conn.cursor()
-    res = {}
+    res = []
     weekdaydic = {0:'Monday',
                 1: 'Tuesday',
                 2: 'Wednesday',
@@ -277,7 +437,6 @@ def list_for_airports():
     try:
         airport = request.form["airportCode"]
         cursor.execute("SELECT flight_no, departure_airport, departure_time, departure_date, arrival_airport, arrival_time, arrival_date, airlineName, duration, distance, plane FROM HistoryLegs WHERE departure_airport=%s", (airport))
-        id = 1
         for data in cursor.fetchall():
             dic = {}
             date_format = '%m/%d/%Y'
@@ -292,11 +451,34 @@ def list_for_airports():
             dic["duration"] = data[8]
             dic["distance"] = data[9]
             dic["plane"] = data[10]
-            res[id] = dic
-            id += 1
+            res.append(dic)
 
     except Exception as e:
-        res['error'] = 'Search Error'
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+#finished
+@application.route('/api/manager/customerSeated',methods=['POST','GET'])
+def get_customer_seated():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        flight_no = request.form["flight"]
+        cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
+        dic = {}
+        dic["flight_no"] = flight_no
+        dic["passengers"] = []
+        for data in cursor.fetchall():
+            dic["passengers"].append(data[0])
+        res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
     finally:
         cursor.close()
         conn.close()
@@ -307,7 +489,84 @@ def list_for_airports():
 def book_flight():
     return ""
 
+@application.route('/api/customer/searchFlight',methods=['POST','GET'])
+def searchFlight():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res_final_list = []
+    # try:
+    _dep = request.form['departure']
+    _arr = request.form['arrival']
+    _roundtrip = request.form['roundtrip']
+    _date1 = model.get_db_date(request.form['date1'])
+    print _date1
+    _date2 = None
+    if(_roundtrip == 1):
+        _date2 = model.get_db_date(request.form['date2'])
+    dep = [_dep,_arr]
+    arr = [_arr,_dep]
+    dates = [_date1,_date2]
+    loop = 1
+    if(_roundtrip == 1):
+        loop = 2
+    for i in range(loop):
+        ii = 0
+        flight_id = []
+        flight_dict = {}
+        res_list = []
+        loop_dep = dep[i]
+        loop_arr = arr[i]
+        loop_date = dates[i]
 
+        res_tmp = []
+        cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s ;", [loop_dep, loop_arr] )
+        for data in cursor.fetchall():
+            if(data):
+                flight_id.append(data[0])
+                flight_dict[data[0]] = ii
+                res_list.append({})
+                res_list[flight_dict[data[0]]]['flight_id'] = data[0]
+                res_list[flight_dict[data[0]]]['departure'] = data[1]
+                res_list[flight_dict[data[0]]]['arrival'] = data[2]
+                res_list[flight_dict[data[0]]]['duration'] = data[3]
+                res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
+                res_list[flight_dict[data[0]]]['stops'] = data[5]
+                res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],_date1)
+                res_list[flight_dict[data[0]]]['total_distance'] = data[7]
+                res_list[flight_dict[data[0]]]['stops'] = []
+                ii+=1
+
+        for fid in flight_id:
+            cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[fid,loop_date])
+            stop = 1
+            for data in cursor.fetchall():
+                if(data):
+                    dict = {}
+                    dict['stop'] = stop
+                    dict['duration'] = data[3]
+                    dict['departure_airport'] = data[4]
+                    dict['departure_time'] = data[5]
+                    dict['arrival_airport'] = data[6]
+                    dict['arrival_time'] = data[7]
+                    dict['flight_no'] = data[8]
+                    dict['airlineName'] = data[9]
+                    dict['airlineCode'] = data[10]
+                    dict['distance'] = data[2]
+                    res_list[flight_dict[data[0]]]['stops'].append(dict)
+                    stop += 1
+        for fid in flight_id:
+            if(len(res_list[flight_dict[fid]]['stops']) < 1):
+                res_list[flight_dict[fid]] = None
+        res_final_list.append(res_list)
+# except Exception as e:
+#     print e
+#     res['error'] = 'Search Error'
+# finally:
+    cursor.close()
+    conn.close()
+    return jsonify(res_final_list)
+
+    # return ""
 
 # Finished
 # Get Reservation by account_no
@@ -316,25 +575,34 @@ def get_reserv():
     conn = mysql.connect()
     cursor = conn.cursor()
     res = {}
+    res_list = []
     try:
         account_no = request.form['account_no']
         cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
-        res_no = []
+        # res_no = []
+        res_dict = {}
+
+        i = 0;
         for data in cursor.fetchall():
             if(data):
-                if(data[2] not in res.keys()):
-                    res_no.append(data[2])
-                    res[data[2]] = {}
-                    res[data[2]]['passenger_info'] = []
-                    res[data[2]]['stops'] = {}
-                    res[data[2]]['stops']['go'] = []
-                    res[data[2]]['stops']['back'] = []
-                res[data[2]]['Departure'] = data[3]
-                res[data[2]]['Arrival'] = data[4]
+                if(data[2] not in res_dict.keys()):
+                    res_list.append({})
+                    res_dict[data[2]] = i
+                    res_list[res_dict[data[2]]]['id'] = data[2]
+                    res_list[res_dict[data[2]]]['passenger_info'] = []
+                    res_list[res_dict[data[2]]]['stops'] = {}
+                    res_list[res_dict[data[2]]]['stops']['go'] = []
+                    res_list[res_dict[data[2]]]['stops']['back'] = []
+                    res_list[res_dict[data[2]]]['RoundTrip'] = "One Way"
+                    i+=1
+
+                res_list[res_dict[data[2]]]['Departure'] = data[3]
+                res_list[res_dict[data[2]]]['Arrival'] = data[4]
                 temp = {}
                 temp['name'] = data[0]
                 temp['ssn'] = data[1]
-                res[data[2]]["passenger_info"].append(temp)
+                res_list[res_dict[data[2]]]["passenger_info"].append(temp)
+
         cursor.execute('SELECT distinct departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, trip_no, duration ,distance, date, reservation_no   from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
         for data in cursor.fetchall():
                 dict = {}
@@ -347,21 +615,27 @@ def get_reserv():
                 dict['airlineName'] = data[6]
                 dict['booking_fee'] = data[7]
                 dict['total_fare'] = data[8]
-                res[data[13]]['price']= data[8]
                 # dict['trip_no'] = data[9]
                 dict['duration'] = data[10]
                 dict['distance'] = data[11]
                 dict['date'] = data[12]
-                if(data[9]==1):
-                    res[data[13]]['stops']['go'].append(dict)
+                j = res_dict[data[13]]
+                if(isDateFuture(data[12])):
+                    res_list[j]['isFuture']= True
                 else:
-                    res[data[13]]['stops']['back'].append(dict)
+                    res_list[j]['isFuture']= False
+                res_list[j]['price']= data[8]
+                if(data[9]==1):
+                    res_list[j]['stops']['go'].append(dict)
+                else:
+                    res_list[j]['stops']['back'].append(dict)
+                    res_list[j]['RoundTrip'] = "RoundTrip"
     except Exception as e:
         res['error'] = 'Search Error'
     finally:
         cursor.close()
         conn.close()
-        return jsonify(res)
+        return jsonify(res_list)
 
 # Finished
 # Get Travel Initary
@@ -410,6 +684,18 @@ def get_history():
 def get_best_seller():
     return ""
 
+#
+# Customer booking APIs
+# @application.route('/api/searchFlight',methods=['POST','GET'])
+# def search_flight():
+#     roundtrip = False
+#     if(request.form['roundtrip']==True){
+#         roundtrip = True
+#     }
+#     date = []
+#     date.append()
+#
+#     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.221.55',debug=True)
+    application.run(host=model.get_ip_address(),debug=True,)

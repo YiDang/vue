@@ -32,6 +32,8 @@ def db_conn():
     #conn = pymysql.connect(host='cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com', port=3306, user='admin', passwd='***cs539***',db='cs539_dev')
     return conn
 
+
+
 def db_close(conn):
     conn.close()
 
@@ -77,7 +79,7 @@ def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-        conn.commit() 
+        conn.commit()
         return True
     except:
         print "[ERROR]: CANNOT DELETE DATA"
@@ -85,7 +87,7 @@ def db_delete(sql, conn):
         return False
 
 def check_acccount(conn, name):
-    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name)
     rec = db_select(count,conn)
     if(rec[0][0] == 1):
         return False
@@ -167,7 +169,7 @@ def show_customer(conn,account_no):
 def signup(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
     flag = check_acccount(conn,name)
     if(flag):
-        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):    
+        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):
             return True
         else:
             return False
@@ -211,7 +213,7 @@ def sales_report(conn,month = '3',year = '2018'):
         
     
 #sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
-compare_data("3/18/2017")
+#compare_data("3/18/2017")
 
 conn = db_conn()
 db_check(conn)
@@ -234,11 +236,11 @@ db_check(conn)
 # cursor.execute(sql)
 # result = cursor.fetchall()
 # print result[0][0]
-print (sales_report(conn,'3','2018'))
+#print (sales_report(conn,'3','2018'))
 # print ({"aaa":"qwe"})
+#db_close(conn)
+
+
+
 db_close(conn)
-
-
-
-
 
