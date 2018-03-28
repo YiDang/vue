@@ -333,7 +333,6 @@ def most_active_flight():
     try:
         cursor.execute("SELECT flight_no, COUNT(*) as num, airlineCode FROM LegsInfo, Reservation_Leg WHERE LegsInfo.idLegs=Reservation_Leg.idLegs GROUP BY flight_no ORDER BY num DESC")
         for data in cursor.fetchall():
-            print data
             dic = {}
             dic["flight_no"] = data[0]
             dic["active_number"] = data[1]
@@ -395,7 +394,7 @@ def get_customer_seated():
     cursor = conn.cursor()
     res = []
     try:
-        flight_no = request.form["flight_no"]
+        flight_no = request.form["flight"]
         cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
         dic = {}
         dic["flight_no"] = flight_no
