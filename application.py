@@ -435,7 +435,7 @@ def delay():
             dist['airline_code'] = rec[index][14]
             dist['delay'] = rec[index][15]
             _delay.append(dist)
-        return jsonify(_delay)s
+        return jsonify(_delay)
     except Exception as e:
         return jsonify({'error':str(e)}) 
 
