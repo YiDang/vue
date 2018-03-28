@@ -43,31 +43,6 @@ def home():
 # sign up new user
 @application.route('/api/signUp',methods=['POST','GET'])
 def signUp():
-    # conn = mysql.connect()
-    # cursor = conn.cursor()
-    # res = {}
-    # try:
-    #     _name = request.form['Name']
-    #     _password = request.form['Password']
-    #     if _name and _password:
-    #         _hashed_password = generate_password_hash(_password)
-    #         cursor.callproc('sp_createUser',(_name,_hashed_password))
-    #         data = cursor.fetchall()
-    #         if len(data) is 0:
-    #             conn.commit()
-    #             res['success'] = True
-    #             res['exist'] = False
-    #             return jsonify(res)
-    #         else:
-    #             ## user name exist
-    #             return jsonify({'error':str(data[0])})
-    #     else:
-    #         return jsonify({'html':'<span>Enter the required fields</span>'})
-    # except Exception as e:
-    #     return jsonify({'error':str(e)})
-    # finally:
-    #     cursor.close()
-    #     conn.close()
     conn = mysql.connect()
     try:
         _name = request.form['Name']
@@ -209,8 +184,6 @@ def get_sales_report():
     try:
         _month = request.form['Month']
         _year = request.form['Year']
-        # _month = '3'
-        # _year = '2018'
         rec = user_db.sales_report(conn,_month,_year)
         if(rec == False):
             return jsonify({'sales_report':False})
@@ -730,4 +703,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.221.55',debug=True,)
+    application.run(host=model.get_ip_address(),debug=True,)
