@@ -15,12 +15,7 @@ application.config['MYSQL_DATABASE_PASSWORD'] = '***cs539***'
 application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
-
-
-
-def say_hello(username = "World"):
     return '<p>Hello %s!</p>\n' % username
-
 
 header_text = '''
     <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
@@ -33,7 +28,6 @@ footer_text = '</body>\n</html>'
 
 application.add_url_rule('/', 'index', (lambda: header_text +
     say_hello() + instructions + footer_text))
-
 
 
 @application.route('/',methods=['POST','GET'])
@@ -488,7 +482,7 @@ def delay():
             _delay.append(dist)
         return jsonify(_delay)
     except Exception as e:
-        return jsonify({'error':str(e)}) 
+        return jsonify({'error':str(e)})
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -698,18 +692,6 @@ def get_history():
 def get_best_seller():
     return ""
 
-#
-# Customer booking APIs
-# @application.route('/api/searchFlight',methods=['POST','GET'])
-# def search_flight():
-#     roundtrip = False
-#     if(request.form['roundtrip']==True){
-#         roundtrip = True
-#     }
-#     date = []
-#     date.append()
-#
-#     return ""
 
 if __name__ == "__main__":
     application.run(host=model.get_ip_address(),debug=True,)

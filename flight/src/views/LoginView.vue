@@ -67,8 +67,9 @@
       </el-dialog>
 
       <el-button @click="onTest">submit</el-button>
-      <p>{{form.id}}</p>
-      <p>{{form.password}}</p>
+      <!-- <p>{{form.id}}</p> -->
+      <!-- <p>{{form.password}}</p> -->
+      <!-- {{form}} -->
       <!-- <div class="">
         <button class="submit">submit
         </button>

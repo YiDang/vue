@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- {{travels}} -->
     <el-table
       border
       :data="travels"
@@ -10,34 +9,44 @@
         label="id">
       </el-table-column>
       <el-table-column
-        prop="from"
+        prop="Departure"
         label="from">
       </el-table-column>
       <el-table-column
-        prop="to"
+        prop="Arrival"
         label="to">
       </el-table-column>
       <el-table-column
-        prop="depart"
-        label="depart">
-      </el-table-column>
-      <el-table-column
-        prop="arrive"
-        label="arrive">
-      </el-table-column>
-      <el-table-column
-        prop="price"
-        label="$price">
+        prop="RoundTrip"
+        label="type">
       </el-table-column>
       <el-table-column
         label='stops'>
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
-          <el-table :data="scope.row.stops">
-            <el-table-column property="from" label="from"></el-table-column>
-            <el-table-column property="to" label="to"></el-table-column>
-            <el-table-column property="depart" label="depart"></el-table-column>
-            <el-table-column property="arrive" label="arrive"></el-table-column>
+          <el-table :data="scope.row.stops.go" >
+            <el-table-column property="airlineCode" label="airlineCode"></el-table-column>
+            <el-table-column property="flight_no" label="flight_no"></el-table-column>
+            <el-table-column property="departure_airport" label="departure_airport"></el-table-column>
+            <el-table-column property="arrival_airport" label="arrival_airport"></el-table-column>
+            <el-table-column property="date" label="date"></el-table-column>
+            <el-table-column property="departure_time" label="departure_time"></el-table-column>
+            <el-table-column property="arrival_time" label="arrival_time"></el-table-column>
+            <el-table-column property="duration" label="duration"></el-table-column>
+            <el-table-column property="booking_fee" label="booking_fee"></el-table-column>
+            <el-table-column property="total_fare" label="total_fare"></el-table-column>
+          </el-table>
+          <el-table :data="scope.row.stops.back" v-show='scope.row.stops.back.length!=0'>
+            <el-table-column property="airlineCode" label="airlineCode"></el-table-column>
+            <el-table-column property="flight_no" label="flight_no"></el-table-column>
+            <el-table-column property="departure_airport" label="departure_airport"></el-table-column>
+            <el-table-column property="arrival_airport" label="arrival_airport"></el-table-column>
+            <el-table-column property="date" label="date"></el-table-column>
+            <el-table-column property="departure_time" label="departure_time"></el-table-column>
+            <el-table-column property="arrival_time" label="arrival_time"></el-table-column>
+            <el-table-column property="duration" label="duration"></el-table-column>
+            <el-table-column property="booking_fee" label="booking_fee"></el-table-column>
+            <el-table-column property="total_fare" label="total_fare"></el-table-column>
           </el-table>
           <div slot="reference" class="name-wrapper">
             <el-tag size="medium">details</el-tag>
@@ -46,14 +55,17 @@
         </template>    
       </el-table-column>
       <el-table-column
+        prop="price"
+        label="$price">
+      </el-table-column>
+      
+      <el-table-column
         label='passengers'>
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
-          <el-table :data="scope.row.passengers">
-            <el-table-column property="name" label="name"></el-table-column>
-<!--             <el-table-column property="to" label="to"></el-table-column>
-            <el-table-column property="depart" label="depart"></el-table-column>
-            <el-table-column property="arrive" label="arrive"></el-table-column> -->
+          <el-table :data="scope.row.passenger_info">
+            <el-table-column property="name" label="name" width='150px'></el-table-column>
+            <el-table-column property="ssn" label="ssn" width='120px'></el-table-column>
           </el-table>
           <div slot="reference" class="name-wrapper">
             <el-tag size="medium">details</el-tag>
