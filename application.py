@@ -87,6 +87,57 @@ def showuser():
     except Exception as e:
         return jsonify({'error':str(e)})
 
+@application.route('/api/edituser',methods=['POST','GET'])
+def edituser():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        _last_name = request.form['Last_name']
+        _first_name = request.form['First_name']
+        _zipco = request.form['Zipco']
+        _address = request.form['Address']
+        _email = request.form['Email']
+        _telephone = request.form['Telephone']
+        _credit = request.form['Credit']
+        _prefer = request.form['Prefer']
+        rec = user_db.update_customer(conn,_account_no,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
+        if(rec):
+            return jsonify({'isedituser':True})
+        else:
+            return jsonify({'isedituser':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
+
+@application.route('/api/editpass',methods=['POST','GET'])
+def editpass():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        _password = request.form['Changed_password']
+        rec = user_db.update_password(conn,_account_no,_password)
+        if(rec):
+            return jsonify({'iseditpass':True})
+        else:
+            return jsonify({'iseditpass':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
+
+@application.route('/api/delete',methods=['POST','GET'])
+def delete():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        rec = user_db.delete_customer(conn,_account_no)
+        if(rec):
+            return jsonify({'isdelete':True})
+        else:
+            return jsonify({'isdelete':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
+
+
+
+
 # sign up new user
 @application.route('/api/isUser',methods=['POST','GET'])
 def verifyUser():
