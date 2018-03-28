@@ -12,12 +12,11 @@
     </el-row>
 		<record-list-item
     :hidden = 'existData'
-		v-bind:travels="paged"
+    v-bind:travels="paged"
 		></record-list-item>
     <el-pagination :hidden = 'existData' layout="prev, pager, 
     next" :total="listw84page.length" :page-size="pageSize" :current-page.sync="currentPage">
     </el-pagination>
-    {{currentPage}}
 	</div>
 </template>
 
@@ -44,84 +43,47 @@ export default {
     		date1:'',
     		date2:'',
     	},
-    	travels:[]
+    	travels:[],
     }
   },
   computed: {
-    existData: function () {
-      // console.log(this.travels.length)
-      return this.listw84page.length==0
-    },
     listw84page:function(){
       var travels=[]
       var current=this.checkList.indexOf('current')>=0
       var history=this.checkList.indexOf('history')>=0
       this.travels.forEach(function(element) {
-        var d = new Date(element.depart)
-        var n = new Date()
-        if((d>n && current)||(d<n && history))
+        if((element.isFuture && current)||(!element.isFuture && history))
           travels.push(element)
       });
-      // console.log('filtered',travels.length)
-      return travels
+      console.log('filtered',travels.length)
+      return this.travels
     }
-    // paged:function(){
-    //   var start = this.pageSize*(this.currentPage-1)
-    //   var end = this.pageSize*this.currentPage
-    //   var travels = []
-    //   for(var i=start; i<end && i < this.filtered.length; i++){
-    //     travels.push(this.filtered[i])
-    //   }
-    //   // console.log('paged',travels.length)
-    //   return travels
-    // }
   },
   methods: {
   },
 
-  created: function created() {
-    // console.log("created")
+  created: function() {
+    console.log("created")
     this.travels = []
-    // var Date1=new Date(2018, 0, 17, 3, 24, 0)
-    var Date1=new Date("2018-01-17 3:24:0")
-    var Date2=new Date(2018, 5, 17, 3, 24, 0)
-  
-    for(var i = 0; i < 10; i++){
-      this.travels.push({
-        id:i,
-        from:'EWR',
-        to:'JFK',
-        depart: i<5 ? Date1.toString():Date2.toString(),
-        // depart:Date1.toString(),
-        arrive:'',
-        price:100,
-        history: true,
-        current: true,
-        stops:[
-        {
-          from:'a',
-          to:'b',
-          depart:'00:00',
-          arrive:'00:00',
+    
+    var params = new URLSearchParams();
+    params.append('account_no', 20);
+    this.$axios({
+        method: 'post',
+        url:  '/api/api/customer/getReserv',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
         },
-        {
-          from:'a',
-          to:'b',
-          depart:'00:00',
-          arrive:'00:00',
-        }
-        ],
-        passengers:[
-          {
-            name:'Bob',
-          },
-          {
-            name:'Alice',
-          }
-        ]
-
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        this.travels = response.data
+        // console.log(response.status)
+        // console.log(response.statusText)
+        // console.log(response.headers)
+        // console.log(response.config)
       })
-    }
-  }
+    },
+
 }
 </script>
