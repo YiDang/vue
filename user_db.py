@@ -2,6 +2,7 @@ import random, string
 import pymysql
 import names
 from faker import Faker
+from datetime import datetime
 
 
 def random_with_n_digits(n):
@@ -31,6 +32,8 @@ def db_conn():
     #conn = pymysql.connect(host='cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com', port=3306, user='admin', passwd='***cs539***',db='cs539_dev')
     return conn
 
+
+
 def db_close(conn):
     conn.close()
 
@@ -48,36 +51,43 @@ def db_select(sql, conn):
     	return result
     except:
     	print "[ERROR]: CANNOT SELECT DATA"
+        return False
 
 def db_insert(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         conn.commit()
+        return True
     except:
         print "[ERROR]: CANNOT INSERT DATA"
         conn.rollback()
+        return False
 
 def db_update(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
         conn.commit()
+        return True
     except:
         print "[ERROR]: CANNOT UPDATE DATA"
         conn.rollback()
+        return False
 
 def db_delete(sql, conn):
     cursor = conn.cursor()
     try:
         cursor.execute(sql)
-        conn.commit() 
+        conn.commit()
+        return True
     except:
         print "[ERROR]: CANNOT DELETE DATA"
         conn.rollback()
+        return False
 
 def check_acccount(conn, name):
-    count = "select count(*) from Account_dev where account_name = '%s'" %(name) 
+    count = "select count(*) from Account_dev where account_name = '%s'" %(name)
     rec = db_select(count,conn)
     if(rec[0][0] == 1):
         return False
@@ -107,26 +117,42 @@ def create_customer(conn,name, password,last_name,first_name,zipco,address="",em
     count = "select count(*) from Account_dev"
     number_ = db_select(count,conn)[0][0]
     number = number_ + 1
-    account_date = "3/18/2018"
+    account_date = ""
     sql = ["insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password),
            "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)]
-    db_insert(sql[0],conn)
-    db_insert(sql[1],conn)
+    flag1 = db_insert(sql[0],conn)
+    flag2 = db_insert(sql[1],conn)
+    if(flag1 and flag2):
+        return True
+    else:
+        return False
     # count = "select count(*) from Account_dev"
     # sql = "insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password)
     # sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
 
 def update_customer(conn,account_no,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
     sql = "update Customer_dev set last_name = '%s', first_name = '%s',address = '%s',email  = '%s',telephone = '%s', credit_catd_no  = '%s', preference  = '%s', zipco = '%s', account_date  = '%s' where account_no  = %s"%(last_name,first_name,address,email,telephone,credit,prefer,zipco,"3/18/2018",account_no)
-    db_update(sql,conn)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
-def update_password(conn,account_name,account_password):
-    sql = "update Account_dev set account_pass = '%s' where account_name = '%s'"%(account_password,account_name)
-    db_update(sql,conn)
+def update_password(conn,account_no,account_password):
+    sql = "update Account_dev set account_pass = '%s' where account_no = '%s'"%(account_password,account_no)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
 def delete_customer(conn,account_no):
     sql = "delete from Account_dev where account_no = %s" %(account_no)
-    db_update(sql,conn)
+    flag = db_update(sql,conn)
+    if(flag):
+        return True
+    else:
+        return False
 
 def show_customer(conn,account_no):
     sql = "select * from Customer_dev where account_no = %s" %(account_no)
@@ -135,9 +161,66 @@ def show_customer(conn,account_no):
     #      print ("no things")
     # else:
     #     print("there is some thing")
+    if(rec):
+        return rec
+    else:
+        return False
+
+def signup(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
+    flag = check_acccount(conn,name)
+    if(flag):
+        if(create_customer(conn,name, password,last_name,first_name,zipco,address,email,telephone,credit)):
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def compare_data(date1):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(date1, date_format)
+    print date_formalized.month
+
+def get_airline_name(conn):
+    sql = "SELECT DISTINCT airlineName FROM LegsInfo"
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec
+    else:
+        return False
+
+def sales_report(conn,month = '3',year = '2018'):
+    airline_name = get_airline_name(conn)
+    date = '%' + month + '/%/' + year 
+    rec = []
+    if(airline_name == False):
+        return False
+    for index in range(len(airline_name)):
+        sql = "SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
+        _rec = db_select(sql,conn)
+        
+        if(_rec):
+            if(_rec[0][0] == None):
+                rec.append({airline_name[index][0]:0})
+            else:
+                rec.append({airline_name[index][0]:_rec[0][0]})
+        else:
+            return False
     return rec
 
-def login_in(conn,)
+def get_delay_flight(conn):
+    sql = "SELECT * FROM HistoryLegs where CAST(delay AS SIGNED) > 0"
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec
+    else:
+        return False
+
+        
+    
+#sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
+#compare_data("3/18/2017")
+
 conn = db_conn()
 db_check(conn)
 #db_account_customer_generater(conn,100)
@@ -147,10 +230,23 @@ db_check(conn)
 # tmp = check_acccount(conn,"FxeXPdjE")
 # print tmp
 #show_customer(conn,1)
+# flag = signup(conn,"qqq","qqq","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
+# print flag
+
+
+# cursor = conn.cursor()
+# month = '3'
+# year = '2018'
+# date = '%' + month + '/%/' + year 
+# sql = " SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' "%(date)
+# cursor.execute(sql)
+# result = cursor.fetchall()
+# print result[0][0]
+#print (sales_report(conn,'3','2018'))
+# print ({"aaa":"qwe"})
+#db_close(conn)
+
+
+
 db_close(conn)
-
-
-
-
-
 
