@@ -92,8 +92,8 @@ def signUp():
 def showuser():
     conn = mysql.connect()
     try:
-        #_account_no = request.form['Account_no']
-        _account_no = 1
+        _account_no = request.form['Account_no']
+        # _account_no = 1
         rec = user_db.show_customer(conn,_account_no)
         dist = {}
         if(rec == False):
@@ -207,10 +207,10 @@ def verifyUser():
 def get_sales_report():
     conn = mysql.connect()
     try:
-        # _month = request.form['Month']
-        # _year = request.form['Year']
-        _month = '3'
-        _year = '2018'
+        _month = request.form['Month']
+        _year = request.form['Year']
+        # _month = '3'
+        # _year = '2018'
         rec = user_db.sales_report(conn,_month,_year)
         if(rec == False):
             return jsonify({'sales_report':False})
@@ -699,4 +699,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host=model.get_ip_address(),debug=True,)
+    application.run(host='172.31.221.55',debug=True,)
