@@ -1,5 +1,5 @@
 from flask import Flask, render_template, json, request, jsonify
-from flask.ext.mysql import MySQL
+from flaskext.mysql import MySQL
 from werkzeug import generate_password_hash, check_password_hash
 from werkzeug.security import safe_str_cmp
 from model import isDateFuture
@@ -88,11 +88,78 @@ def signUp():
         return jsonify({'error':str(e)})
 
 
-# @application.route('/api/showuser',methods=['POST','GET'])
-# def showuser():
+@application.route('/api/showuser',methods=['POST','GET'])
+def showuser():
+    conn = mysql.connect()
+    try:
+        #_account_no = request.form['Account_no']
+        _account_no = 1
+        rec = user_db.show_customer(conn,_account_no)
+        dist = {}
+        if(rec == False):
+            return jsonify({'error':False})
+        dist['Account_no'] = rec[0][0]
+        dist['Last_name'] = rec[0][1]
+        dist['First_name'] = rec[0][2]
+        dist['Address'] = rec[0][3]
+        dist['Preference'] = rec[0][5]
+        dist['Email'] = rec[0][6]
+        dist['Telephone'] = rec[0][8]
+        dist['Account_date'] = rec[0][9]
+        dist['Zipco'] = rec[0][10]
+        dist['Credit'] = rec[0][11]
+        return jsonify(dist)
+    except Exception as e:
+        return jsonify({'error':str(e)}) 
 
 
+@application.route('/api/edituser',methods=['POST','GET'])
+def edituser():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        _last_name = request.form['Last_name']
+        _first_name = request.form['First_name']
+        _zipco = request.form['Zipco']
+        _address = request.form['Address']
+        _email = request.form['Email']
+        _telephone = request.form['Telephone']
+        _credit = request.form['Credit']
+        _prefer = request.form['Prefer']
+        rec = user_db.update_customer(conn,_account_no,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
+        if(rec):
+            return jsonify({'isedituser':True})
+        else:
+            return jsonify({'isedituser':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
 
+@application.route('/api/editpass',methods=['POST','GET'])
+def editpass():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        _password = request.form['Changed_password']
+        rec = user_db.update_password(conn,_account_no,_password)
+        if(rec):
+            return jsonify({'iseditpass':True})
+        else:
+            return jsonify({'iseditpass':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
+
+@application.route('/api/delete',methods=['POST','GET'])
+def delete():
+    conn = mysql.connect()
+    try:
+        _account_no = request.form['Account_no']
+        rec = user_db.delete_customer(conn,_account_no)
+        if(rec):
+            return jsonify({'isdelete':True})
+        else:
+            return jsonify({'isdelete':False})
+    except Exception as e:
+        return jsonify({'error':str(e)})
 
 
 
@@ -136,14 +203,21 @@ def verifyUser():
 
 
 
-
-@application.route('/api/manager/editUser',methods=['POST','GET'])
-def edit_user():
-    return ""
-
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
-    return ""
+    conn = mysql.connect()
+    try:
+        # _month = request.form['Month']
+        # _year = request.form['Year']
+        _month = '3'
+        _year = '2018'
+        rec = user_db.sales_report(conn,_month,_year)
+        if(rec == False):
+            return jsonify({'sales_report':False})
+        else:
+            return jsonify({'sales_report':rec})
+    except Exception as e:
+        return jsonify({'error':str(e)})
 
 @application.route('/api/manager/listAllFlights',methods=['POST','GET'])
 def list_all_flights():
@@ -338,4 +412,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host='172.31.198.208',debug=True,)
+    application.run(host='172.31.221.55',debug=True)

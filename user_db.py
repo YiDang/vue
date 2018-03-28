@@ -2,6 +2,7 @@ import random, string
 import pymysql
 import names
 from faker import Faker
+from datetime import datetime
 
 
 def random_with_n_digits(n):
@@ -135,8 +136,8 @@ def update_customer(conn,account_no,last_name,first_name,zipco,address="",email=
     else:
         return False
 
-def update_password(conn,account_name,account_password):
-    sql = "update Account_dev set account_pass = '%s' where account_name = '%s'"%(account_password,account_name)
+def update_password(conn,account_no,account_password):
+    sql = "update Account_dev set account_pass = '%s' where account_no = '%s'"%(account_password,account_no)
     flag = db_update(sql,conn)
     if(flag):
         return True
@@ -173,6 +174,44 @@ def signup(conn,name, password,last_name,first_name,zipco,address="",email="",te
     else:
         return False
 
+def compare_data(date1):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(date1, date_format)
+    print date_formalized.month
+
+def get_airline_name(conn):
+    sql = "SELECT DISTINCT airlineName FROM LegsInfo"
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec
+    else:
+        return False
+
+def sales_report(conn,month = '3',year = '2018'):
+    airline_name = get_airline_name(conn)
+    date = '%' + month + '/%/' + year 
+    rec = []
+    if(airline_name == False):
+        return False
+    for index in range(len(airline_name)):
+        sql = "SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
+        _rec = db_select(sql,conn)
+        
+        if(_rec):
+            if(_rec[0][0] == None):
+                rec.append({airline_name[index][0]:0})
+            else:
+                rec.append({airline_name[index][0]:_rec[0][0]})
+        else:
+            return False
+    return rec
+
+        
+
+        
+    
+#sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
+compare_data("3/18/2017")
 
 conn = db_conn()
 db_check(conn)
@@ -185,8 +224,19 @@ db_check(conn)
 #show_customer(conn,1)
 # flag = signup(conn,"qqq","qqq","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
 # print flag
-db_close(conn)
 
+
+# cursor = conn.cursor()
+# month = '3'
+# year = '2018'
+# date = '%' + month + '/%/' + year 
+# sql = " SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' "%(date)
+# cursor.execute(sql)
+# result = cursor.fetchall()
+# print result[0][0]
+print (sales_report(conn,'3','2018'))
+# print ({"aaa":"qwe"})
+db_close(conn)
 
 
 
