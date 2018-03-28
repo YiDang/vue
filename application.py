@@ -484,6 +484,38 @@ def get_customer_seated():
         conn.close()
     return jsonify(res)
 
+
+@application.route('/api/manager/delay',methods=['POST','GET'])
+def delay():
+    conn = mysql.connect()
+    try:
+        rec = user_db.get_delay_flight(conn)
+        _delay = []
+        if(rec == False):
+            return jsonify({'error':False})
+        for index in range(len(rec)):
+            dist = {}
+            dist['idLegs'] = rec[index][0]
+            dist['idFlight'] = rec[index][1]
+            dist['distance'] = rec[index][2]
+            dist['duration'] = rec[index][3]
+            dist['departure_airport'] = rec[index][4]
+            dist['departure_time'] = rec[index][5]
+            dist['departure_date'] = rec[index][6]
+            dist['arrival_airport'] = rec[index][7]
+            dist['arrival_time'] = rec[index][8]
+            dist['arrival_date'] = rec[index][9]
+            dist['flight_no'] = rec[index][10]
+            dist['plane'] = rec[index][11]
+            dist['plane_code'] = rec[index][12]
+            dist['airlinename'] = rec[index][13]
+            dist['airline_code'] = rec[index][14]
+            dist['delay'] = rec[index][15]
+            _delay.append(dist)
+        return jsonify(_delay)s
+    except Exception as e:
+        return jsonify({'error':str(e)}) 
+
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
