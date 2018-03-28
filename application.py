@@ -431,7 +431,7 @@ def delay():
             _delay.append(dist)
         return jsonify(_delay)
     except Exception as e:
-        return jsonify({'error':str(e)}) 
+        return jsonify({'error':str(e)})
 
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
@@ -641,18 +641,6 @@ def get_history():
 def get_best_seller():
     return ""
 
-#
-# Customer booking APIs
-# @application.route('/api/searchFlight',methods=['POST','GET'])
-# def search_flight():
-#     roundtrip = False
-#     if(request.form['roundtrip']==True){
-#         roundtrip = True
-#     }
-#     date = []
-#     date.append()
-#
-#     return ""
 
 if __name__ == "__main__":
     application.run(host=model.get_ip_address(),debug=True,)
