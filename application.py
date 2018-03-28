@@ -294,13 +294,13 @@ def most_active_flight():
     res = []
     try:
         cursor.execute("SELECT flight_no, COUNT(*) as num, airlineCode FROM LegsInfo, Reservation_Leg WHERE LegsInfo.idLegs=Reservation_Leg.idLegs GROUP BY flight_no ORDER BY num DESC")
-        for data in cursor.fetchmany(1):
+        for data in cursor.fetchall():
             print data
             dic = {}
             dic["flight_no"] = data[0]
             dic["active_number"] = data[1]
             dic["airlineCode"] = data[2]
-        res.append(dic)
+            res.append(dic)
     except Exception as e:
         print e
         res = ["Search Error"]
@@ -345,6 +345,29 @@ def list_for_airports():
     except Exception as e:
         print e
         res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+#finished
+@application.route('/api/manager/customerSeated',methods=['POST','GET'])
+def get_customer_seated():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        flight_no = request.form["flight_no"]
+        cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
+        dic = {}
+        dic["flight_no"] = flight_no
+        dic["passengers"] = []
+        for data in cursor.fetchall():
+            dic["passengers"].append(data[0])
+        res.append(dic)
+    except Exception as e:
+        print e
+        res = ["Search Error"]
     finally:
         cursor.close()
         conn.close()
