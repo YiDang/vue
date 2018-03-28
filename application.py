@@ -365,7 +365,7 @@ def get_rev_list():
             most_customer_rev = get_most_rev()
             dic["mostCustomerRev"] = most_customer_rev[0]
 
-        revenue = cursor.fetchone()[0]
+        revenue = round(cursor.fetchone()[0],2)
         dic['revenue'] = revenue if revenue else 0
 
         res.append(dic)
@@ -699,4 +699,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.221.55',debug=True,)
+    application.run(host=model.get_ip_address(),debug=True,)
