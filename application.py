@@ -187,7 +187,7 @@ def list_reservation():
 
                 dic = {}
                 dic["reservation_no"] = reservation_no[0]
-                dic["stops"] = {"go":[],"back":[]} 
+                dic["stops"] = {"go":[],"back":[]}
                 for data in cursor.fetchall():
                     dic["passenger_info"] = [data[0]]
                     dic["date"] = data[1]
@@ -387,17 +387,16 @@ def searchFlight():
     _dep = request.form['departure']
     _arr = request.form['arrival']
     _roundtrip = request.form['roundtrip']
-    _date1 = request.form['date1']
+    _date1 = model.get_db_date(request.form['date1'])
+    print _date1
     _date2 = None
-    if(_roundtrip):
-        _date = request.form['date2']
-        _date2 = model.get_db_date(_date)
-    db_date1 = model.get_db_date(_date1)
+    if(_roundtrip == 1):
+        _date2 = model.get_db_date(request.form['date2'])
     dep = [_dep,_arr]
     arr = [_arr,_dep]
     dates = [_date1,_date2]
     loop = 1
-    if(_roundtrip):
+    if(_roundtrip == 1):
         loop = 2
     for i in range(loop):
         ii = 0
@@ -407,8 +406,9 @@ def searchFlight():
         loop_dep = dep[i]
         loop_arr = arr[i]
         loop_date = dates[i]
+
         res_tmp = []
-        cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s limit 2;", [loop_dep, loop_arr] )
+        cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s ;", [loop_dep, loop_arr] )
         for data in cursor.fetchall():
             if(data):
                 flight_id.append(data[0])
@@ -420,12 +420,13 @@ def searchFlight():
                 res_list[flight_dict[data[0]]]['duration'] = data[3]
                 res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
                 res_list[flight_dict[data[0]]]['stops'] = data[5]
-                res_list[flight_dict[data[0]]]['price'] = data[6]
+                res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],_date1)
                 res_list[flight_dict[data[0]]]['total_distance'] = data[7]
                 res_list[flight_dict[data[0]]]['stops'] = []
                 ii+=1
+
         for fid in flight_id:
-            cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s  limit 5;',[fid,loop_date])
+            cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[fid,loop_date])
             stop = 1
             for data in cursor.fetchall():
                 if(data):
@@ -442,6 +443,9 @@ def searchFlight():
                     dict['distance'] = data[2]
                     res_list[flight_dict[data[0]]]['stops'].append(dict)
                     stop += 1
+        for fid in flight_id:
+            if(len(res_list[flight_dict[fid]]['stops']) < 1):
+                res_list[flight_dict[fid]] = None
         res_final_list.append(res_list)
 # except Exception as e:
 #     print e
@@ -583,4 +587,4 @@ def get_best_seller():
 #     return ""
 
 if __name__ == "__main__":
-    application.run(host='172.31.230.181',debug=True,)
+    application.run(host=model.get_ip_address(),debug=True,)
