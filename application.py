@@ -15,19 +15,8 @@ application.config['MYSQL_DATABASE_PASSWORD'] = '***cs539***'
 application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
-    return '<p>Hello %s!</p>\n' % username
 
-header_text = '''
-    <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
-instructions = '''
-    <p><em>Hint</em>: This is a RESTful web service! Append a username
-    to the URL (for example: <code>/Thelonious</code>) to say hello to
-    someone specific.</p>\n'''
-home_link = '<p><a href="/">Back</a></p>\n'
-footer_text = '</body>\n</html>'
 
-application.add_url_rule('/', 'index', (lambda: header_text +
-    say_hello() + instructions + footer_text))
 
 
 @application.route('/',methods=['POST','GET'])
@@ -39,20 +28,22 @@ def home():
 def signUp():
     conn = mysql.connect()
     try:
-        _name = request.form['Name']
-        _password = request.form['Password']
-        _last_name = request.form['Last_name']
-        _first_name = request.form['First_name']
-        _zipco = request.form['Zipco']
-        _address = request.form['Address']
-        _email = request.form['Email']
-        _telephone = request.form['Telephone']
-        _credit = request.form['Credit']
-        rec = user_db.signup(conn,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
+        print request.form
+        _id = request.form['id']
+        _password = request.form['password']
+        _last_name = request.form['lastName']
+        _first_name = request.form['firstName']
+        _zipco = request.form['zipCode']
+        _address = request.form['address']
+        _email = request.form['email']
+        _telephone = request.form['telephone']
+        _credit = request.form['credit']
+
+        rec = user_db.signup(conn,_id,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
-            return jsonify({'issignup':True})
+            return jsonify({'isSignUp':True})
         else:
-            return jsonify({'issignup':False})
+            return jsonify({'isSignUp':False})
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -60,22 +51,24 @@ def signUp():
 def showuser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
-        # _account_no = 1
+        _account_no = request.form['no']
+        account_info =  user_db.show_password(conn,_account_no)
         rec = user_db.show_customer(conn,_account_no)
         dist = {}
         if(rec == False):
             return jsonify({'error':False})
-        dist['Account_no'] = rec[0][0]
-        dist['Last_name'] = rec[0][1]
-        dist['First_name'] = rec[0][2]
-        dist['Address'] = rec[0][3]
-        dist['Preference'] = rec[0][5]
-        dist['Email'] = rec[0][6]
-        dist['Telephone'] = rec[0][8]
-        dist['Account_date'] = rec[0][9]
-        dist['Zipco'] = rec[0][10]
-        dist['Credit'] = rec[0][11]
+        dist['id'] =account_info[0][2]
+        dist['no'] = rec[0][0]
+        dist['password'] =account_info[0][1]
+        dist['lastName'] = rec[0][1]
+        dist['firstName'] = rec[0][2]
+        dist['address'] = rec[0][3]
+        dist['preference'] = rec[0][5]
+        dist['email'] = rec[0][6]
+        dist['telephone'] = rec[0][8]
+        dist['account_date'] = rec[0][9]
+        dist['zipCode'] = rec[0][10]
+        dist['credit'] = rec[0][11]
         return jsonify(dist)
     except Exception as e:
         return jsonify({'error':str(e)})
@@ -84,16 +77,17 @@ def showuser():
 def edituser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
-        _last_name = request.form['Last_name']
-        _first_name = request.form['First_name']
-        _zipco = request.form['Zipco']
-        _address = request.form['Address']
-        _email = request.form['Email']
-        _telephone = request.form['Telephone']
-        _credit = request.form['Credit']
-        _prefer = request.form['Prefer']
-        rec = user_db.update_customer(conn,_account_no,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
+        _account_no = request.form['no']
+        _account_password = request.form['password']
+        _last_name = request.form['lastName']
+        _first_name = request.form['firstName']
+        _zipco = request.form['zipCode']
+        _address = request.form['address']
+        _email = request.form['email']
+        _telephone = request.form['telephone']
+        _credit = request.form['credit']
+        _prefer = request.form['preference']
+        rec = user_db.update_customer(conn,_account_no,_account_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
         if(rec):
             return jsonify({'isedituser':True})
         else:
@@ -135,26 +129,31 @@ def verifyUser():
     cursor = conn.cursor()
     res={}
     try:
-        _name = request.form['Name']
-        _password = request.form['Password']
+        _name = request.form['id']
+        _password = request.form['password']
         if _name and _password:
-            _hashed_password = generate_password_hash(_password)
-            cursor.execute('SELECT password from Account where name = %s;',[_name])
-            for data in cursor.fetchall():
-                if data and check_password_hash(data[0],_password):
-                    conn.commit()
-                    # is a valid user with name and password
-                    res['validUser'] = True
-                    cursor.callproc('sp_isManager',(_name,_hashed_password))
-                    data = cursor.fetchall()
-                    if len(data) is 0:
-                        conn.commit()
-                        res['isManager'] = True
-                    else:
-                        res['isManager'] = False
-                else:
-                    res['validUser'] = False
-                    res['isManager'] = False
+            sql = "SELECT account_pass from Account_dev where account_name = '%s'"%(_name)
+            data = user_db.db_select(sql,conn)
+            if (data[0][0] == _password):
+                print "inside"
+                res['validUser'] = True
+                sql2 = "select employ_no from Manage_dev where account_no = (select account_no from Account_dev where account_name = '%s')"%(_name)
+                manage_Flag = user_db.db_select(sql2,conn)
+                
+                # cursor.callproc('sp_isManager',(_name,_hashed_password))
+                # datas = cursor.fetchall()
+                # if len(datas) is 0:
+                #     conn.commit()
+                #     res['isManager'] = True
+                # else:
+                #     res['isManager'] = False
+            else:
+                res['validUser'] = False
+                # res['isManager'] = False
+            sql = "SELECT account_no,account_name FROM Account_dev where account_name = '%s' and account_pass = '%s'"%(_name,_password)
+            rec = user_db.db_select(sql,conn)
+            res['no'] = rec[0][0]
+            res['id'] = rec[0][1]
         else:
             res['validUser'] = False
             res['isManager'] = False
@@ -164,6 +163,7 @@ def verifyUser():
     finally:
         cursor.close()
         conn.close()
+        print res
         return jsonify(res)
 
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
