@@ -32,7 +32,10 @@
 				</el-row>
 			</el-form-item>
 		</el-form>
-    
+    <el-row >
+    <i class="el-icon-star-off" style="background-color: #409EFF">Best Seller</i>
+    <i class="el-icon-star-off" style="background-color: #67C23A">Picked Choice</i>
+    </el-row>
     <el-row :hidden = 'existData1'>
     {{form.depart}} to {{form.destination}}
       <search-list-item
@@ -87,8 +90,12 @@
         <el-form-item label="Name">
           <el-input v-model="newPsg.name" placeholder="Name"></el-input>
         </el-form-item>
-          <el-button type="primary" @click="addPassneger">addPassenger</el-button>
+          <el-button type="primary" @click="addPassenger">AddPassenger</el-button>
         </el-form-item>
+        </el-form-item>
+          <el-button type="primary" @click="emptyPassenger">Empty list</el-button>
+        </el-form-item>
+        {{addMsg}}
       </el-form>
     </el-row>
     <el-row>
@@ -96,8 +103,6 @@
         submit
       </el-button>
     </el-row>
-    {{t1picked}}
-    {{t2picked}}
 	</div>
 </template>
 
@@ -126,6 +131,7 @@ export default {
         ssn:'',
         name:''
       },
+      addMsg:'',
       currentPage1:1,
       currentPage2:1,
       pageSize:5,
@@ -187,10 +193,11 @@ export default {
     },
     onSubmit:function(){
       var params = new URLSearchParams();
-      params.set('go',this.t1picked)
-      params.set('back',this.t2picked)
-      params.set('no',store.get('token').no)
-      if(this.trip = 'oneway') params.set('type',1)
+      params.set('go',JSON.stringify(this.t1picked))
+      params.set('back',JSON.stringify(this.t2picked))
+      params.set('account_no',store.get('token').no)
+      params.set('passengers', JSON.stringify(this.passengers))
+      if(this.trip == 'oneway') params.set('type',1)
       else params.set('type',2)
       this.$axios({
         method: 'post',
@@ -203,12 +210,21 @@ export default {
         console.log(response.data)
       })
     },
-    addPassneger:function(){
-      this.passengers.push(this.newPsg)
-      this.newPsg={
-       ssn:'',
-       name:''
+    addPassenger:function(){
+      if(this.newPsg.ssn=='' || this.newPsg.name==''){
+        this.addMsg='ssn or name cannot be empty'
       }
+      else{
+        this.addMsg=''
+        this.passengers.push(this.newPsg)
+        this.newPsg={
+         ssn:'',
+         name:''
+       }
+      }
+    },
+    emptyPassenger:function(){
+      this.passengers = []
     }
   },
   computed: {
@@ -246,6 +262,7 @@ export default {
       return travels
     },
     travelspicked:function(){
+      console.log(this.trip)
       switch(this.trip)
       {
         case 'oneway':
@@ -257,15 +274,18 @@ export default {
       }
     },
     submitable:function(){
+      var b= true
       switch(this.trip)
       {
         case 'oneway':
-        return this.t1picked!=null
+        b=b&& this.t1picked!=null
         break;
         case 'roundtrip':
-        return this.t1picked!=null&&this.t2picked!=null
+        b=b&& this.t1picked!=null&&this.t2picked!=null
         break;
       }
+      b=b&&this.passengers.length!=0
+      return b
     }
   }
 }
