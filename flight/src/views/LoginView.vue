@@ -28,10 +28,6 @@
           </el-row>
         </el-form-item>
       </el-form>
-
-      
-      <!-- <el-button type="text" @click="dialogVisible = true">点击打开 Dialog</el-button> -->
-
       <el-dialog
       title="Sign up"
       :visible.sync="dialogVisible"
@@ -160,22 +156,6 @@ export default {
       this.sMessage ='User does not exist or password is not correct'
 
     },
-    // onSubmit: function () {
-    //   // this.$session.set('login', 'true')//
-
-    //   store.set('token','xxx')
-    //   if(this.form.id == '1') {
-    //     console.log('Manager login')
-    //     store.set('isManager',true) 
-    //     this.$router.push({name: 'AdminView'})
-    //   }
-    //   else{
-    //     console.log('Customer login')
-    //     store.set('isManager',false)  
-    //     this.$router.push({name: 'BookView'})
-    //   } 
-      
-    // },
 
     onSubmit:function(){
       // onSuccess('')

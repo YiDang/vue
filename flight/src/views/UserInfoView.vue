@@ -96,7 +96,6 @@ export default {
         console.log(response.data)
         this.formu = response.data
       })
-      // this.formu.id=
   }
 }
 </script>

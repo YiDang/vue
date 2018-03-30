@@ -36,7 +36,7 @@
     <el-row :hidden = 'existData1'>
     {{form.depart}} to {{form.destination}}
       <search-list-item
-      v-bind:direction="1"
+      @rowChange="onRowChange1"
       v-bind:travels="travels1paged"
       v-on:childEvent="onSelection">
       </search-list-item>
@@ -48,7 +48,7 @@
 		<el-row :hidden = 'existData2'>
       {{form.destination}} to {{form.depart}} 
       <search-list-item
-      v-bind:direction="2"
+      @rowChange="onRowChange2"
       v-bind:travels="travels2paged"
       v-on:childEvent="onSelection">
       </search-list-item>
@@ -60,7 +60,6 @@
     <el-row :hidden = 'existData3'>
       Result
       <search-list-item
-      v-bind:direction="0"
       v-bind:travels="travelspicked">
       </search-list-item>
     </el-row>
@@ -69,7 +68,6 @@
         submit
       </el-button>
     </el-row>
-    <!-- {{t2picked}} -->
 	</div>
 </template>
 
@@ -89,17 +87,17 @@ export default {
       trip : 'oneway',
     	form:{
     		depart:'EWR',
-    		destination:'JFK',
+    		destination:'ORD',
     		date1:'',
-    		date2:'',
+    		date2:''
     	},
       currentPage1:1,
       currentPage2:1,
       pageSize:5,
     	travels1:[],
       travels2:[],
-      t1picked:'',
-      t2picked:''
+      t1picked:null,
+      t2picked:null
     }
   },
   methods: {
@@ -108,61 +106,46 @@ export default {
   		this.travels1 = []
       this.travels2 = []
 
-      var params = new URLSearchParams(this.form);
-      params.set('trip', this.trip=='oneway'?0:1)
-      this.$axios({
-        method: 'post',
-        url:  '/api/api/customer/searchFlight',
-        headers: {
-          'Content-type': 'application/x-www-form-urlencoded'
-        },
-        data: params
-      }).then(response => {
-        console.log(response.data)
-      })
-  		// for(var i = 0; i < 10; i++){
-  		// 	this.travels1.push({
-  		// 		id:i,
-    // 			from:'EWR',
-    // 			to:'JFK',
-    // 			depart:'00:00',
-    // 			arrive:'00:00',
-    // 			price:100,
-    // 			stops:[
-    // 			{
-    // 				from:'a',
-    // 				to:'b',
-    // 				depart:'00:00',
-    // 				arrive:'00:00',
-    // 			},
-    // 			{
-    // 				from:'a',
-    // 				to:'b',
-    // 				depart:'00:00',
-    // 				arrive:'00:00',
-    // 			}
-    // 			]
-
-    // 		})
-  		// }
-    //   if(this.trip=='roundtrip')
-    //     this.travels2=this.travels1
+      // var params = new URLSearchParams(this.form);
+      // params.set('trip', this.trip=='oneway'?0:1)
+      // this.$axios({
+      //   method: 'post',
+      //   url:  '/api/api/customer/searchFlight',
+      //   headers: {
+      //     'Content-type': 'application/x-www-form-urlencoded'
+      //   },
+      //   data: params
+      // }).then(response => {
+      //   console.log(response.data)
+      //   this.travels1 = this.nullfilter(response.data[0])
+      //   this.travels2 = this.nullfilter(response.data[1])
+      // })
+      this.travels1.push({departure:1,arrival:1})
+      this.travels1.push({departure:1,arrival:2})
+      this.travels2.push({departure:1,arrival:1})
+      this.travels2.push({departure:1,arrival:3})
   	},
 
-    onSelection: function (data) {
-      // console.log('book view')
-      console.log(data.direction)
-      switch(data.direction)
-      {
-        case 1:
-        this.t1picked=data.data
-        break;
-        case 2:
-        this.t2picked=data.data
-        break;
+    nullfilter: function (list) {
+      var tmp=[]
+      console.log('list',list.length)
+      var x = list.length
+      for(var i = 0;i < x; i++){
+        if(list[i] != null){
+          tmp.push(list[i])
+        }
+        
       }
-      // console.log(data.direction)
+      return tmp
     },
+    onRowChange1: function (data) {
+      this.t1picked=data
+    },
+    onRowChange2: function (data) {
+      console.log('row c 2')
+      this.t2picked=data
+    },
+
     onSwitch:function(){
       console.log('clear') 
       this.travels1=this.travels2=[]
@@ -184,7 +167,7 @@ export default {
     },
     existData3: function () {
       // console.log(this.travels.length)
-      return this.t1picked==''&&this.t2picked==''
+      return this.t1picked==null &&this.t2picked==null
     },
     travels1paged:function(){
       var start = this.pageSize*(this.currentPage1-1)
@@ -218,13 +201,13 @@ export default {
       }
     },
     submitable:function(){
-            switch(this.trip)
+      switch(this.trip)
       {
         case 'oneway':
-        return this.t1picked!=''
+        return this.t1picked!=null
         break;
         case 'roundtrip':
-        return this.t1picked!=''&&this.t2picked!=''
+        return this.t1picked!=null&&this.t2picked!=null
         break;
       }
     }
