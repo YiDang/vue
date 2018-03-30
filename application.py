@@ -365,8 +365,8 @@ def get_rev_list():
             most_customer_rev = get_most_rev()
             dic["mostCustomerRev"] = most_customer_rev[0]
 
-        revenue = round(cursor.fetchone()[0],2)
-        dic['revenue'] = revenue if revenue else 0
+        revenue = cursor.fetchone()[0]
+        dic['revenue'] = round(revenue,2) if revenue else 0
 
         res.append(dic)
     except Exception as e:
@@ -389,7 +389,7 @@ def get_most_rev():
             dic["account_no"] = data[0]
             dic["first_name"] = data[1]
             dic["last_name"] = data[2]
-            dic["revenue"] = data[3]
+            dic["revenue"] = round(data[3],2)
             res.append(dic)
     except Exception as e:
         print e
