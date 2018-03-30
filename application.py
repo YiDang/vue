@@ -170,7 +170,7 @@ def get_sales_report():
     try:
         _month = request.form['month']
         _year = request.form['year']
-        print _month 
+        print _month
         print _year
         rec = user_db.sales_report(conn,_month,_year)
         print rec
@@ -307,8 +307,6 @@ def get_rev_list():
         city = request.form["city"]
         customer = request.form['customer']
         id = request.form["groupby"]
-        print id
-
         dic = {}
         dic["flight"] = ''
         dic["city"] = ''
