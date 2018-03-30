@@ -1,35 +1,35 @@
-import random, string
-import pymysql
-import names
-from faker import Faker
+import model
 
+# @application.route('/api/customer/bookFlight',methods=['POST','GET'])
+def book_flight():
+    conn = model.db_conn()
+    cursor = conn.cursor()
+    try:
+    	_account_no = 1
+    	_dep_date = 1
+    	_reserv_date = model.get_today()
+    	_book_fare = 1
+    	_total_fare = _book_fare * 1.1
+    	_trip_no = 
+    	# INSERT INTO RESERVATION TABLE
+    	cursor.execute('SELECT MAX(reservation_no) From Reservation')
+    	_reservation_no =  cursor.fetchone()[0] + 1
+    	cursor.execute('INSERT INTO Reservation VALUES (%s, %s, %s, %s, %s)',[_reservation_no,_account_no,_book_fare, _total_fare, _dep_date, _reserv_date])
+    	# INSERT INTO RESERVATION_LEG TABLE
+    	for t in range (_trip_no): # 1 or 2
+    		flight_id = 1
+    		passenger_info = []
+    		stops = []
+    		_booking_fare = 
+    		for p in range(len(passenger_info)):
+    			passenger = passenger_info[p]
+    			for leg in range(len(stops)):
+    				idLegs = stops[leg]['idLegs']
+    				cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no], idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", "", t)
+    except Exception as e:
+    	print e
+    finally: 
+		cursor.close()
+		conn.close()
 
-DB_PATH = "cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com"
-DB_USER = "admin"
-DB_PORT = 3306
-DB_NAME = "cs539_dev"
-DB_PASS = "***cs539***"
-conn = pymysql.connect(DB_PATH, DB_USER, DB_PASS,DB_NAME)
-
-cursor = conn.cursor()
-cursor.execute('SELECT  idLegs,
-		idFlight,
-		departure_airport,
-		arrival_airport,
-        SUBSTRING(FlightInfoAll.departure, 5) as departure_city,
-        SUBSTRING(FlightInfoAll.arrival, 5) as arrival_city,
-        STR_TO_DATE(departure_time, '%h:%i%p') as departure_time,
-		STR_TO_DATE(arrival_time, '%h:%i%p') as arrival_time,
-		FlightInfoAll.airline,
-		FlightInfoAll.duration,
-		FlightInfoAll.nextDayArrival,
-		FlightInfoAll.price,
-		FlightInfoAll.stops,
-		FlightInfoAll.total_distance
-FROM cs539_dev.LegsInfo join  cs539_dev.FlightInfoAll
-On LegsInfo.idFlight = FlightInfoAll.idFlightInfo
-where LegsInfo.departure_airport = 'LAX' and LegsInfo.arrival_airport = 'EWR' and LegsInfo.departure_date = '04/05/2018'
-order by departure_time ASC;')
-
-for data in cursor.fetchall():
-    print data[]
+book_flight()

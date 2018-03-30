@@ -28,7 +28,6 @@ def home():
 def signUp():
     conn = mysql.connect()
     try:
-        print request.form
         _id = request.form['id']
         _password = request.form['password']
         _last_name = request.form['lastName']
@@ -38,7 +37,7 @@ def signUp():
         _email = request.form['email']
         _telephone = request.form['telephone']
         _credit = request.form['credit']
-
+        print request.form
         rec = user_db.signup(conn,_id,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
             return jsonify({'isSignUp':True})
@@ -51,9 +50,12 @@ def signUp():
 def showuser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['no']
+        _account_name = request.form['id']
+        print _account_name
+        _account_no = user_db.get_account_no(conn,_account_name)
         account_info =  user_db.show_password(conn,_account_no)
         rec = user_db.show_customer(conn,_account_no)
+        print _account_no
         dist = {}
         if(rec == False):
             return jsonify({'error':False})
@@ -89,9 +91,9 @@ def edituser():
         _prefer = request.form['preference']
         rec = user_db.update_customer(conn,_account_no,_account_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
         if(rec):
-            return jsonify({'isedituser':True})
+            return jsonify({'isedituser':'Success'})
         else:
-            return jsonify({'isedituser':False})
+            return jsonify({'isedituser':'Fail to edit'})
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -113,12 +115,15 @@ def editpass():
 def delete():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
+        _account_name = request.form['id']
+        _account_no = user_db.get_account_no(conn,_account_name)
+        if(_account_name == False):
+            return jsonify({'Delete false':False})
         rec = user_db.delete_customer(conn,_account_no)
         if(rec):
-            return jsonify({'isdelete':True})
+            return jsonify({'Successful Delete':True})
         else:
-            return jsonify({'isdelete':False})
+            return jsonify({'Delete false':False})
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -135,21 +140,16 @@ def verifyUser():
             sql = "SELECT account_pass from Account_dev where account_name = '%s'"%(_name)
             data = user_db.db_select(sql,conn)
             if (data[0][0] == _password):
-                print "inside"
                 res['validUser'] = True
                 sql2 = "select employ_no from Manage_dev where account_no = (select account_no from Account_dev where account_name = '%s')"%(_name)
                 manage_Flag = user_db.db_select(sql2,conn)
-                
-                # cursor.callproc('sp_isManager',(_name,_hashed_password))
-                # datas = cursor.fetchall()
-                # if len(datas) is 0:
-                #     conn.commit()
-                #     res['isManager'] = True
-                # else:
-                #     res['isManager'] = False
+                if manage_Flag:
+                    res['isManager'] = True
+                else:
+                    res['isManager'] = False
             else:
                 res['validUser'] = False
-                # res['isManager'] = False
+                res['isManager'] = False
             sql = "SELECT account_no,account_name FROM Account_dev where account_name = '%s' and account_pass = '%s'"%(_name,_password)
             rec = user_db.db_select(sql,conn)
             res['no'] = rec[0][0]
@@ -163,20 +163,22 @@ def verifyUser():
     finally:
         cursor.close()
         conn.close()
-        print res
         return jsonify(res)
 
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
     conn = mysql.connect()
     try:
-        _month = request.form['Month']
-        _year = request.form['Year']
+        _month = request.form['month']
+        _year = request.form['year']
+        print _month 
+        print _year
         rec = user_db.sales_report(conn,_month,_year)
+        print rec
         if(rec == False):
             return jsonify({'sales_report':False})
         else:
-            return jsonify({'sales_report':rec})
+            return jsonify(rec)
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -473,6 +475,7 @@ def delay():
             dist['airlinename'] = rec[index][13]
             dist['airline_code'] = rec[index][14]
             dist['delay'] = rec[index][15]
+            dist['isdelay'] = rec[index][16]
             _delay.append(dist)
         return jsonify(_delay)
     except Exception as e:
@@ -481,6 +484,7 @@ def delay():
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
+
     return ""
 
 @application.route('/api/customer/searchFlight',methods=['POST','GET'])
@@ -489,9 +493,9 @@ def searchFlight():
     cursor = conn.cursor()
     res_final_list = []
     try:
-        _dep = request.form['departure']
-        _arr = request.form['arrival']
-        _roundtrip = request.form['roundtrip']
+        _dep = request.form['depart']
+        _arr = request.form['destination']
+        _roundtrip = request.form['trip']
         _date1 = model.get_db_date(request.form['date1'])
         _date2 = None
         loop = 1
@@ -501,6 +505,7 @@ def searchFlight():
         dep = [_dep,_arr]
         arr = [_arr,_dep]
         dates = [_date1,_date2]
+        real_dates = [request.form['date1'],request.form['date2']]
         for i in range(loop):
             ii = 0
             flight_id = []
@@ -519,25 +524,25 @@ def searchFlight():
                     res_list[flight_dict[data[0]]]['flight_id'] = data[0]
                     res_list[flight_dict[data[0]]]['departure'] = data[1]
                     res_list[flight_dict[data[0]]]['arrival'] = data[2]
-                    res_list[flight_dict[data[0]]]['duration'] = data[3]
+                    dur = data[3].split(" ")
+                    res_list[flight_dict[data[0]]]['duration'] =  dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                     res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
-                    res_list[flight_dict[data[0]]]['stops'] = data[5]
+                    res_list[flight_dict[data[0]]]['stop_count'] = data[5]
                     res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],request.form['date1'])
                     res_list[flight_dict[data[0]]]['total_distance'] = data[7]
                     res_list[flight_dict[data[0]]]['stops'] = []
+                    res_list[flight_dict[data[0]]]['date'] = real_dates[i]
                     ii+=1
             for fid in flight_id:
-                print fid
+                # print fid
                 cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s;',[fid,loop_date])
                 stop = 1
-                # print i , "-=--------------------"
-                # print cursor.fetchall()
-                # print "hello", fid, loop_date
                 for data in cursor.fetchall():
                     if(data):
                         dict = {}
                         dict['stop'] = stop
-                        dict['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         dict['departure_airport'] = data[4]
                         dict['departure_time'] = data[5]
                         dict['arrival_airport'] = data[6]
@@ -546,6 +551,7 @@ def searchFlight():
                         dict['airlineName'] = data[9]
                         dict['airlineCode'] = data[10]
                         dict['distance'] = data[2]
+                        dict['legs'] = data[1]
                         res_list[flight_dict[fid]]['stops'].append(dict)
                         stop += 1
             for fid in flight_id:
@@ -574,19 +580,23 @@ def searchFlight():
                         res_list[ii]['flight_id'] = data[0]
                         res_list[ii]['departure'] = data[1]
                         res_list[ii]['arrival'] = data[2]
-                        res_list[ii]['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        res_list[ii]['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         res_list[ii]['next_day_arr'] = data[4]
-                        res_list[ii]['stops'] = data[5]
-                        res_list[ii]['price'] = model.get_fair(data[6],request.form['date1'])
+                        res_list[ii]['stop_count'] = data[5]
+                        res_list[ii]['price'] = model.get_fair(data[6],real_dates[i])
                         res_list[ii]['total_distance'] = data[7]
                         res_list[ii]['stops'] = []
+                        res_list[ii]['date'] = real_dates[i]
+
                 cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[hot_Flight_Id,loop_date])
                 stop = 1
                 for data in cursor.fetchall():
                     if(data):
                         dict = {}
                         dict['stop'] = stop
-                        dict['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         dict['departure_airport'] = data[4]
                         dict['departure_time'] = data[5]
                         dict['arrival_airport'] = data[6]
@@ -605,7 +615,6 @@ def searchFlight():
     finally:
         cursor.close()
         conn.close()
-        print len(res_final_list)
         return jsonify(res_final_list)
 
 

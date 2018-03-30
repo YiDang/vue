@@ -2,6 +2,8 @@ from datetime import datetime
 import socket
 
 date_dict = {6:"04/01/2018",0:"04/02/2018",1:"04/03/2018",2:"04/04/2018",3:"04/05/2018",4:"04/06/2018",5:"04/07/2018"}
+wd_dict = {"Sun":"04/01/2018","Mon":"04/02/2018","Tue":"04/03/2018","Wed":"04/04/2018","Thu":"04/05/2018","Fri":"04/06/2018","Sat":"04/07/2018"}
+month_dict = {"Jan":"1","Feb":"2","Mar":"3","Apr":"4","May":"5","Jun":"6","Jul":"7","Aug":"1","Jan":"1","Jan":"1","Jan":"1","Jan":"1"}
 
 def isDateFuture(date1):
     date_format = '%m/%d/%Y'
@@ -13,6 +15,21 @@ def get_db_date(dt):
     date_format = '%m/%d/%Y'
     date_formalized = datetime.strptime(dt, date_format)
     return date_dict[date_formalized.weekday()]
+
+def get_today():
+    return datetime.today().strftime('%m/%d/%Y')
+
+
+def convert_date(dt):
+    dt_list = dt.split(" ")
+    wd = dt_list[0]
+    month = dt_list[1]
+    day = dt_list[2]
+    year = dt_list[3]
+    return wd_dict[wd],
+
+
+
 
 def get_fair(fair,dt):
     date_format = '%m/%d/%Y'
