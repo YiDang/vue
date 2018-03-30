@@ -1,4 +1,4 @@
 flight/
 asd
 model.pyc
-user_db.pyc
+*.pyc
