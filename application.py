@@ -524,7 +524,8 @@ def searchFlight():
                     res_list[flight_dict[data[0]]]['flight_id'] = data[0]
                     res_list[flight_dict[data[0]]]['departure'] = data[1]
                     res_list[flight_dict[data[0]]]['arrival'] = data[2]
-                    res_list[flight_dict[data[0]]]['duration'] = data[3]
+                    dur = data[3].split(" ")
+                    res_list[flight_dict[data[0]]]['duration'] =  dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                     res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
                     res_list[flight_dict[data[0]]]['stop_count'] = data[5]
                     res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],request.form['date1'])
@@ -540,7 +541,8 @@ def searchFlight():
                     if(data):
                         dict = {}
                         dict['stop'] = stop
-                        dict['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         dict['departure_airport'] = data[4]
                         dict['departure_time'] = data[5]
                         dict['arrival_airport'] = data[6]
@@ -578,7 +580,8 @@ def searchFlight():
                         res_list[ii]['flight_id'] = data[0]
                         res_list[ii]['departure'] = data[1]
                         res_list[ii]['arrival'] = data[2]
-                        res_list[ii]['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        res_list[ii]['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         res_list[ii]['next_day_arr'] = data[4]
                         res_list[ii]['stop_count'] = data[5]
                         res_list[ii]['price'] = model.get_fair(data[6],real_dates[i])
@@ -592,7 +595,8 @@ def searchFlight():
                     if(data):
                         dict = {}
                         dict['stop'] = stop
-                        dict['duration'] = data[3]
+                        dur = data[3].split(" ")
+                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         dict['departure_airport'] = data[4]
                         dict['departure_time'] = data[5]
                         dict['arrival_airport'] = data[6]
@@ -611,7 +615,6 @@ def searchFlight():
     finally:
         cursor.close()
         conn.close()
-        # print len(res_final_list)
         return jsonify(res_final_list)
 
 
