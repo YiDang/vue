@@ -32,4 +32,3 @@ def book_flight():
 		cursor.close()
 		conn.close()
 
-book_flight()

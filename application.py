@@ -16,9 +16,6 @@ application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
 
-
-
-
 @application.route('/',methods=['POST','GET'])
 def home():
     return "hello"
