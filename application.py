@@ -481,6 +481,7 @@ def delay():
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
+
     return ""
 
 @application.route('/api/customer/searchFlight',methods=['POST','GET'])
@@ -489,9 +490,9 @@ def searchFlight():
     cursor = conn.cursor()
     res_final_list = []
     try:
-        _dep = request.form['departure']
-        _arr = request.form['arrival']
-        _roundtrip = request.form['roundtrip']
+        _dep = request.form['depart']
+        _arr = request.form['destination']
+        _roundtrip = request.form['trip']
         _date1 = model.get_db_date(request.form['date1'])
         _date2 = None
         loop = 1
@@ -501,6 +502,7 @@ def searchFlight():
         dep = [_dep,_arr]
         arr = [_arr,_dep]
         dates = [_date1,_date2]
+        real_dates = [request.form['date1'],request.form['date2']]
         for i in range(loop):
             ii = 0
             flight_id = []
@@ -521,18 +523,16 @@ def searchFlight():
                     res_list[flight_dict[data[0]]]['arrival'] = data[2]
                     res_list[flight_dict[data[0]]]['duration'] = data[3]
                     res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
-                    res_list[flight_dict[data[0]]]['stops'] = data[5]
+                    res_list[flight_dict[data[0]]]['stop_count'] = data[5]
                     res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],request.form['date1'])
                     res_list[flight_dict[data[0]]]['total_distance'] = data[7]
                     res_list[flight_dict[data[0]]]['stops'] = []
+                    res_list[flight_dict[data[0]]]['date'] = real_dates[i]
                     ii+=1
             for fid in flight_id:
-                print fid
+                # print fid
                 cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s;',[fid,loop_date])
                 stop = 1
-                # print i , "-=--------------------"
-                # print cursor.fetchall()
-                # print "hello", fid, loop_date
                 for data in cursor.fetchall():
                     if(data):
                         dict = {}
@@ -546,6 +546,7 @@ def searchFlight():
                         dict['airlineName'] = data[9]
                         dict['airlineCode'] = data[10]
                         dict['distance'] = data[2]
+                        dict['legs'] = data[1]
                         res_list[flight_dict[fid]]['stops'].append(dict)
                         stop += 1
             for fid in flight_id:
@@ -576,10 +577,12 @@ def searchFlight():
                         res_list[ii]['arrival'] = data[2]
                         res_list[ii]['duration'] = data[3]
                         res_list[ii]['next_day_arr'] = data[4]
-                        res_list[ii]['stops'] = data[5]
-                        res_list[ii]['price'] = model.get_fair(data[6],request.form['date1'])
+                        res_list[ii]['stop_count'] = data[5]
+                        res_list[ii]['price'] = model.get_fair(data[6],real_dates[i])
                         res_list[ii]['total_distance'] = data[7]
                         res_list[ii]['stops'] = []
+                        res_list[ii]['date'] = real_dates[i]
+
                 cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[hot_Flight_Id,loop_date])
                 stop = 1
                 for data in cursor.fetchall():
@@ -605,7 +608,7 @@ def searchFlight():
     finally:
         cursor.close()
         conn.close()
-        print len(res_final_list)
+        # print len(res_final_list)
         return jsonify(res_final_list)
 
 
