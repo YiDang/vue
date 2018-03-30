@@ -12,10 +12,10 @@
 				</el-col>
 
 				<el-col :span="5">
-					<el-date-picker type="date" placeholder="Departure time" v-model="form.date1" style="width: 100%;"></el-date-picker>
+					<el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="Departure time" v-model="form.date1" style="width: 100%;"></el-date-picker>
 				</el-col>
         <el-col :span="5" v-show="trip == 'roundtrip'">
-          <el-date-picker type="date" placeholder="Return time" v-model="form.date2" style="width: 100%;"></el-date-picker>
+          <el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="Return time" v-model="form.date2" style="width: 100%;"></el-date-picker>
         </el-col>
         <el-col :span="2">
           <el-row type="flex" class="row-bg" justify="center">
@@ -104,36 +104,49 @@ export default {
   },
   methods: {
   	onSearch: function () {
-
+      // console.log(this.form.date1)
   		this.travels1 = []
+      this.travels2 = []
 
-  		for(var i = 0; i < 10; i++){
-  			this.travels1.push({
-  				id:i,
-    			from:'EWR',
-    			to:'JFK',
-    			depart:'00:00',
-    			arrive:'00:00',
-    			price:100,
-    			stops:[
-    			{
-    				from:'a',
-    				to:'b',
-    				depart:'00:00',
-    				arrive:'00:00',
-    			},
-    			{
-    				from:'a',
-    				to:'b',
-    				depart:'00:00',
-    				arrive:'00:00',
-    			}
-    			]
+      var params = new URLSearchParams(this.form);
+      params.set('trip', this.trip=='oneway'?0:1)
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/customer/searchFlight',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+      })
+  		// for(var i = 0; i < 10; i++){
+  		// 	this.travels1.push({
+  		// 		id:i,
+    // 			from:'EWR',
+    // 			to:'JFK',
+    // 			depart:'00:00',
+    // 			arrive:'00:00',
+    // 			price:100,
+    // 			stops:[
+    // 			{
+    // 				from:'a',
+    // 				to:'b',
+    // 				depart:'00:00',
+    // 				arrive:'00:00',
+    // 			},
+    // 			{
+    // 				from:'a',
+    // 				to:'b',
+    // 				depart:'00:00',
+    // 				arrive:'00:00',
+    // 			}
+    // 			]
 
-    		})
-  		}
-      if(this.trip=='roundtrip')
-        this.travels2=this.travels1
+    // 		})
+  		// }
+    //   if(this.trip=='roundtrip')
+    //     this.travels2=this.travels1
   	},
 
     onSelection: function (data) {

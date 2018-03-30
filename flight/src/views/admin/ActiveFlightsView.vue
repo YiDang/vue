@@ -1,6 +1,7 @@
 <template>
   <div id = "active-flights-view">
   <h1>Most active flights</h1>
+  <div style="margin: 0 15%">
     <el-table
       :data="paged"
       style="width: 100%">
@@ -20,9 +21,11 @@
         width="180">
       </el-table-column>
     </el-table>
+    </div>
     <el-pagination :hidden = 'existData' layout="prev, pager, 
     next" :total="listw84page.length" :page-size="pageSize" :current-page.sync="currentPage">
     </el-pagination>
+
   </div>
 </template>
 

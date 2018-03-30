@@ -76,7 +76,7 @@ export default {
         },
         data: params
       }).then(response => {
-        console.log(response.data)
+        console.log("data",response.data)
         this.travels = response.data
         // console.log(response.status)
         // console.log(response.statusText)
