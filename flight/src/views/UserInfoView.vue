@@ -42,6 +42,25 @@ export default {
     onSave:function(){
       console.log("save submit")
     },
+  },
+  created: function() {
+    var params = new URLSearchParams();
+    params.append('account_no', 20);
+    this.$axios({
+        method: 'post',
+        url:  '/api/api/customer/getReserv',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        // this.travels = response.data
+        // console.log(response.status)
+        // console.log(response.statusText)
+        // console.log(response.headers)
+        // console.log(response.config)
+      })
   }
 }
 </script>

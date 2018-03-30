@@ -37,10 +37,11 @@
     {{form.depart}} to {{form.destination}}
       <search-list-item
       v-bind:direction="1"
-      v-bind:travels="travels1"
+      v-bind:travels="travels1paged"
       v-on:childEvent="onSelection">
       </search-list-item>
-      <el-pagination layout="prev, pager, next" :total="50" :page-size="10">
+      <el-pagination layout="prev, pager, next" 
+      :total="travels1.length" :page-size="pageSize" :current-page.sync="currentPage1">
       </el-pagination>
     </el-row>
     <!-- {{t1picked}} -->
@@ -48,10 +49,11 @@
       {{form.destination}} to {{form.depart}} 
       <search-list-item
       v-bind:direction="2"
-      v-bind:travels="travels2"
+      v-bind:travels="travels2paged"
       v-on:childEvent="onSelection">
       </search-list-item>
-      <el-pagination layout="prev, pager, next" :total="50" :page-size="10">
+      <el-pagination layout="prev, pager, next" 
+      :total="travels2.length" :page-size="pageSize" :current-page.sync="currentPage2">
       </el-pagination>
     </el-row>
 
@@ -91,6 +93,9 @@ export default {
     		date1:'',
     		date2:'',
     	},
+      currentPage1:1,
+      currentPage2:1,
+      pageSize:5,
     	travels1:[],
       travels2:[],
       t1picked:'',
@@ -167,6 +172,26 @@ export default {
     existData3: function () {
       // console.log(this.travels.length)
       return this.t1picked==''&&this.t2picked==''
+    },
+    travels1paged:function(){
+      var start = this.pageSize*(this.currentPage1-1)
+      var end = this.pageSize*this.currentPage1
+      var travels = []
+      for(var i=start; i<end && i < this.travels1.length; i++){
+        travels.push(this.travels1[i])
+      }
+      // console.log(this.currentPage1)
+      return travels
+    },
+    travels2paged:function(){
+      var start = this.pageSize*(this.currentPage2-1)
+      var end = this.pageSize*this.currentPage2
+      var travels = []
+      for(var i=start; i<end && i < this.travels2.length; i++){
+        travels.push(this.travels2[i])
+      }
+      // console.log(this.currentPage1)
+      return travels
     },
     travelspicked:function(){
       switch(this.trip)

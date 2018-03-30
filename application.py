@@ -18,23 +18,6 @@ mysql.init_app(application)
 
 
 
-def say_hello(username = "World"):
-    return '<p>Hello %s!</p>\n' % username
-
-
-header_text = '''
-    <html>\n<head> <title>EB Flask Test</title> </head>\n<body>'''
-instructions = '''
-    <p><em>Hint</em>: This is a RESTful web service! Append a username
-    to the URL (for example: <code>/Thelonious</code>) to say hello to
-    someone specific.</p>\n'''
-home_link = '<p><a href="/">Back</a></p>\n'
-footer_text = '</body>\n</html>'
-
-application.add_url_rule('/', 'index', (lambda: header_text +
-    say_hello() + instructions + footer_text))
-
-
 
 @application.route('/',methods=['POST','GET'])
 def home():
@@ -43,90 +26,68 @@ def home():
 # sign up new user
 @application.route('/api/signUp',methods=['POST','GET'])
 def signUp():
-    # conn = mysql.connect()
-    # cursor = conn.cursor()
-    # res = {}
-    # try:
-    #     _name = request.form['Name']
-    #     _password = request.form['Password']
-    #     if _name and _password:
-    #         _hashed_password = generate_password_hash(_password)
-    #         cursor.callproc('sp_createUser',(_name,_hashed_password))
-    #         data = cursor.fetchall()
-    #         if len(data) is 0:
-    #             conn.commit()
-    #             res['success'] = True
-    #             res['exist'] = False
-    #             return jsonify(res)
-    #         else:
-    #             ## user name exist
-    #             return jsonify({'error':str(data[0])})
-    #     else:
-    #         return jsonify({'html':'<span>Enter the required fields</span>'})
-    # except Exception as e:
-    #     return jsonify({'error':str(e)})
-    # finally:
-    #     cursor.close()
-    #     conn.close()
     conn = mysql.connect()
     try:
-        _name = request.form['Name']
-        _password = request.form['Password']
-        _last_name = request.form['Last_name']
-        _first_name = request.form['First_name']
-        _zipco = request.form['Zipco']
-        _address = request.form['Address']
-        _email = request.form['Email']
-        _telephone = request.form['Telephone']
-        _credit = request.form['Credit']
-        rec = user_db.signup(conn,_name,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
+        print request.form
+        _id = request.form['id']
+        _password = request.form['password']
+        _last_name = request.form['lastName']
+        _first_name = request.form['firstName']
+        _zipco = request.form['zipCode']
+        _address = request.form['address']
+        _email = request.form['email']
+        _telephone = request.form['telephone']
+        _credit = request.form['credit']
+
+        rec = user_db.signup(conn,_id,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
-            return jsonify({'issignup':True})
+            return jsonify({'isSignUp':True})
         else:
-            return jsonify({'issignup':False})
+            return jsonify({'isSignUp':False})
     except Exception as e:
         return jsonify({'error':str(e)})
-
 
 @application.route('/api/showuser',methods=['POST','GET'])
 def showuser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
-        # _account_no = 1
+        _account_no = request.form['no']
+        account_info =  user_db.show_password(conn,_account_no)
         rec = user_db.show_customer(conn,_account_no)
         dist = {}
         if(rec == False):
             return jsonify({'error':False})
-        dist['Account_no'] = rec[0][0]
-        dist['Last_name'] = rec[0][1]
-        dist['First_name'] = rec[0][2]
-        dist['Address'] = rec[0][3]
-        dist['Preference'] = rec[0][5]
-        dist['Email'] = rec[0][6]
-        dist['Telephone'] = rec[0][8]
-        dist['Account_date'] = rec[0][9]
-        dist['Zipco'] = rec[0][10]
-        dist['Credit'] = rec[0][11]
+        dist['id'] =account_info[0][2]
+        dist['no'] = rec[0][0]
+        dist['password'] =account_info[0][1]
+        dist['lastName'] = rec[0][1]
+        dist['firstName'] = rec[0][2]
+        dist['address'] = rec[0][3]
+        dist['preference'] = rec[0][5]
+        dist['email'] = rec[0][6]
+        dist['telephone'] = rec[0][8]
+        dist['account_date'] = rec[0][9]
+        dist['zipCode'] = rec[0][10]
+        dist['credit'] = rec[0][11]
         return jsonify(dist)
     except Exception as e:
-        return jsonify({'error':str(e)}) 
-
+        return jsonify({'error':str(e)})
 
 @application.route('/api/edituser',methods=['POST','GET'])
 def edituser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
-        _last_name = request.form['Last_name']
-        _first_name = request.form['First_name']
-        _zipco = request.form['Zipco']
-        _address = request.form['Address']
-        _email = request.form['Email']
-        _telephone = request.form['Telephone']
-        _credit = request.form['Credit']
-        _prefer = request.form['Prefer']
-        rec = user_db.update_customer(conn,_account_no,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
+        _account_no = request.form['no']
+        _account_password = request.form['password']
+        _last_name = request.form['lastName']
+        _first_name = request.form['firstName']
+        _zipco = request.form['zipCode']
+        _address = request.form['address']
+        _email = request.form['email']
+        _telephone = request.form['telephone']
+        _credit = request.form['credit']
+        _prefer = request.form['preference']
+        rec = user_db.update_customer(conn,_account_no,_account_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
         if(rec):
             return jsonify({'isedituser':True})
         else:
@@ -161,8 +122,6 @@ def delete():
     except Exception as e:
         return jsonify({'error':str(e)})
 
-
-
 # sign up new user
 @application.route('/api/isUser',methods=['POST','GET'])
 def verifyUser():
@@ -170,26 +129,31 @@ def verifyUser():
     cursor = conn.cursor()
     res={}
     try:
-        _name = request.form['Name']
-        _password = request.form['Password']
+        _name = request.form['id']
+        _password = request.form['password']
         if _name and _password:
-            _hashed_password = generate_password_hash(_password)
-            cursor.execute('SELECT password from Account where name = %s;',[_name])
-            for data in cursor.fetchall():
-                if data and check_password_hash(data[0],_password):
-                    conn.commit()
-                    # is a valid user with name and password
-                    res['validUser'] = True
-                    cursor.callproc('sp_isManager',(_name,_hashed_password))
-                    data = cursor.fetchall()
-                    if len(data) is 0:
-                        conn.commit()
-                        res['isManager'] = True
-                    else:
-                        res['isManager'] = False
-                else:
-                    res['validUser'] = False
-                    res['isManager'] = False
+            sql = "SELECT account_pass from Account_dev where account_name = '%s'"%(_name)
+            data = user_db.db_select(sql,conn)
+            if (data[0][0] == _password):
+                print "inside"
+                res['validUser'] = True
+                sql2 = "select employ_no from Manage_dev where account_no = (select account_no from Account_dev where account_name = '%s')"%(_name)
+                manage_Flag = user_db.db_select(sql2,conn)
+                
+                # cursor.callproc('sp_isManager',(_name,_hashed_password))
+                # datas = cursor.fetchall()
+                # if len(datas) is 0:
+                #     conn.commit()
+                #     res['isManager'] = True
+                # else:
+                #     res['isManager'] = False
+            else:
+                res['validUser'] = False
+                # res['isManager'] = False
+            sql = "SELECT account_no,account_name FROM Account_dev where account_name = '%s' and account_pass = '%s'"%(_name,_password)
+            rec = user_db.db_select(sql,conn)
+            res['no'] = rec[0][0]
+            res['id'] = rec[0][1]
         else:
             res['validUser'] = False
             res['isManager'] = False
@@ -199,9 +163,8 @@ def verifyUser():
     finally:
         cursor.close()
         conn.close()
+        print res
         return jsonify(res)
-
-
 
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
@@ -209,8 +172,6 @@ def get_sales_report():
     try:
         _month = request.form['Month']
         _year = request.form['Year']
-        # _month = '3'
-        # _year = '2018'
         rec = user_db.sales_report(conn,_month,_year)
         if(rec == False):
             return jsonify({'sales_report':False})
@@ -485,6 +446,38 @@ def get_customer_seated():
         conn.close()
     return jsonify(res)
 
+
+@application.route('/api/manager/delay',methods=['POST','GET'])
+def delay():
+    conn = mysql.connect()
+    try:
+        rec = user_db.get_delay_flight(conn)
+        _delay = []
+        if(rec == False):
+            return jsonify({'error':False})
+        for index in range(len(rec)):
+            dist = {}
+            dist['idLegs'] = rec[index][0]
+            dist['idFlight'] = rec[index][1]
+            dist['distance'] = rec[index][2]
+            dist['duration'] = rec[index][3]
+            dist['departure_airport'] = rec[index][4]
+            dist['departure_time'] = rec[index][5]
+            dist['departure_date'] = rec[index][6]
+            dist['arrival_airport'] = rec[index][7]
+            dist['arrival_time'] = rec[index][8]
+            dist['arrival_date'] = rec[index][9]
+            dist['flight_no'] = rec[index][10]
+            dist['plane'] = rec[index][11]
+            dist['plane_code'] = rec[index][12]
+            dist['airlinename'] = rec[index][13]
+            dist['airline_code'] = rec[index][14]
+            dist['delay'] = rec[index][15]
+            _delay.append(dist)
+        return jsonify(_delay)
+    except Exception as e:
+        return jsonify({'error':str(e)})
+
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
@@ -495,79 +488,126 @@ def searchFlight():
     conn = mysql.connect()
     cursor = conn.cursor()
     res_final_list = []
-    # try:
-    _dep = request.form['departure']
-    _arr = request.form['arrival']
-    _roundtrip = request.form['roundtrip']
-    _date1 = model.get_db_date(request.form['date1'])
-    print _date1
-    _date2 = None
-    if(_roundtrip == 1):
-        _date2 = model.get_db_date(request.form['date2'])
-    dep = [_dep,_arr]
-    arr = [_arr,_dep]
-    dates = [_date1,_date2]
-    loop = 1
-    if(_roundtrip == 1):
-        loop = 2
-    for i in range(loop):
-        ii = 0
-        flight_id = []
-        flight_dict = {}
-        res_list = []
-        loop_dep = dep[i]
-        loop_arr = arr[i]
-        loop_date = dates[i]
-
-        res_tmp = []
-        cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s ;", [loop_dep, loop_arr] )
-        for data in cursor.fetchall():
-            if(data):
-                flight_id.append(data[0])
-                flight_dict[data[0]] = ii
-                res_list.append({})
-                res_list[flight_dict[data[0]]]['flight_id'] = data[0]
-                res_list[flight_dict[data[0]]]['departure'] = data[1]
-                res_list[flight_dict[data[0]]]['arrival'] = data[2]
-                res_list[flight_dict[data[0]]]['duration'] = data[3]
-                res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
-                res_list[flight_dict[data[0]]]['stops'] = data[5]
-                res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],_date1)
-                res_list[flight_dict[data[0]]]['total_distance'] = data[7]
-                res_list[flight_dict[data[0]]]['stops'] = []
-                ii+=1
-
-        for fid in flight_id:
-            cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[fid,loop_date])
-            stop = 1
+    try:
+        _dep = request.form['departure']
+        _arr = request.form['arrival']
+        _roundtrip = request.form['roundtrip']
+        _date1 = model.get_db_date(request.form['date1'])
+        _date2 = None
+        loop = 1
+        if(_roundtrip == '1'):
+            _date2 = model.get_db_date(request.form['date2'])
+            loop = 2
+        dep = [_dep,_arr]
+        arr = [_arr,_dep]
+        dates = [_date1,_date2]
+        for i in range(loop):
+            ii = 0
+            flight_id = []
+            flight_dict = {}
+            res_list = []
+            loop_dep = dep[i]
+            loop_arr = arr[i]
+            loop_date = dates[i]
+            res_tmp = []
+            cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s ; ", [loop_dep, loop_arr] )
             for data in cursor.fetchall():
                 if(data):
-                    dict = {}
-                    dict['stop'] = stop
-                    dict['duration'] = data[3]
-                    dict['departure_airport'] = data[4]
-                    dict['departure_time'] = data[5]
-                    dict['arrival_airport'] = data[6]
-                    dict['arrival_time'] = data[7]
-                    dict['flight_no'] = data[8]
-                    dict['airlineName'] = data[9]
-                    dict['airlineCode'] = data[10]
-                    dict['distance'] = data[2]
-                    res_list[flight_dict[data[0]]]['stops'].append(dict)
-                    stop += 1
-        for fid in flight_id:
-            if(len(res_list[flight_dict[fid]]['stops']) < 1):
-                res_list[flight_dict[fid]] = None
-        res_final_list.append(res_list)
-# except Exception as e:
-#     print e
-#     res['error'] = 'Search Error'
-# finally:
-    cursor.close()
-    conn.close()
-    return jsonify(res_final_list)
+                    flight_id.append(data[0])
+                    flight_dict[data[0]] = ii
+                    res_list.append({})
+                    res_list[flight_dict[data[0]]]['flight_id'] = data[0]
+                    res_list[flight_dict[data[0]]]['departure'] = data[1]
+                    res_list[flight_dict[data[0]]]['arrival'] = data[2]
+                    res_list[flight_dict[data[0]]]['duration'] = data[3]
+                    res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
+                    res_list[flight_dict[data[0]]]['stops'] = data[5]
+                    res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],request.form['date1'])
+                    res_list[flight_dict[data[0]]]['total_distance'] = data[7]
+                    res_list[flight_dict[data[0]]]['stops'] = []
+                    ii+=1
+            for fid in flight_id:
+                print fid
+                cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s;',[fid,loop_date])
+                stop = 1
+                # print i , "-=--------------------"
+                # print cursor.fetchall()
+                # print "hello", fid, loop_date
+                for data in cursor.fetchall():
+                    if(data):
+                        dict = {}
+                        dict['stop'] = stop
+                        dict['duration'] = data[3]
+                        dict['departure_airport'] = data[4]
+                        dict['departure_time'] = data[5]
+                        dict['arrival_airport'] = data[6]
+                        dict['arrival_time'] = data[7]
+                        dict['flight_no'] = data[8]
+                        dict['airlineName'] = data[9]
+                        dict['airlineCode'] = data[10]
+                        dict['distance'] = data[2]
+                        res_list[flight_dict[fid]]['stops'].append(dict)
+                        stop += 1
+            for fid in flight_id:
+                if(len(res_list[flight_dict[fid]]['stops']) < 1):
+                    res_list[flight_dict[fid]] = None
+            res_final_list.append(res_list)
+        ii = 0
+        for i in range(loop):
+            hot_Flight_Id = None
+            res_list = []
+            loop_dep = dep[i]
+            loop_arr = arr[i]
+            loop_date = dates[i]
+            cursor.callproc('sp_getHotFlight',(loop_dep,loop_arr,loop_date))
+            for data in cursor.fetchall():
+                if(data):
+                    hot_Flight_Id = data[0]
+            if(hot_Flight_Id==None):
+                res_final_list.append(res_list)
+                continue
+            else:
+                res_list.append({})
+                cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where idFlightInfo = %s limit 1;", [hot_Flight_Id] )
+                for data in cursor.fetchall():
+                    if(data):
+                        res_list[ii]['flight_id'] = data[0]
+                        res_list[ii]['departure'] = data[1]
+                        res_list[ii]['arrival'] = data[2]
+                        res_list[ii]['duration'] = data[3]
+                        res_list[ii]['next_day_arr'] = data[4]
+                        res_list[ii]['stops'] = data[5]
+                        res_list[ii]['price'] = model.get_fair(data[6],request.form['date1'])
+                        res_list[ii]['total_distance'] = data[7]
+                        res_list[ii]['stops'] = []
+                cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[hot_Flight_Id,loop_date])
+                stop = 1
+                for data in cursor.fetchall():
+                    if(data):
+                        dict = {}
+                        dict['stop'] = stop
+                        dict['duration'] = data[3]
+                        dict['departure_airport'] = data[4]
+                        dict['departure_time'] = data[5]
+                        dict['arrival_airport'] = data[6]
+                        dict['arrival_time'] = data[7]
+                        dict['flight_no'] = data[8]
+                        dict['airlineName'] = data[9]
+                        dict['airlineCode'] = data[10]
+                        dict['distance'] = data[2]
+                        res_list[ii]['stops'].append(dict)
+                        stop += 1
+                ii+=1
+                res_final_list.append(res_list)
+    except Exception as e:
+        print e
+        res['error'] = 'Search Error'
+    finally:
+        cursor.close()
+        conn.close()
+        print len(res_final_list)
+        return jsonify(res_final_list)
 
-    # return ""
 
 # Finished
 # Get Reservation by account_no
@@ -638,45 +678,6 @@ def get_reserv():
         conn.close()
         return jsonify(res_list)
 
-# Finished
-# Get Travel Initary
-# @application.route('/api/customer/getTravelInit',methods=['POST','GET'])
-# def get_init():
-#     conn = mysql.connect()
-#     cursor = conn.cursor()
-#     res = {}
-#     count = 1
-#     try:
-#         reservation_no = request.form['reservation_no']
-#         cursor.execute('SELECT departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, class, seat_no, trip_no, duration ,distance, date, reservation_no  from Reservation natural join Reservation_Leg natural join LegsInfo where reservation_no = %s;',[reservation_no])
-#         for data in cursor.fetchall():
-#             if(data):
-#                 res[count] = []
-#                 dict = {}
-#                 dict['departure_airport'] = data[0]
-#                 dict['arrival_airport'] = data[1]
-#                 dict['departure_time'] = data[2]
-#                 dict['arrival_time'] = data[3]
-#                 dict['flight_no'] = data[4]
-#                 dict['airlineCode'] = data[5]
-#                 dict['airlineName'] = data[6]
-#                 dict['booking_fee'] = data[7]
-#                 dict['total_fare'] = data[8]
-#                 dict['class'] = data[9]
-#                 dict['seat_no'] = data[10]
-#                 dict['trip_no'] = data[11]
-#                 dict['duration'] = data[12]
-#                 dict['distance'] = data[13]
-#                 dict['date'] = data[14]
-#                 res[count].append(dict)
-#                 count = count + 1
-#     except Exception as e:
-#         res['error'] = 'Search Error'
-#     finally:
-#         cursor.close()
-#         conn.close()
-#         return jsonify(res)
-
 @application.route('/api/customer/getHistory',methods=['POST','GET'])
 def get_history():
     return ""
@@ -685,18 +686,6 @@ def get_history():
 def get_best_seller():
     return ""
 
-#
-# Customer booking APIs
-# @application.route('/api/searchFlight',methods=['POST','GET'])
-# def search_flight():
-#     roundtrip = False
-#     if(request.form['roundtrip']==True){
-#         roundtrip = True
-#     }
-#     date = []
-#     date.append()
-#
-#     return ""
 
 if __name__ == "__main__":
     application.run(host=model.get_ip_address(),debug=True,)

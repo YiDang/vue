@@ -17,8 +17,6 @@
           <el-menu-item index="/allflights">All Flights</el-menu-item>
           <el-menu-item index="/reservation">Reservations</el-menu-item>
           <el-menu-item index="/revenue">Revenue</el-menu-item>
-        </el-menu-item-group>
-        <el-menu-item-group title="Customer">
           <el-menu-item index="/activeflights">Active Flights</el-menu-item>
           <el-menu-item index="/seatreserve">Seats Reservation</el-menu-item>
           <el-menu-item index="/flightsofairport">Flights of Airport</el-menu-item>

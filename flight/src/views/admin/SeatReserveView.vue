@@ -5,18 +5,8 @@
         <el-row :gutter=10>
           <el-col :span=8>
             <el-form-item >
-              <el-input v-model="form.input" :placeholder='form.ph'></el-input>
+              <el-input v-model="form.flight" placeholder='flight'></el-input>
             </el-form-item>
-          </el-col>
-          <el-col :span=6>
-            <el-select v-model="groupby" placeholder="search by">
-              <el-option
-              v-for="item in form.typeEnum"
-              :key="item.label"
-              :label="item.label"
-              :value="item.label">
-              </el-option>
-            </el-select>
           </el-col>
           <el-col :span=3>
             <el-form-item>
@@ -31,15 +21,8 @@
       :data="reservation"
       style="width: 100%">
       <el-table-column
-        prop="name"
-        label="name"
-        v-if="'name' == groupby"
-        width="180">
-      </el-table-column>
-      <el-table-column
         prop="flight"
         label="flight"
-        v-if="'flight' == groupby"
         width="180">
       </el-table-column>
       <el-table-column
@@ -48,6 +31,7 @@
         width="180">
       </el-table-column>
     </el-table>
+    {{reservation}}
     <h1>Seat Reservation</h1>
   </div>
 </template>
@@ -64,18 +48,9 @@ export default {
   data () {
     return {
       form:{
-        input:'',
-        ph:'',
         flight:'',
-        name:'',
-        typeEnum:[{
-          label:'name'
-        },{
-          label:'flight'
-        }],
       },
       show:false,
-      groupby:'',
       reservation:[]
     }
   },
@@ -83,22 +58,27 @@ export default {
     onSearch:function(){
       this.show=true
       console.log("register submit")
+
+      var params = new URLSearchParams();
+      params.append('flight', this.form.flight);
+      console.log(this.form.flight)
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/manager/customerSeated',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        this.reservation = response.data
+        // console.log(response.status)
+        // console.log(response.statusText)
+        // console.log(response.headers)
+        // console.log(response.config)
+      })
     },
 
   },
-  watch:{
-    groupby: function(){
-        if(this.groupby=='name'){
-            this.form.name = this.form.input
-            this.form.ph = 'customer name'
-            this.show = false
-        }
-        if(this.groupby=='flight'){
-            this.form.flight = this.form.input
-            this.form.ph = 'flight'
-            this.show = false
-        }
-    }
-  }
 }
 </script>
