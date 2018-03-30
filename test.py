@@ -6,7 +6,7 @@ def book_flight(go, back, account_no, passengers):
     conn = model.db_conn()
     cursor = conn.cursor()
     try:
-    	_account_no = account_no
+        _account_no = account_no
     	_dep_date = go['date']
     	_reserv_date = model.get_today()
         _book_fare = go['price']
@@ -22,14 +22,14 @@ def book_flight(go, back, account_no, passengers):
         # pdb.set_trace()
     	# # # INSERT INTO RESERVATION_LEG TABLE
     	for t in range (_trip_no): # 1 or 2
-    		flight_id = _trips[t]['flight_id']
-    		# passenger_info = passengers[t]
-    		stops = _trips[t]['stops']
-    		for p in range(len(passengers)):
-    			passenger = passengers[p]
-    			for leg in range(len(stops)):
+    	   flight_id = _trips[t]['flight_id']
+    	   # passenger_info = passengers[t]
+    	   stops = _trips[t]['stops']
+    	   for p in range(len(passengers)):
+                passenger = passengers[p]
+    	        for leg in range(len(stops)):
                     idLegs = stops[leg]['legs']
-    				print _reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id
+                    print _reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id
                     
     				# cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no], idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", "", t)
     except Exception as e:
