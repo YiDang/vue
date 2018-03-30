@@ -6,6 +6,8 @@ from model import isDateFuture
 from datetime import datetime
 import model
 import user_db
+import ast
+# import test
 mysql = MySQL()
 application = Flask(__name__)
 
@@ -482,9 +484,12 @@ def delay():
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
-    go  = request.form['go']
-    print type(request.get_json())
-    print go["arrival"], go["price"], go["stops"], go['flight_id'] 
+    go  = json.loads((request.form['go']))
+    back = json.loads((request.form['back']))
+    account_no = request.form['account_no']
+    passengers = json.loads(request.form['passengers'])
+    
+    # test.book_flight(go,back)
 
 
     return ""
@@ -566,6 +571,8 @@ def searchFlight():
             res_list = []
             loop_dep = dep[i]
             loop_arr = arr[i]
+            print "+++++++++++ "+loop_arr,loop_dep
+
             loop_date = dates[i]
             cursor.callproc('sp_getHotFlight',(loop_dep,loop_arr,loop_date))
             for data in cursor.fetchall():
@@ -610,7 +617,7 @@ def searchFlight():
                         res_list[ii]['stops'].append(dict)
                         stop += 1
                 ii+=1
-                res_final_list.append(res_list)
+                res_final_list[i] = res_list + res_final_list[i]
     except Exception as e:
         print e
         res['error'] = 'Search Error'
@@ -688,7 +695,7 @@ def get_reserv():
     finally:
         cursor.close()
         conn.close()
-        print "Length of serach result", len(res_final_list)
+        print "Length of serach result", len(res_list)
         return jsonify(res_list)
 
 @application.route('/api/customer/getHistory',methods=['POST','GET'])
