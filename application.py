@@ -16,9 +16,6 @@ application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
 
-
-
-
 @application.route('/',methods=['POST','GET'])
 def home():
     return "hello"
@@ -485,6 +482,10 @@ def delay():
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
+    go  = request.form['go']
+    print type(request.get_json())
+    print go["arrival"], go["price"], go["stops"], go['flight_id'] 
+
 
     return ""
 
@@ -529,7 +530,7 @@ def searchFlight():
                     res_list[flight_dict[data[0]]]['duration'] =  dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                     res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
                     res_list[flight_dict[data[0]]]['stop_count'] = data[5]
-                    res_list[flight_dict[data[0]]]['price'] = model.get_fair(data[6],request.form['date1'])
+                    res_list[flight_dict[data[0]]]['price'] = round(model.get_fair(data[6],request.form['date1']),2)
                     res_list[flight_dict[data[0]]]['total_distance'] = data[7]
                     res_list[flight_dict[data[0]]]['stops'] = []
                     res_list[flight_dict[data[0]]]['date'] = real_dates[i]
@@ -616,6 +617,7 @@ def searchFlight():
     finally:
         cursor.close()
         conn.close()
+        print "Length of serach result", len(res_final_list)
         return jsonify(res_final_list)
 
 
@@ -686,6 +688,7 @@ def get_reserv():
     finally:
         cursor.close()
         conn.close()
+        print "Length of serach result", len(res_final_list)
         return jsonify(res_list)
 
 @application.route('/api/customer/getHistory',methods=['POST','GET'])
@@ -698,4 +701,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host=model.get_ip_address(),debug=True,)
+    application.run(host=model.get_ip_address(),debug=True)
