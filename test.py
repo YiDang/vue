@@ -1,12 +1,12 @@
 import model
 
 # @application.route('/api/customer/bookFlight',methods=['POST','GET'])
-def book_flight():
+def book_flight(go, back):
     conn = model.db_conn()
     cursor = conn.cursor()
     try:
     	_account_no = 1
-    	_dep_date = 1
+    	_dep_date = go['date']
     	_reserv_date = model.get_today()
     	_book_fare = 1
     	_total_fare = _book_fare * 1.1
