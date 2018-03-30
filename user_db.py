@@ -41,7 +41,7 @@ def db_check(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT VERSION()")
     data = cursor.fetchone()
-    print ("Database version : %s " % data)
+    #print ("Database version : %s " % data)
 
 def db_select(sql, conn):
     cursor = conn.cursor()
@@ -110,7 +110,7 @@ def db_account_customer_generater(conn,num):
         email = last_name + first_name + "@gmail.com"
         telephone = random_with_n_digits(10)
         account_date = "03/20/2018"
-        sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
+        sql2 = "insert into Customer_dev(account_no,last_name,fshowirst_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
         db_insert(sql2,conn)
 
 def create_customer(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
@@ -130,10 +130,11 @@ def create_customer(conn,name, password,last_name,first_name,zipco,address="",em
     # sql = "insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password)
     # sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
 
-def update_customer(conn,account_no,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
+def update_customer(conn,account_no,account_password,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
     sql = "update Customer_dev set last_name = '%s', first_name = '%s',address = '%s',email  = '%s',telephone = '%s', credit_catd_no  = '%s', preference  = '%s', zipco = '%s', account_date  = '%s' where account_no  = %s"%(last_name,first_name,address,email,telephone,credit,prefer,zipco,"3/18/2018",account_no)
     flag = db_update(sql,conn)
-    if(flag):
+    flag2 = update_password(conn,account_no,account_password)
+    if(flag and flag2):
         return True
     else:
         return False
@@ -166,6 +167,14 @@ def show_customer(conn,account_no):
     else:
         return False
 
+def show_password(conn,account_no):
+    sql = "select * from Account_dev where account_no = %s" %(account_no)
+    rec = db_select(sql,conn) #that is a tuple like this ((xxx,xx,xxx,xxx),(xxx,xxx,xx))
+    if(rec):
+        return rec
+    else:
+        return False
+
 def signup(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
     flag = check_acccount(conn,name)
     if(flag):
@@ -179,7 +188,7 @@ def signup(conn,name, password,last_name,first_name,zipco,address="",email="",te
 def compare_data(date1):
     date_format = '%m/%d/%Y'
     date_formalized = datetime.strptime(date1, date_format)
-    print date_formalized.month
+    #print date_formalized.month
 
 def get_airline_name(conn):
     sql = "SELECT DISTINCT airlineName FROM LegsInfo"
@@ -221,8 +230,8 @@ def get_delay_flight(conn):
 #sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
 #compare_data("3/18/2017")
 
-conn = db_conn()
-db_check(conn)
+# conn = db_conn()
+# db_check(conn)
 #db_account_customer_generater(conn,100)
 #create_customer(conn,"kkk","kkk","xxx","mmm","123123","301 river road","mohanxiao94@gmail.com","7325003789","123123")
 #update_password(conn,"kkk","aws")
@@ -245,8 +254,19 @@ db_check(conn)
 #print (sales_report(conn,'3','2018'))
 # print ({"aaa":"qwe"})
 #db_close(conn)
-
-
-
-db_close(conn)
+# _name = 'qqq'
+# _password = 'qqq'
+# sql = "SELECT account_pass from Account_dev where account_name = '%s'"%(_name)
+# # sql = "SELECT account_no,account_name FROM Account_dev where account_name = '%s' and account_pass = '%s'"%(_name,_password)
+# rec = db_select(sql,conn)
+# print rec
+# _name = 1
+# sql2 = "select employ_no from Manage_dev where account_no = (select account_no from Account_dev where account_name = '%s')"%(_name)
+# manage_Flag = db_select(sql2,conn)
+# print manage_Flag
+# if manage_Flag:
+#     print "good"
+# else:
+#     print "bad"
+# db_close(conn)
 
