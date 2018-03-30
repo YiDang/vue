@@ -62,7 +62,9 @@
       this.isHidden =false
 
       this.isManager = store.get('isManager')
-
+      // this.name=store.g
+      // console.log(store.get('token'))
+      this.name=store.get('token').id
       console.log('isManager',this.isManager)
     }
   }
