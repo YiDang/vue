@@ -28,7 +28,6 @@ def home():
 def signUp():
     conn = mysql.connect()
     try:
-        print request.form
         _id = request.form['id']
         _password = request.form['password']
         _last_name = request.form['lastName']
@@ -38,7 +37,7 @@ def signUp():
         _email = request.form['email']
         _telephone = request.form['telephone']
         _credit = request.form['credit']
-
+        print request.form
         rec = user_db.signup(conn,_id,_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit)
         if(rec):
             return jsonify({'isSignUp':True})
@@ -51,9 +50,12 @@ def signUp():
 def showuser():
     conn = mysql.connect()
     try:
-        _account_no = request.form['no']
+        _account_name = request.form['id']
+        print _account_name
+        _account_no = user_db.get_account_no(conn,_account_name)
         account_info =  user_db.show_password(conn,_account_no)
         rec = user_db.show_customer(conn,_account_no)
+        print _account_no
         dist = {}
         if(rec == False):
             return jsonify({'error':False})
@@ -89,9 +91,9 @@ def edituser():
         _prefer = request.form['preference']
         rec = user_db.update_customer(conn,_account_no,_account_password,_last_name,_first_name,_zipco,_address,_email,_telephone,_credit,_prefer)
         if(rec):
-            return jsonify({'isedituser':True})
+            return jsonify({'isedituser':'Success'})
         else:
-            return jsonify({'isedituser':False})
+            return jsonify({'isedituser':'Fail to edit'})
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -113,12 +115,15 @@ def editpass():
 def delete():
     conn = mysql.connect()
     try:
-        _account_no = request.form['Account_no']
+        _account_name = request.form['id']
+        _account_no = user_db.get_account_no(conn,_account_name)
+        if(_account_name == False):
+            return jsonify({'Delete false':False})
         rec = user_db.delete_customer(conn,_account_no)
         if(rec):
-            return jsonify({'isdelete':True})
+            return jsonify({'Successful Delete':True})
         else:
-            return jsonify({'isdelete':False})
+            return jsonify({'Delete false':False})
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -135,21 +140,16 @@ def verifyUser():
             sql = "SELECT account_pass from Account_dev where account_name = '%s'"%(_name)
             data = user_db.db_select(sql,conn)
             if (data[0][0] == _password):
-                print "inside"
                 res['validUser'] = True
                 sql2 = "select employ_no from Manage_dev where account_no = (select account_no from Account_dev where account_name = '%s')"%(_name)
                 manage_Flag = user_db.db_select(sql2,conn)
-                
-                # cursor.callproc('sp_isManager',(_name,_hashed_password))
-                # datas = cursor.fetchall()
-                # if len(datas) is 0:
-                #     conn.commit()
-                #     res['isManager'] = True
-                # else:
-                #     res['isManager'] = False
+                if manage_Flag:
+                    res['isManager'] = True
+                else:
+                    res['isManager'] = False
             else:
                 res['validUser'] = False
-                # res['isManager'] = False
+                res['isManager'] = False
             sql = "SELECT account_no,account_name FROM Account_dev where account_name = '%s' and account_pass = '%s'"%(_name,_password)
             rec = user_db.db_select(sql,conn)
             res['no'] = rec[0][0]
@@ -163,20 +163,22 @@ def verifyUser():
     finally:
         cursor.close()
         conn.close()
-        print res
         return jsonify(res)
 
 @application.route('/api/manager/getSalesReport',methods=['POST','GET'])
 def get_sales_report():
     conn = mysql.connect()
     try:
-        _month = request.form['Month']
-        _year = request.form['Year']
+        _month = request.form['month']
+        _year = request.form['year']
+        print _month 
+        print _year
         rec = user_db.sales_report(conn,_month,_year)
+        print rec
         if(rec == False):
             return jsonify({'sales_report':False})
         else:
-            return jsonify({'sales_report':rec})
+            return jsonify(rec)
     except Exception as e:
         return jsonify({'error':str(e)})
 
@@ -473,6 +475,7 @@ def delay():
             dist['airlinename'] = rec[index][13]
             dist['airline_code'] = rec[index][14]
             dist['delay'] = rec[index][15]
+            dist['isdelay'] = rec[index][16]
             _delay.append(dist)
         return jsonify(_delay)
     except Exception as e:
