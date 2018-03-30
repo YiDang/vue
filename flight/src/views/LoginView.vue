@@ -28,53 +28,83 @@
           </el-row>
         </el-form-item>
       </el-form>
-
-      
-      <!-- <el-button type="text" @click="dialogVisible = true">点击打开 Dialog</el-button> -->
-
       <el-dialog
       title="Sign up"
       :visible.sync="dialogVisible"
       width="30%"
       :before-close="handleClose">
         <el-form ref="formr" :model="formr" >
-          <el-form-item>
+          <el-form-item label='account id:'>
             <el-row type="flex" class="row-bg" justify="center">
               <el-col :span="18">
-                <el-input name="id" placeholder="id" v-model="formr.id"></el-input>
+                <el-input name="id" placeholder="id" v-model="formr.id" ></el-input>
               </el-col>
             </el-row>
           </el-form-item>
-          <el-form-item>
+          <el-form-item label='password:'>
             <el-row type="flex" class="row-bg" justify="center">
               <el-col :span="18">
                 <el-input name="password" placeholder="password" v-model="formr.password"></el-input>
               </el-col>
             </el-row>
           </el-form-item>
-<!--           <el-form-item>
+          <el-form-item label='lastName:'>
             <el-row type="flex" class="row-bg" justify="center">
               <el-col :span="18">
-                <el-button @click="onRegister">submit</el-button>
+                <el-input name="lastName" placeholder="lastName" v-model="formr.lastName"></el-input>
               </el-col>
             </el-row>
-          </el-form-item> -->
+          </el-form-item>
+          <el-form-item label='firstName:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="firstName" placeholder="firstName" v-model="formr.firstName"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label='zipCode:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="zipCode" placeholder="zipCode" v-model="formr.zipCode"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label='email:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="email" placeholder="email" v-model="formr.email"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label='address:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="address" placeholder="address" v-model="formr.address"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label='telephone:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="telephone" placeholder="telephone" v-model="formr.telephone"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
+          <el-form-item label='credit:'>
+            <el-row type="flex" class="row-bg" justify="center">
+              <el-col :span="18">
+                <el-input name="credit" placeholder="credit" v-model="formr.credit"></el-input>
+              </el-col>
+            </el-row>
+          </el-form-item>
         </el-form>
+        {{this.rMessage}}
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="onRegister">确 定</el-button>
         </span>
       </el-dialog>
-
-      <el-button @click="onTest">submit</el-button>
-      <!-- <p>{{form.id}}</p> -->
-      <!-- <p>{{form.password}}</p> -->
-      <!-- {{form}} -->
-      <!-- <div class="">
-        <button class="submit">submit
-        </button>
-      </div> -->
-    <!-- </form> -->
+      {{sMessage}}
     </el-main>
   </div>
 </template>
@@ -92,45 +122,88 @@ export default {
       },
 
       formr:{
-        id : '',
-        password : ''        
-      }
+        id : '1',
+        password : '1',
+        lastName:'1',
+        firstName:'1',
+        zipCode:'1',
+        address:'1',
+        email:'1',
+        telephone:'1',
+        credit:'1'
+      },
+      rMessage:'',
+      sMessage:''
     }
   },
   methods: {
     onSuccess: function (res) {
-      this.$store.dispatch('login')
-      // console.log('complete!')
-      // this.$router.push({name: 'StatusView'})
-    },
-    onError: function (err) {
-      // console.log(err)
-
-    },
-    onSubmit: function () {
-      // this.$session.set('login', 'true')//
-      // 登陆检测做到后端
-      store.set('token','xxx')
-      if(this.form.id == '1') {
-        console.log('Manager login')
-        store.set('isManager',true) 
+      console.log('sucess!')
+      store.set('token', res)
+      if(res.isManager){
+        console.log("manager")
+        store.set('isManager',true)
         this.$router.push({name: 'AdminView'})
       }
       else{
-        console.log('Customer login')
-        store.set('isManager',false)  
+        console.log("customer")
+        store.set('isManager',false)
         this.$router.push({name: 'BookView'})
-      } 
-      
+      }
     },
-    openRegister: function(){
-      this.isHidden = this.isHidden ? false:true 
+    onError: function (err) {
+      // console.log(err)
+      this.sMessage ='User does not exist or password is not correct'
+
     },
+
+    onSubmit:function(){
+      // onSuccess('')
+      var params = new URLSearchParams();
+      params.append('id', this.form.id);
+      params.append('password', this.form.password);  
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/isUser',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        if(response.data.validUser){
+          this.onSuccess(response.data)
+        }
+        else{
+          this.onError(response.data)
+        }
+      })
+    },
+
     onRegister: function(){
-      this.dialogVisible = false
+
+      var params = new URLSearchParams(this.formr);
+      // params.append('id', this.form.id);
+  
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/signUp',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        if(response.data.isSignUp){
+          this.dialogVisible = false    
+        }
+        else{
+          this.rMessage='Account already exists!'
+        }
+      })
     },
     handleClose(done) {
-      this.$confirm('确认关闭？')
+      this.$confirm('close？')
       .then(_ => {
         done();
       })

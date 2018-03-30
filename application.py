@@ -430,7 +430,8 @@ def get_customer_seated():
     res = []
     try:
         flight_no = request.form["flight"]
-        cursor.execute("SELECT name FROM Reservation_Leg WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no!=''", (flight_no))
+        date = request.form["date"]
+        cursor.execute("SELECT name FROM Reservation_Leg JOIN Reservation USING (reservation_no) WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no<>'' AND date=%s", (flight_no, date))
         dic = {}
         dic["flight_no"] = flight_no
         dic["passengers"] = []

@@ -35,8 +35,6 @@ export default {
   data () {
     return {
       checkList:[],
-      // currentPage:1,
-      // pageSize:5,
     	form:{
     		depart:'',
     		destination:'',
@@ -76,12 +74,8 @@ export default {
         },
         data: params
       }).then(response => {
-        console.log(response.data)
+        console.log("data",response.data)
         this.travels = response.data
-        // console.log(response.status)
-        // console.log(response.statusText)
-        // console.log(response.headers)
-        // console.log(response.config)
       })
     },
 

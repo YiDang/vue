@@ -21,7 +21,6 @@
           <el-menu-item index="/seatreserve">Seats Reservation</el-menu-item>
           <el-menu-item index="/flightsofairport">Flights of Airport</el-menu-item>
           <el-menu-item index="/ontime">ETA</el-menu-item>
-          <!-- <el-menu-item index="1-10">选项0</el-menu-item> -->
         </el-menu-item-group>
       </el-submenu>
     </el-menu>

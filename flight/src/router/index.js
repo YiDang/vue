@@ -119,6 +119,7 @@ import store from 'store'
 router.beforeEach((to, from, next) => {
   // console.log(to)
   // console.log(store.get('token'))
+  if(to.path.indexOf('admin')>=0) console.log('admin')
   if(to.path != '/login' && !store.get('token')){
     // console.log('redirect')
     next({path: '/login'})

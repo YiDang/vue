@@ -8,6 +8,11 @@
               <el-input v-model="form.flight" placeholder='flight'></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span=8>
+            <el-form-item >
+              <el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="date" v-model="form.date2" style="width: 100%;"></el-date-picker>
+            </el-form-item>
+          </el-col>
           <el-col :span=3>
             <el-form-item>
               <el-button type="submit" @click="onSearch">Search</el-button>

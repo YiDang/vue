@@ -12,10 +12,10 @@
 				</el-col>
 
 				<el-col :span="5">
-					<el-date-picker type="date" placeholder="Departure time" v-model="form.date1" style="width: 100%;"></el-date-picker>
+					<el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="Departure date" v-model="form.date1" style="width: 100%;"></el-date-picker>
 				</el-col>
         <el-col :span="5" v-show="trip == 'roundtrip'">
-          <el-date-picker type="date" placeholder="Return time" v-model="form.date2" style="width: 100%;"></el-date-picker>
+          <el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="Return date" v-model="form.date2" style="width: 100%;"></el-date-picker>
         </el-col>
         <el-col :span="2">
           <el-row type="flex" class="row-bg" justify="center">
@@ -36,9 +36,9 @@
     <el-row :hidden = 'existData1'>
     {{form.depart}} to {{form.destination}}
       <search-list-item
-      v-bind:direction="1"
+      @rowChange="onRowChange1"
       v-bind:travels="travels1paged"
-      v-on:childEvent="onSelection">
+      >
       </search-list-item>
       <el-pagination layout="prev, pager, next" 
       :total="travels1.length" :page-size="pageSize" :current-page.sync="currentPage1">
@@ -48,9 +48,9 @@
 		<el-row :hidden = 'existData2'>
       {{form.destination}} to {{form.depart}} 
       <search-list-item
-      v-bind:direction="2"
+      @rowChange="onRowChange2"
       v-bind:travels="travels2paged"
-      v-on:childEvent="onSelection">
+      >
       </search-list-item>
       <el-pagination layout="prev, pager, next" 
       :total="travels2.length" :page-size="pageSize" :current-page.sync="currentPage2">
@@ -60,16 +60,44 @@
     <el-row :hidden = 'existData3'>
       Result
       <search-list-item
-      v-bind:direction="0"
       v-bind:travels="travelspicked">
       </search-list-item>
+    </el-row>
+    <el-row>Passenger list
+      <el-table
+      :data="passengers"
+      style="width: 80%; margin: auto">
+      <el-table-column
+        prop="ssn"
+        label="ssn"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="name"
+        width="180">
+      </el-table-column>
+    </el-table>
+    </el-row>
+    <el-row>
+      <el-form :inline="true" :model="newPsg">
+        <el-form-item label="SSN">
+          <el-input v-model="newPsg.ssn" placeholder="SSN"></el-input>
+        </el-form-item>
+        <el-form-item label="Name">
+          <el-input v-model="newPsg.name" placeholder="Name"></el-input>
+        </el-form-item>
+          <el-button type="primary" @click="addPassneger">addPassenger</el-button>
+        </el-form-item>
+      </el-form>
     </el-row>
     <el-row>
       <el-button v-show='submitable' type='submit' @click='onSubmit'>
         submit
       </el-button>
     </el-row>
-    <!-- {{t2picked}} -->
+    {{t1picked}}
+    {{t2picked}}
 	</div>
 </template>
 
@@ -78,6 +106,7 @@
 <script>
 
 import SearchListItem from '../components/SearchListItem'
+import store from 'store'
 
 export default {
   name: 'book-view',
@@ -89,74 +118,97 @@ export default {
       trip : 'oneway',
     	form:{
     		depart:'EWR',
-    		destination:'JFK',
+    		destination:'ORD',
     		date1:'',
-    		date2:'',
+    		date2:''
     	},
+      newPsg:{
+        ssn:'',
+        name:''
+      },
       currentPage1:1,
       currentPage2:1,
       pageSize:5,
     	travels1:[],
       travels2:[],
-      t1picked:'',
-      t2picked:''
+      passengers:[],
+      t1picked:null,
+      t2picked:null
     }
   },
   methods: {
   	onSearch: function () {
-
+      // console.log(this.form.date1)
   		this.travels1 = []
+      this.travels2 = []
 
-  		for(var i = 0; i < 10; i++){
-  			this.travels1.push({
-  				id:i,
-    			from:'EWR',
-    			to:'JFK',
-    			depart:'00:00',
-    			arrive:'00:00',
-    			price:100,
-    			stops:[
-    			{
-    				from:'a',
-    				to:'b',
-    				depart:'00:00',
-    				arrive:'00:00',
-    			},
-    			{
-    				from:'a',
-    				to:'b',
-    				depart:'00:00',
-    				arrive:'00:00',
-    			}
-    			]
-
-    		})
-  		}
-      if(this.trip=='roundtrip')
-        this.travels2=this.travels1
+      var params = new URLSearchParams(this.form);
+      params.set('trip', this.trip=='oneway'?0:1)
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/customer/searchFlight',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        this.travels1 = this.nullfilter(response.data[0])
+        this.travels2 = this.nullfilter(response.data[1])
+      })
+      // this.travels1.push({departure:1,arrival:1})
+      // this.travels1.push({departure:1,arrival:2})
+      // this.travels2.push({departure:1,arrival:1})
+      // this.travels2.push({departure:1,arrival:3})
   	},
 
-    onSelection: function (data) {
-      // console.log('book view')
-      console.log(data.direction)
-      switch(data.direction)
-      {
-        case 1:
-        this.t1picked=data.data
-        break;
-        case 2:
-        this.t2picked=data.data
-        break;
+    nullfilter: function (list) {
+      var tmp=[]
+      console.log('list',list.length)
+      var x = list.length
+      for(var i = 0;i < x; i++){
+        if(list[i] != null){
+          tmp.push(list[i])
+        }
+        
       }
-      // console.log(data.direction)
+      return tmp
     },
+    onRowChange1: function (data) {
+      this.t1picked=data
+    },
+    onRowChange2: function (data) {
+      this.t2picked=data
+    },
+
     onSwitch:function(){
-      console.log('clear') 
       this.travels1=this.travels2=[]
-      this.t1picked=this.t2picked=''
+      this.t1picked=this.t2picked=null
     },
     onSubmit:function(){
-
+      var params = new URLSearchParams();
+      params.set('go',this.t1picked)
+      params.set('back',this.t2picked)
+      params.set('no',store.get('token').no)
+      if(this.trip = 'oneway') params.set('type',1)
+      else params.set('type',2)
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/customer/bookFlight',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+      })
+    },
+    addPassneger:function(){
+      this.passengers.push(this.newPsg)
+      this.newPsg={
+       ssn:'',
+       name:''
+      }
     }
   },
   computed: {
@@ -171,7 +223,7 @@ export default {
     },
     existData3: function () {
       // console.log(this.travels.length)
-      return this.t1picked==''&&this.t2picked==''
+      return this.t1picked==null &&this.t2picked==null
     },
     travels1paged:function(){
       var start = this.pageSize*(this.currentPage1-1)
@@ -205,13 +257,13 @@ export default {
       }
     },
     submitable:function(){
-            switch(this.trip)
+      switch(this.trip)
       {
         case 'oneway':
-        return this.t1picked!=''
+        return this.t1picked!=null
         break;
         case 'roundtrip':
-        return this.t1picked!=''&&this.t2picked!=''
+        return this.t1picked!=null&&this.t2picked!=null
         break;
       }
     }

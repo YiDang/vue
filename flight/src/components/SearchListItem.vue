@@ -3,46 +3,41 @@
     <el-table
       border
       :data="travels"
+      highlight-current-row
+      @current-change="handleCurrentChange"
       style="width: 80%; margin: auto">
       <el-table-column
-        label="id"
-        prop="id"
-        v-if="direction==0">
-      </el-table-column>
-      <el-table-column
-        label="id"
-        v-else>
-        <template slot-scope="scope">
-          <el-radio v-model="radio1" @change='onChange(scope.row)' :label="scope.row.id">
-          </el-radio>
-        </template>
-      </el-table-column>
-
-      <el-table-column
-        prop="from"
+        prop="departure"
         label="from">
       </el-table-column>
       <el-table-column
-        prop="to"
+        prop="arrival"
         label="to">
       </el-table-column>
       <el-table-column
-        prop="depart"
-        label="depart">
+        prop="date"
+        label="date">
       </el-table-column>
       <el-table-column
-        prop="arrive"
-        label="arrive">
+        prop="duration"
+        label="duration">
       </el-table-column>
       <el-table-column
+        prop="stop_count"
         label="stops">
+      </el-table-column>
+      <el-table-column
+        label="stops details">
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
             <el-table :data="scope.row.stops">
-              <el-table-column property="from" label="from"></el-table-column>
-              <el-table-column property="to" label="to"></el-table-column>
-              <el-table-column property="depart" label="depart"></el-table-column>
-              <el-table-column property="arrive" label="arrive"></el-table-column>
+              <el-table-column property="airlineCode" label="airlineCode"></el-table-column>
+              <el-table-column property="flight_no" label="flight no"></el-table-column>
+              <el-table-column property="departure_airport" label="from"></el-table-column>
+              <el-table-column property="arrival_airport" label="to"></el-table-column>
+              <el-table-column property="departure_time" label="departure time"></el-table-column>
+              <el-table-column property="arrival_time" label="arrival time"></el-table-column>
+              <el-table-column property="duration" label="duration" show-overflow-tooltip></el-table-column>
             </el-table>
             <div slot="reference" class="name-wrapper">
               <el-tag size="medium">details</el-tag>
@@ -54,14 +49,6 @@
         prop="price"
         label="$price">
       </el-table-column>
-<!--       <el-table-column label="buy">
-        <template slot-scope="scope">
-          <el-button @click='buy(scope.row)'>buy
-          </el-button>
-          <el-radio v-model="radio1" :label="scope.row.id">
-          </el-radio>
-        </template>
-      </el-table-column> -->
     </el-table>
   </div>
 </template>
@@ -70,30 +57,17 @@
 
 export default {
   name: 'search-list-item',
+  props:['travels'],
   data(){
     return{
-      radio1:''
+      currentRow:null,
     }
-  },
-  props:['travels','direction'],//direction 1:go 2:back 3:generate result
+  },//1:go 2:back 0:generate result
 
-  // date:{
-  //   id:'',
-  //   from:'',
-  //   to:'',
-  //   stops:[
-  //   ]
-  // },
   methods:{
-    test:function (){
-      console.log(this.travels)
-    },
-    buy:function (a){
-      console.log(a)
-    },
-    onChange:function(data){
-      // console.log(data)
-      this.$emit('childEvent', {data:data,direction:this.direction})
+    handleCurrentChange(val) {
+      this.currentRow = val;
+      this.$emit('rowChange',val);
     }
   }
 

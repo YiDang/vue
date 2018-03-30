@@ -3,7 +3,7 @@
     <el-row :gutter="10">
       <el-form :model="month" ref="month" label-width="100px">
         <el-col :span="4">
-          <el-input prop="year" placeholder="year"></el-input>
+          <el-input v-model="month.year" placeholder="year"></el-input>
         </el-col>
         <el-col :span="4">
             <el-select v-model="month.month" placeholder="Month">
@@ -20,9 +20,8 @@
         </el-col>
       </el-form>
     </el-row>
-
     <el-table
-      :data="saledate"
+      :data="listw84page"
       style="width: 100%"
       v-show='showTable'>
       <el-table-column
@@ -31,13 +30,12 @@
         width="180">
       </el-table-column>
       <el-table-column
-        prop="stat1"
-        label="stat1"
-        width="180">
+        prop="value"
+        label="Revenue">
       </el-table-column>
       <el-table-column
-        prop="stat2"
-        label="stat2">
+        prop="# of flight"
+        label="number of tickets">
       </el-table-column>
     </el-table>
   </div>
@@ -60,6 +58,7 @@ export default {
       },
       showTable:false,
       saledate:[],
+      listw84page:[],
       monthEum: [{
           value: 1,
           label: 'Jan'
@@ -103,10 +102,21 @@ export default {
     onMonthSelected:function(){
       console.log("month selected")
       this.showTable=true
-      this.saledate.push({
-        name:'UA',
-        stat1:'11',
-        stat2:'22',
+      var params = new URLSearchParams(this.month);
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/manager/getSalesReport',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log(response.data)
+        this.listw84page   = response.data
+        // console.log(response.status)
+        // console.log(response.statusText)
+        // console.log(response.headers)
+        // console.log(response.config)
       })
     },
 
