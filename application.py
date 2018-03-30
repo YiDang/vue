@@ -7,7 +7,7 @@ from datetime import datetime
 import model
 import user_db
 import ast
-# import test
+import test
 mysql = MySQL()
 application = Flask(__name__)
 
@@ -488,8 +488,8 @@ def book_flight():
     back = json.loads((request.form['back']))
     account_no = request.form['account_no']
     passengers = json.loads(request.form['passengers'])
-    
-    # test.book_flight(go,back)
+    # print  account_no, passengers[0]
+    test.book_flight(go,back,account_no,passengers)
 
 
     return ""
@@ -614,6 +614,7 @@ def searchFlight():
                         dict['airlineName'] = data[9]
                         dict['airlineCode'] = data[10]
                         dict['distance'] = data[2]
+                        dict['legs'] = data[1]
                         res_list[ii]['stops'].append(dict)
                         stop += 1
                 ii+=1
