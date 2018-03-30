@@ -114,14 +114,17 @@ def db_account_customer_generater(conn,num):
         db_insert(sql2,conn)
 
 def create_customer(conn,name, password,last_name,first_name,zipco,address="",email="",telephone="",credit=""):
-    count = "select count(*) from Account_dev"
+    count = "select max(account_no) from Account_dev"
     number_ = db_select(count,conn)[0][0]
     number = number_ + 1
+    print number
     account_date = ""
-    sql = ["insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password),
+    sql = ["insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,password,name),
            "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)]
     flag1 = db_insert(sql[0],conn)
     flag2 = db_insert(sql[1],conn)
+    print flag1
+    print flag2
     if(flag1 and flag2):
         return True
     else:
@@ -129,18 +132,36 @@ def create_customer(conn,name, password,last_name,first_name,zipco,address="",em
     # count = "select count(*) from Account_dev"
     # sql = "insert into Account_dev(account_no,account_pass,account_name) values(%s, '%s','%s')"%(number,name,password)
     # sql2 = "insert into Customer_dev(account_no,last_name,first_name,address,email,telephone,account_date,zipco) values(%s,'%s','%s','%s','%s','%s','%s','%s')"%(number,last_name,first_name,address,email,telephone,account_date,zipco)
+def get_account_no(conn,account_name):
+    sql = "select account_no from Account_dev where account_name = '%s'"%(account_name)
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec[0][0]
+    else:
+        return False
+
+def get_account_name(conn,account_no):
+    sql = "select account_name from Account_dev where account_no = '%s'"%(account_no)
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec[0][0]
+    else:
+        return False
+
+
 
 def update_customer(conn,account_no,account_password,last_name,first_name,zipco,address="",email="",telephone="",credit="",prefer=""):
     sql = "update Customer_dev set last_name = '%s', first_name = '%s',address = '%s',email  = '%s',telephone = '%s', credit_catd_no  = '%s', preference  = '%s', zipco = '%s', account_date  = '%s' where account_no  = %s"%(last_name,first_name,address,email,telephone,credit,prefer,zipco,"3/18/2018",account_no)
+    account_name = get_account_name(conn,account_no)
     flag = db_update(sql,conn)
-    flag2 = update_password(conn,account_no,account_password)
+    flag2 = update_password(conn,account_name,account_password)
     if(flag and flag2):
         return True
     else:
         return False
 
-def update_password(conn,account_no,account_password):
-    sql = "update Account_dev set account_pass = '%s' where account_no = '%s'"%(account_password,account_no)
+def update_password(conn,account_name,account_password):
+    sql = "update Account_dev set account_pass = '%s' where account_name = '%s'"%(account_password,account_name)
     flag = db_update(sql,conn)
     if(flag):
         return True
@@ -206,19 +227,22 @@ def sales_report(conn,month = '3',year = '2018'):
         return False
     for index in range(len(airline_name)):
         sql = "SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
+        sql2 = "SELECT count(*) as numberflight FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
         _rec = db_select(sql,conn)
-        
-        if(_rec):
-            if(_rec[0][0] == None):
-                rec.append({airline_name[index][0]:0})
+        _number_flight = db_select(sql2,conn)
+        #print _number_flight
+        if(_rec and _number_flight):
+            if((_rec[0][0] == None) and (_number_flight[0][0] == 0)):
+                rec.append(({'name':airline_name[index][0],'# of flight': 0,'value':0}))
             else:
-                rec.append({airline_name[index][0]:_rec[0][0]})
+                rec.append(({'name':airline_name[index][0],'# of flight': _number_flight[0][0],'value':_rec[0][0]}))
         else:
             return False
     return rec
 
 def get_delay_flight(conn):
-    sql = "SELECT * FROM HistoryLegs where CAST(delay AS SIGNED) > 0"
+    #sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs where CAST(delay AS SIGNED) > 0"
+    sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC"
     rec = db_select(sql,conn)
     if(rec):
         return rec
@@ -268,5 +292,10 @@ def get_delay_flight(conn):
 #     print "good"
 # else:
 #     print "bad"
+# conn = db_conn()
+# # rec = sales_report(conn,'3','2018')
+# # print rec
+# rec = get_delay_flight(conn)
+# print recs
 # db_close(conn)
 
