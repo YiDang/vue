@@ -487,10 +487,8 @@ def book_flight():
     account_no = request.form['account_no']
     passengers = json.loads(request.form['passengers'])
     # print  account_no, passengers[0]
-    test.book_flight(go,back,account_no,passengers)
+    return model.book_flight(go,back,account_no,passengers)
 
-
-    return ""
 
 @application.route('/api/customer/searchFlight',methods=['POST','GET'])
 def searchFlight():
@@ -591,7 +589,7 @@ def searchFlight():
                         res_list[ii]['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         res_list[ii]['next_day_arr'] = data[4]
                         res_list[ii]['stop_count'] = data[5]
-                        res_list[ii]['price'] = model.get_fair(data[6],real_dates[i])
+                        res_list[ii]['price'] = round(model.get_fair(data[6],real_dates[i]),2)
                         res_list[ii]['total_distance'] = data[7]
                         res_list[ii]['stops'] = []
                         res_list[ii]['date'] = real_dates[i]
