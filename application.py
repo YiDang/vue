@@ -705,4 +705,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host=model.get_ip_address(),debug=True)
+    application.run(debug=True)

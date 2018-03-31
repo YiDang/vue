@@ -34,7 +34,7 @@
       width="30%"
       :before-close="handleClose">
         <el-form ref="formr" :model="formr" >
-          <el-form-item label='account id:'>
+          <el-form-item label='Username:'>
             <el-row type="flex" class="row-bg" justify="center">
               <el-col :span="18">
                 <el-input name="id" placeholder="id" v-model="formr.id" ></el-input>
@@ -100,8 +100,8 @@
         </el-form>
         {{this.rMessage}}
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="onRegister">确 定</el-button>
+          <el-button @click="dialogVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="onRegister">Register</el-button>
         </span>
       </el-dialog>
       {{sMessage}}

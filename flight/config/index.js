@@ -14,7 +14,7 @@ module.exports = {
         '/api': {
             // target: 'http://172.31.193.215:5000/',//设置你调用的接口域名和端口号 别忘了加http
             // target: 'http://172.31.194.146:5000/',//设置你调用的接口域名和端口号 别忘了加http
-            target: 'http://192.168.1.9:5000/',//设置你调用的接口域名和端口号 别忘了加http
+            target: 'http://student-universe.us-east-1.elasticbeanstalk.com/',//设置你调用的接口域名和端口号 别忘了加http
         // target: 'http://172.31.198.208:5000/',//设置你调用的接口域名和端口号 别忘了加http
         // target: 'http://172.31.217.129:8000/',//设置你调用的接口域名和端口号 别忘了加http
         changeOrigin: true,
