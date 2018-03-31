@@ -33,8 +33,6 @@
 			</el-form-item>
 		</el-form>
     <el-row >
-    <i class="el-icon-star-off" style="background-color: #409EFF">Best Seller</i>
-    <i class="el-icon-star-off" style="background-color: #67C23A">Picked Choice</i>
     </el-row>
     <el-row :hidden = 'existData1'>
     {{form.depart}} to {{form.destination}}
@@ -162,6 +160,7 @@ export default {
         this.travels1 = this.nullfilter(response.data[0])
         this.travels2 = this.nullfilter(response.data[1])
       })
+
       // this.travels1.push({departure:1,arrival:1})
       // this.travels1.push({departure:1,arrival:2})
       // this.travels2.push({departure:1,arrival:1})

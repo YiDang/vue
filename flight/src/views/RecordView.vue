@@ -26,6 +26,7 @@
 
 import RecordListItem from '../components/RecordListItem'
 import { page } from '../components/page.js'
+import store from 'store'
 export default {
   name: 'record-view',
 
@@ -34,7 +35,7 @@ export default {
   mixins:[page],
   data () {
     return {
-      checkList:[],
+      checkList:['current'],
     	form:{
     		depart:'',
     		destination:'',
@@ -54,7 +55,7 @@ export default {
           travels.push(element)
       });
       console.log('filtered',travels.length)
-      return this.travels
+      return travels
     }
   },
   methods: {
@@ -65,7 +66,8 @@ export default {
     this.travels = []
     
     var params = new URLSearchParams();
-    params.append('account_no', 20);
+    var no = store.get('token').no
+    params.append('account_no', no);
     this.$axios({
         method: 'post',
         url:  '/api/api/customer/getReserv',

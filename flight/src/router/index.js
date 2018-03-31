@@ -4,6 +4,7 @@ import HelloWorld from '@/components/HelloWorld'
 import MainView from '@/views/MainView'
 import LoginView from '@/views/LoginView'
 import BookView from '@/views/BookView'
+import BestSellerView from '@/views/BestSellerView'
 import RecordView from '@/views/RecordView'
 import UserInfoView from '@/views/UserInfoView'
 import AdminView from '@/views/AdminView'
@@ -49,7 +50,12 @@ let router = new Router({
           component: RecordView
         },
         {
-          path: '/user',
+          path: 'bestseller',
+          name: 'BestSellerView',
+          component: BestSellerView
+        },
+        {
+          path: 'user',
           name: 'UserInfoView',
           component: UserInfoView
         },

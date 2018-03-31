@@ -1,5 +1,6 @@
 <template>
   <div id = "seat-reserve-view">
+  <h1>Seat Reservation</h1>
     <el-row>
       <el-form ref="form" :model="form" label-width="0px">
         <el-row :gutter=10>
@@ -10,7 +11,7 @@
           </el-col>
           <el-col :span=8>
             <el-form-item >
-              <el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="date" v-model="form.date2" style="width: 100%;"></el-date-picker>
+              <el-date-picker value-format="MM/dd/yyyy" type="date" placeholder="date" v-model="form.date" style="width: 100%;"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span=3>
@@ -26,18 +27,11 @@
       :data="reservation"
       style="width: 100%">
       <el-table-column
-        prop="flight"
-        label="flight"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="stat1"
-        label="stat1"
+        prop="name"
+        label="Passenger Name"
         width="180">
       </el-table-column>
     </el-table>
-    {{reservation}}
-    <h1>Seat Reservation</h1>
   </div>
 </template>
 
@@ -54,6 +48,7 @@ export default {
     return {
       form:{
         flight:'',
+        date:''
       },
       show:false,
       reservation:[]
@@ -62,11 +57,9 @@ export default {
   methods: {
     onSearch:function(){
       this.show=true
-      console.log("register submit")
 
-      var params = new URLSearchParams();
-      params.append('flight', this.form.flight);
-      console.log(this.form.flight)
+      var params = new URLSearchParams(this.form);
+      
       this.$axios({
         method: 'post',
         url:  '/api/api/manager/customerSeated',
