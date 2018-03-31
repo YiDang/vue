@@ -27,14 +27,17 @@
         label="stops">
       </el-table-column>
       <el-table-column
-        label="stops">
+        label="stops details">
         <template slot-scope="scope">
           <el-popover trigger="hover" placement="top">
             <el-table :data="scope.row.stops">
-              <el-table-column property="from" label="from"></el-table-column>
-              <el-table-column property="to" label="to"></el-table-column>
-              <el-table-column property="depart" label="depart"></el-table-column>
-              <el-table-column property="arrive" label="arrive"></el-table-column>
+              <el-table-column property="airlineCode" label="airlineCode"></el-table-column>
+              <el-table-column property="flight_no" label="flight no"></el-table-column>
+              <el-table-column property="departure_airport" label="from"></el-table-column>
+              <el-table-column property="arrival_airport" label="to"></el-table-column>
+              <el-table-column property="departure_time" label="departure time"></el-table-column>
+              <el-table-column property="arrival_time" label="arrival time"></el-table-column>
+              <el-table-column property="duration" label="duration" show-overflow-tooltip></el-table-column>
             </el-table>
             <div slot="reference" class="name-wrapper">
               <el-tag size="medium">details</el-tag>

@@ -1,9 +1,8 @@
 from datetime import datetime
 import socket
+from flask import jsonify
 
 date_dict = {6:"04/01/2018",0:"04/02/2018",1:"04/03/2018",2:"04/04/2018",3:"04/05/2018",4:"04/06/2018",5:"04/07/2018"}
-wd_dict = {"Sun":"04/01/2018","Mon":"04/02/2018","Tue":"04/03/2018","Wed":"04/04/2018","Thu":"04/05/2018","Fri":"04/06/2018","Sat":"04/07/2018"}
-month_dict = {"Jan":"1","Feb":"2","Mar":"3","Apr":"4","May":"5","Jun":"6","Jul":"7","Aug":"1","Jan":"1","Jan":"1","Jan":"1","Jan":"1"}
 
 def isDateFuture(date1):
     date_format = '%m/%d/%Y'
@@ -27,8 +26,6 @@ def convert_date(dt):
     day = dt_list[2]
     year = dt_list[3]
     return wd_dict[wd],
-
-
 
 
 def get_fair(fair,dt):
@@ -183,5 +180,44 @@ def delete_customer(conn,account_no):
 def delete_customer(conn,account_no):
     sql = "delete from Account_dev where account_no = %s" %(account_no)
     db_update(sql,conn)
+
+def book_flight(go, back, account_no, passengers):
+    conn = db_conn()
+    cursor = conn.cursor()
+    try:
+        _account_no = account_no
+        _dep_date = go['date']
+        _reserv_date = get_today()
+        _book_fare = go['price']
+        _book_fare +=  back['price'] if back != None else 0
+        _book_fare *= len(passengers)
+        _total_fare = _book_fare * 1.1
+        _trip_no = 2 if back!=None else 1
+        _trips = [go, back]
+
+        # INSERT INTO RESERVATION TABLE
+        cursor.execute('SELECT MAX(reservation_no) From Reservation')
+        _reservation_no =  cursor.fetchone()[0] + 1
+        cursor.execute('INSERT INTO Reservation VALUES (%s, %s, %s, %s, %s, %s)',[_reservation_no,_account_no,_book_fare, _total_fare, _dep_date, _reserv_date])
+        
+        # # # INSERT INTO RESERVATION_LEG TABLE
+        for t in range (_trip_no): # 1 or 2
+           flight_id = _trips[t]['flight_id']
+           # passenger_info = passengers[t]
+           stops = _trips[t]['stops']
+           for p in range(len(passengers)):
+                passenger = passengers[p]
+                for leg in range(len(stops)):
+                    idLegs = stops[leg]['legs']
+                    cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", 1, t + 1])
+
+    except Exception as e:
+        print  e
+        return jsonify({"result":False,"message":"Error: Cannot Complete Booking"})
+    finally: 
+        cursor.close()
+        conn.commit()
+        conn.close()
+        return jsonify({"result":True, "message":"Booking Completed"})
 
 ########################### ALL Funtion above is based on the pymysql ##################################

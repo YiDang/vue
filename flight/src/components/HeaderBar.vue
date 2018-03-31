@@ -1,14 +1,15 @@
 <template>
   <div class="header-bar">
     <el-row>
-      <el-col v-if='!isManager' :span="3" :offset="3">
+      <el-col v-if='!isManager' :span="6" :offset="3">
         <el-menu  :router="true" class="el-menu-demo" mode="horizontal" >
           <el-menu-item index="/main/book">Book</el-menu-item>
+          <el-menu-item index="/main/bestseller">BestSeller</el-menu-item>
         </el-menu> 
       </el-col>
-      <el-col v-else :span="3" :offset="3">Admin 
+      <el-col v-else :span="9" :offset="0">Admin 
       </el-col>
-      <el-col :span="3" :offset="15">
+      <el-col :span="3" :offset="12">
         <el-dropdown @command="handleCommand">
           <span class="el-dropdown-link">
             <i class="el-icon-arrow-down el-icon--right">
@@ -62,7 +63,9 @@
       this.isHidden =false
 
       this.isManager = store.get('isManager')
-
+      // this.name=store.g
+      // console.log(store.get('token'))
+      this.name=store.get('token').id
       console.log('isManager',this.isManager)
     }
   }
