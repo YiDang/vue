@@ -337,6 +337,27 @@ def get_rev_list():
         conn.close()
     return jsonify(res)
 
+#
+def get_airport_domestic():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        airport = request.form['airport']
+        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%S;", (airport))
+        country = cursor.fetchone()[0]
+        if country=='United States':
+            res.append[{"domestic":True}]
+        else:
+            res.append[{"domestic":False}]
+    except Exception as e:
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
 #finished
 def get_most_rev():
     conn = mysql.connect()
@@ -432,12 +453,8 @@ def get_customer_seated():
         flight_no = request.form["flight"]
         date = request.form["date"]
         cursor.execute("SELECT name FROM Reservation_Leg JOIN Reservation USING (reservation_no) WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no<>'' AND date=%s", (flight_no, date))
-        dic = {}
-        dic["flight_no"] = flight_no
-        dic["passengers"] = []
         for data in cursor.fetchall():
-            dic["passengers"].append(data[0])
-        res.append(dic)
+            res.append({"name":data[0]})
     except Exception as e:
         print e
         res = ["Search Error"]
@@ -705,4 +722,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host="172.31.227.109",debug=True)
