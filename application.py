@@ -6,6 +6,8 @@ from model import isDateFuture
 from datetime import datetime
 import model
 import user_db
+import ast
+import test
 mysql = MySQL()
 application = Flask(__name__)
 
@@ -168,7 +170,7 @@ def get_sales_report():
     try:
         _month = request.form['month']
         _year = request.form['year']
-        print _month 
+        print _month
         print _year
         rec = user_db.sales_report(conn,_month,_year)
         print rec
@@ -305,8 +307,6 @@ def get_rev_list():
         city = request.form["city"]
         customer = request.form['customer']
         id = request.form["groupby"]
-        print id
-
         dic = {}
         dic["flight"] = ''
         dic["city"] = ''
@@ -482,12 +482,13 @@ def delay():
 # Customer booking APIs
 @application.route('/api/customer/bookFlight',methods=['POST','GET'])
 def book_flight():
-    go  = request.form['go']
-    print type(request.get_json())
-    print go["arrival"], go["price"], go["stops"], go['flight_id'] 
+    go  = json.loads((request.form['go']))
+    back = json.loads((request.form['back']))
+    account_no = request.form['account_no']
+    passengers = json.loads(request.form['passengers'])
+    # print  account_no, passengers[0]
+    return model.book_flight(go,back,account_no,passengers)
 
-
-    return ""
 
 @application.route('/api/customer/searchFlight',methods=['POST','GET'])
 def searchFlight():
@@ -566,6 +567,8 @@ def searchFlight():
             res_list = []
             loop_dep = dep[i]
             loop_arr = arr[i]
+            print "+++++++++++ "+loop_arr,loop_dep
+
             loop_date = dates[i]
             cursor.callproc('sp_getHotFlight',(loop_dep,loop_arr,loop_date))
             for data in cursor.fetchall():
@@ -586,7 +589,7 @@ def searchFlight():
                         res_list[ii]['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
                         res_list[ii]['next_day_arr'] = data[4]
                         res_list[ii]['stop_count'] = data[5]
-                        res_list[ii]['price'] = model.get_fair(data[6],real_dates[i])
+                        res_list[ii]['price'] = round(model.get_fair(data[6],real_dates[i]),2)
                         res_list[ii]['total_distance'] = data[7]
                         res_list[ii]['stops'] = []
                         res_list[ii]['date'] = real_dates[i]
@@ -607,10 +610,11 @@ def searchFlight():
                         dict['airlineName'] = data[9]
                         dict['airlineCode'] = data[10]
                         dict['distance'] = data[2]
+                        dict['legs'] = data[1]
                         res_list[ii]['stops'].append(dict)
                         stop += 1
                 ii+=1
-                res_final_list.append(res_list)
+                res_final_list[i] = res_list + res_final_list[i]
     except Exception as e:
         print e
         res['error'] = 'Search Error'
@@ -631,6 +635,7 @@ def get_reserv():
     res_list = []
     try:
         account_no = request.form['account_no']
+        print "==================== ", account_no
         cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
         # res_no = []
         res_dict = {}
@@ -648,7 +653,6 @@ def get_reserv():
                     res_list[res_dict[data[2]]]['stops']['back'] = []
                     res_list[res_dict[data[2]]]['RoundTrip'] = "One Way"
                     i+=1
-
                 res_list[res_dict[data[2]]]['Departure'] = data[3]
                 res_list[res_dict[data[2]]]['Arrival'] = data[4]
                 temp = {}
@@ -688,7 +692,7 @@ def get_reserv():
     finally:
         cursor.close()
         conn.close()
-        print "Length of serach result", len(res_final_list)
+        print "Length of serach result", len(res_list)
         return jsonify(res_list)
 
 @application.route('/api/customer/getHistory',methods=['POST','GET'])
@@ -701,4 +705,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host=model.get_ip_address(),debug=True)
+    application.run(debug=True)
