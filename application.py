@@ -652,7 +652,6 @@ def get_reserv():
                     res_list[res_dict[data[2]]]['stops']['back'] = []
                     res_list[res_dict[data[2]]]['RoundTrip'] = "One Way"
                     i+=1
-
                 res_list[res_dict[data[2]]]['Departure'] = data[3]
                 res_list[res_dict[data[2]]]['Arrival'] = data[4]
                 temp = {}

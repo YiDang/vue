@@ -209,7 +209,7 @@ def book_flight(go, back, account_no, passengers):
                 passenger = passengers[p]
                 for leg in range(len(stops)):
                     idLegs = stops[leg]['legs']
-                    cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", 1, t])
+                    cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", 1, t + 1])
 
     except Exception as e:
         print  e
