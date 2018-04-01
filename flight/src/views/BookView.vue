@@ -33,6 +33,7 @@
 			</el-form-item>
 		</el-form>
     <el-row >
+    {{traveltype}}
     </el-row>
     <el-row :hidden = 'existData1'>
     {{form.depart}} to {{form.destination}}
@@ -68,17 +69,27 @@
       <el-table
       :data="passengers"
       style="width: 80%; margin: auto">
-      <el-table-column
+        <el-table-column
         prop="ssn"
         label="ssn"
         width="180">
-      </el-table-column>
-      <el-table-column
+        </el-table-column>
+        <el-table-column
         prop="name"
         label="name"
         width="180">
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+        <el-table-column
+        prop="reserved"
+        label="reserved"
+        width="180">
+        </el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-button @click="handleClick(scope.row)" type="text" size="small">reserve a seat</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-row>
     <el-row>
       <el-form :inline="true" :model="newPsg">
@@ -127,7 +138,8 @@ export default {
     	},
       newPsg:{
         ssn:'',
-        name:''
+        name:'',
+        reserved:'N'
       },
       addMsg:'',
       currentPage1:1,
@@ -136,8 +148,9 @@ export default {
     	travels1:[],
       travels2:[],
       passengers:[],
-      t1picked:null,
-      t2picked:null
+      t1picked:{},
+      t2picked:{},
+      traveltype:''
     }
   },
   methods: {
@@ -161,6 +174,21 @@ export default {
         this.travels2 = this.nullfilter(response.data[1])
       })
 
+      //request for that if it is domestic
+      params = new URLSearchParams(this.form);
+      this.$axios({
+        method: 'post',
+        url:  '/api/api/manager/getDomestic',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+        data: params
+      }).then(response => {
+        console.log('international?',response.data)
+        if(response.data[0].domestic=='true') this.traveltype='You are looking for a DOMESTIC trip'
+          else this.traveltype='You are looking for an INTERNATIONAL trip'
+      })
+
       // this.travels1.push({departure:1,arrival:1})
       // this.travels1.push({departure:1,arrival:2})
       // this.travels2.push({departure:1,arrival:1})
@@ -169,6 +197,7 @@ export default {
 
     nullfilter: function (list) {
       var tmp=[]
+      if(list == null && list == undefined) return tmp
       console.log('list',list.length)
       var x = list.length
       for(var i = 0;i < x; i++){
@@ -224,6 +253,9 @@ export default {
     },
     emptyPassenger:function(){
       this.passengers = []
+    },
+    handleClick:function(row){
+      row.reserved='Y'
     }
   },
   computed: {
@@ -238,7 +270,7 @@ export default {
     },
     existData3: function () {
       // console.log(this.travels.length)
-      return this.t1picked==null &&this.t2picked==null
+      return this.travelspicked.length!=0
     },
     travels1paged:function(){
       var start = this.pageSize*(this.currentPage1-1)
@@ -277,10 +309,10 @@ export default {
       switch(this.trip)
       {
         case 'oneway':
-        b=b&& this.t1picked!=null
+        b=b&& this.t1picked!={}
         break;
         case 'roundtrip':
-        b=b&& this.t1picked!=null&&this.t2picked!=null
+        b=b&& this.t1picked!={}&&this.t2picked!={}
         break;
       }
       b=b&&this.passengers.length!=0

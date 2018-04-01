@@ -58,7 +58,6 @@
         prop="price"
         label="$price">
       </el-table-column>
-      
       <el-table-column
         label='passengers'>
         <template slot-scope="scope">
@@ -72,6 +71,12 @@
           </div>
           </el-popover>
         </template>    
+      </el-table-column>
+      <el-table-column
+        label="Itinerary">
+        <template slot-scope="scope">
+          <el-button @click="viewItinerary(scope.row)" type="text" size="small">view</el-button>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -87,6 +92,10 @@ export default {
   methods:{
     test:function (){
       console.log(this.travels)
+    },
+    viewItinerary:function (row){
+      // this.$router.push({path:"/main/itinerary",params:{a:1,b:2}})
+      this.$router.push({name:'ItineraryView',params:row})
     }
   }
 

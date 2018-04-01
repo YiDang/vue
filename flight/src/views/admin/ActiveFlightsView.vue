@@ -25,7 +25,7 @@
     <el-pagination :hidden = 'existData' layout="prev, pager, 
     next" :total="listw84page.length" :page-size="pageSize" :current-page.sync="currentPage">
     </el-pagination>
-
+    <el-button @click="onTest"></el-button>
   </div>
 </template>
 
@@ -48,6 +48,11 @@ export default {
   methods: {
     onRegister:function(){
       console.log("register submit")
+    },
+    onTest:function(){
+      this.$router.push({
+        target:"_blank"
+      })
     },
 
   },

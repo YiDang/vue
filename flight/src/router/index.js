@@ -8,6 +8,7 @@ import BestSellerView from '@/views/BestSellerView'
 import RecordView from '@/views/RecordView'
 import UserInfoView from '@/views/UserInfoView'
 import AdminView from '@/views/AdminView'
+import ItineraryView from '@/views/ItineraryView'
 
 import ActiveFlightsView from '@/views/admin/ActiveFlightsView'
 import AllFlightsView from '@/views/admin/AllFlightsView'
@@ -58,6 +59,11 @@ let router = new Router({
           path: 'user',
           name: 'UserInfoView',
           component: UserInfoView
+        },
+        {
+          path: 'itinerary',
+          name: 'ItineraryView',
+          component: ItineraryView
         },
         {
           path: 'admin',
