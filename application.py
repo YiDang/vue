@@ -338,6 +338,33 @@ def get_rev_list():
     return jsonify(res)
 
 #finished
+@application.route('/api/manager/getDomestic', methods=['POST','GET'])
+def get_airport_domestic():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        depart = request.form['depart']
+        arrival = request.form['destination']
+        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%s;", (depart))
+        country_depart = cursor.fetchone()[0]
+        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%s;", (arrival))
+        country_arrival = cursor.fetchone()[0]
+        dic = {}
+        if country_depart==country_arrival:
+            dic['domestic'] = True
+        else:
+            dic['domestic'] = False
+        res.append(dic)
+    except Exception as e:
+        print e
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+#finished
 def get_most_rev():
     conn = mysql.connect()
     cursor = conn.cursor()
@@ -432,12 +459,8 @@ def get_customer_seated():
         flight_no = request.form["flight"]
         date = request.form["date"]
         cursor.execute("SELECT name FROM Reservation_Leg JOIN Reservation USING (reservation_no) WHERE idLegs IN (SELECT idLegs FROM LegsInfo WHERE flight_no=%s) AND seat_no<>'' AND date=%s", (flight_no, date))
-        dic = {}
-        dic["flight_no"] = flight_no
-        dic["passengers"] = []
         for data in cursor.fetchall():
-            dic["passengers"].append(data[0])
-        res.append(dic)
+            res.append({"name":data[0]})
     except Exception as e:
         print e
         res = ["Search Error"]
@@ -705,4 +728,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host="172.31.235.2",debug=True)
