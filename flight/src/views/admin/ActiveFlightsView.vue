@@ -59,10 +59,10 @@ export default {
   created: function() {
     console.log("created")
     this.listw84page = []
-    
+    console.log('prefix',prefix)
     this.$axios({
         method: 'post',
-        url:  '/api/api/manager/mostActiveFlight',
+        url:  prefix + '/api/manager/mostActiveFlight',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
