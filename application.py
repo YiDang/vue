@@ -337,19 +337,25 @@ def get_rev_list():
         conn.close()
     return jsonify(res)
 
-#
+#finished
+@application.route('/api/manager/getDomestic', methods=['POST','GET'])
 def get_airport_domestic():
     conn = mysql.connect()
     cursor = conn.cursor()
     res = []
     try:
-        airport = request.form['airport']
-        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%S;", (airport))
-        country = cursor.fetchone()[0]
-        if country=='United States':
-            res.append[{"domestic":True}]
+        depart = request.form['depart']
+        arrival = request.form['destination']
+        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%s;", (depart))
+        country_depart = cursor.fetchone()[0]
+        cursor.execute("SELECT Country FROM Airports_dev WHERE IATA=%s;", (arrival))
+        country_arrival = cursor.fetchone()[0]
+        dic = {}
+        if country_depart==country_arrival:
+            dic['domestic'] = True
         else:
-            res.append[{"domestic":False}]
+            dic['domestic'] = False
+        res.append(dic)
     except Exception as e:
         print e
         res = ['Search Error']
@@ -722,4 +728,4 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host="172.31.227.109",debug=True)
+    application.run(host="172.31.235.2",debug=True)
