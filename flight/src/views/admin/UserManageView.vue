@@ -139,7 +139,7 @@
 
 <script>
 // import HeaderBar from '../components/HeaderBar'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'user-manage-view',
@@ -179,7 +179,7 @@ export default {
       params.append('id', this.idForm.id);
       this.$axios({
         method: 'post',
-        url:  '/api/api/showuser',
+        url:  prefix + '/api/showuser',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -204,7 +204,7 @@ export default {
       var params = new URLSearchParams(this.formu);
       this.$axios({
         method: 'post',
-        url:  '/api/api/edituser',
+        url:  prefix + '/api/edituser',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -221,7 +221,7 @@ export default {
       var params = new URLSearchParams(this.formu);
       this.$axios({
         method: 'post',
-        url:  '/api/api/delete',
+        url:  prefix + '/api/delete',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -239,7 +239,7 @@ export default {
   
       this.$axios({
         method: 'post',
-        url:  '/api/api/signUp',
+        url:  prefix + '/api/signUp',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

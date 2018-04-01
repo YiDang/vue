@@ -15,7 +15,7 @@
 
 <script>
 import AdminMenu from '../components/AdminMenu'
-
+import {prefix} from '../components/prefix'
 export default {
 
   name: 'admin-view',

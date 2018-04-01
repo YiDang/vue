@@ -26,6 +26,7 @@
 
 import RecordListItem from '../components/RecordListItem'
 import { page } from '../components/page.js'
+import {prefix} from '../components/prefix'
 import store from 'store'
 export default {
   name: 'record-view',

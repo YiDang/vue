@@ -30,7 +30,7 @@
 <script>
 // import HeaderBar from '../components/HeaderBar'
 import { page } from '../components/page.js'
-
+import {prefix} from '../components/prefix'
 export default {
 
   name: 'active-flights-view',
@@ -53,7 +53,7 @@ export default {
     
     this.$axios({
         method: 'post',
-        url:  '/api/api/manager/mostActiveFlight',
+        url:  prefix + '/api/manager/mostActiveFlight',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

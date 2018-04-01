@@ -78,7 +78,7 @@
 <script>
 // import HeaderBar from '../components/HeaderBar'
 import { page } from '../../components/page.js'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'flights-of-airport-view',
@@ -104,7 +104,7 @@ export default {
       // console.log("groupby:",this.groupby)
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/listForAirport',
+        url:  prefix + '/api/manager/listForAirport',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

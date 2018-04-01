@@ -34,7 +34,7 @@
 <script>
 // import HeaderBar from '../components/HeaderBar'
 import { page } from '../../components/page.js'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'active-flights-view',

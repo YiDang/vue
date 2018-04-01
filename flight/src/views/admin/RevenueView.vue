@@ -94,7 +94,7 @@
 
 <script>
 // import HeaderBar from '../components/HeaderBar'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'revenue-view',
@@ -144,7 +144,7 @@ export default {
       // console.log("groupby:",this.groupby)
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/getRevList',
+        url:  prefix + '/api/manager/getRevList',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

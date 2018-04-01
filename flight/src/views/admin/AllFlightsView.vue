@@ -55,7 +55,7 @@
 <script>
 // import HeaderBar from '../components/HeaderBar'
 import { page } from '../../components/page.js'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'all-flights-view',
@@ -84,7 +84,7 @@ export default {
     params.append('account_no', 20);
     this.$axios({
         method: 'post',
-        url:  '/api/api/manager/listAllFlights',
+        url:  prefix + '/api/manager/listAllFlights',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

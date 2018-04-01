@@ -39,7 +39,7 @@
 
 <script>
 // import HeaderBar from '../components/HeaderBar'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'seat-reserve-view',
@@ -62,7 +62,7 @@ export default {
       
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/customerSeated',
+        url:  prefix + '/api/manager/customerSeated',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

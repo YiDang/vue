@@ -30,7 +30,7 @@
 
 
 <script>
-
+import {prefix} from '../components/prefix'
 export default {
   name: 'itineraryView-view',
 

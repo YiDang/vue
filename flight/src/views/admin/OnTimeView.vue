@@ -72,7 +72,7 @@
 <script>
 // import HeaderBar from '../components/HeaderBar'
 import { page } from '../../components/page.js'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'on-time-view',
@@ -111,7 +111,7 @@ export default {
     
     this.$axios({
         method: 'post',
-        url:  '/api/api/manager/delay',
+        url:  prefix + '/api/manager/delay',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

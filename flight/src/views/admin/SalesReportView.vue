@@ -45,7 +45,7 @@
 
 <script>
 // import HeaderBar from '../components/HeaderBar'
-
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'sales-report-view',
@@ -105,7 +105,7 @@ export default {
       var params = new URLSearchParams(this.month);
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/getSalesReport',
+        url:  prefix + '/api/manager/getSalesReport',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

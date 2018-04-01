@@ -111,6 +111,7 @@
 
 <script>
 import store from 'store'
+import {prefix} from '../components/prefix'
 export default {
   name: 'login-view',
   data () {
@@ -164,7 +165,7 @@ export default {
       params.append('password', this.form.password);  
       this.$axios({
         method: 'post',
-        url:  '/api/api/isUser',
+        url:  prefix + '/api/isUser',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -187,7 +188,7 @@ export default {
   
       this.$axios({
         method: 'post',
-        url:  '/api/api/signUp',
+        url:  prefix + '/api/signUp',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

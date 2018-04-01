@@ -122,6 +122,7 @@
 // import HeaderBar from '../components/HeaderBar'
 import RecordListItem from '../../components/RecordListItem'
 import { page } from '../../components/page.js'
+import {prefix} from '../../components/prefix'
 export default {
 
   name: 'reservation-view',
@@ -157,7 +158,7 @@ export default {
 
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/listReservation',
+        url:  prefix + '/api/manager/listReservation',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

@@ -40,7 +40,7 @@
 <script>
 import HeaderBar from '../components/HeaderBar'
 import store from 'store'
-
+import {prefix} from '../components/prefix'
 export default {
 
   name: 'userinfo-view',
@@ -69,7 +69,7 @@ export default {
       var params = new URLSearchParams(this.formu);
       this.$axios({
         method: 'post',
-        url:  '/api/api/edituser',
+        url:  prefix + '/api/edituser',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -87,7 +87,7 @@ export default {
     params.append('id', id);
     this.$axios({
         method: 'post',
-        url:  '/api/api/showuser',
+        url:  prefix + '/api/showuser',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

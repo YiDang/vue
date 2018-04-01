@@ -121,7 +121,7 @@
 
 import SearchListItem from '../components/SearchListItem'
 import store from 'store'
-
+import {prefix} from '../components/prefix'
 export default {
   name: 'book-view',
 
@@ -163,7 +163,7 @@ export default {
       params.set('trip', this.trip=='oneway'?0:1)
       this.$axios({
         method: 'post',
-        url:  '/api/api/customer/searchFlight',
+        url:  prefix + '/api/customer/searchFlight',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -178,7 +178,7 @@ export default {
       params = new URLSearchParams(this.form);
       this.$axios({
         method: 'post',
-        url:  '/api/api/manager/getDomestic',
+        url:  prefix + '/api/manager/getDomestic',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
@@ -229,7 +229,7 @@ export default {
       else params.set('type',2)
       this.$axios({
         method: 'post',
-        url:  '/api/api/customer/bookFlight',
+        url:  prefix + '/api/customer/bookFlight',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },
