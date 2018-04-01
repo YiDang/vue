@@ -181,10 +181,10 @@ def get_sales_report():
     try:
         _month = request.form['month']
         _year = request.form['year']
-        print _month
-        print _year
+        # print _month
+        # print _year
         rec = user_db.sales_report(conn,_month,_year)
-        print rec
+        # print rec
         if(rec == False):
             return jsonify({'sales_report':False})
         else:
@@ -739,5 +739,5 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(host="localhost",debug=True)
+    application.run(host="172.31.197.159",debug=True)
 
