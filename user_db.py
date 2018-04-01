@@ -41,15 +41,18 @@ def db_check(conn):
     cursor = conn.cursor()
     cursor.execute("SELECT VERSION()")
     data = cursor.fetchone()
-    #print ("Database version : %s " % data)
+    print ("Database version : %s " % data)
 
 def db_select(sql, conn):
     cursor = conn.cursor()
     try:
     	cursor.execute(sql)
     	result = cursor.fetchall()
+        # print result
+        cursor.close()
     	return result
     except:
+        cursor.close()
     	print "[ERROR]: CANNOT SELECT DATA"
         return False
 
@@ -58,9 +61,11 @@ def db_insert(sql, conn):
     try:
         cursor.execute(sql)
         conn.commit()
+        cursor.close()
         return True
     except:
         print "[ERROR]: CANNOT INSERT DATA"
+        cursor.close()
         conn.rollback()
         return False
 
@@ -69,9 +74,11 @@ def db_update(sql, conn):
     try:
         cursor.execute(sql)
         conn.commit()
+        cursor.close()
         return True
     except:
         print "[ERROR]: CANNOT UPDATE DATA"
+        cursor.close()
         conn.rollback()
         return False
 
@@ -80,9 +87,11 @@ def db_delete(sql, conn):
     try:
         cursor.execute(sql)
         conn.commit()
+        cursor.close()
         return True
     except:
         print "[ERROR]: CANNOT DELETE DATA"
+        cursor.close()
         conn.rollback()
         return False
 
@@ -220,24 +229,20 @@ def get_airline_name(conn):
         return False
 
 def sales_report(conn,month = '3',year = '2018'):
-    airline_name = get_airline_name(conn)
     date = '%' + month + '/%/' + year 
     rec = []
-    if(airline_name == False):
-        return False
-    for index in range(len(airline_name)):
-        sql = "SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
-        sql2 = "SELECT count(*) as numberflight FROM Reservation WHERE date LIKE '%s' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = '%s'))"%(date,airline_name[index][0])
-        _rec = db_select(sql,conn)
-        _number_flight = db_select(sql2,conn)
-        #print _number_flight
-        if(_rec and _number_flight):
-            if((_rec[0][0] == None) and (_number_flight[0][0] == 0)):
-                rec.append(({'name':airline_name[index][0],'# of flight': 0,'value':0}))
+    sql_1 = "SELECT airlineName, count(*) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+    sql_2 = "SELECT airlineName, CAST(SUM(total_fare) AS DECIMAL(10,2)) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+    _number_flight = db_select(sql_1,conn)
+    _total_flight = db_select(sql_2,conn)
+    if(_number_flight and _number_flight):
+        for index in range(len(_number_flight)):
+            if((_total_flight[index][1] == None) and (_number_flight[index][1] == 0)):
+                rec.append(({'name':_total_flight[index][0],'# of flight': 0,'value':0}))
             else:
-                rec.append(({'name':airline_name[index][0],'# of flight': _number_flight[0][0],'value':_rec[0][0]}))
-        else:
-            return False
+                rec.append(({'name':_total_flight[index][0],'# of flight': _number_flight[index][1],'value':_total_flight[index][1]}))
+    else:
+        return False
     return rec
 
 def get_delay_flight(conn):
@@ -250,7 +255,7 @@ def get_delay_flight(conn):
         return False
 
         
-    
+
 #sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
 #compare_data("3/18/2017")
 
@@ -293,9 +298,23 @@ def get_delay_flight(conn):
 # else:
 #     print "bad"
 # conn = db_conn()
-# # rec = sales_report(conn,'3','2018')
+# # conn
+# # #rec = sales_report(conn)
+# # for i in range(10):
+# # date = '%' + '3' + '/%/' + '2018'
+# # sql_2 = "SELECT airlineName, CAST(SUM(total_fare) AS DECIMAL(10,2)) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+# # rec = db_select(sql_2,conn)
 # # print rec
-# rec = get_delay_flight(conn)
-# print recs
+# # date = '%' + '3' + '/%/' + '2018'
+# # sql_1 = "SELECT airlineName, count(*) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+# rec = sales_report(conn)
+# # print rec
+# # _number_flight = db_select(sql_1,conn)
+# # for index in range(len(_number_flight)):
+# #     print index
+# # print _number_flight
+# #     rec = show_customer(conn,1)
+# #     print rec
+# # #print rec
 # db_close(conn)
 
