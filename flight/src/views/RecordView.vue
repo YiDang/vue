@@ -76,7 +76,7 @@ export default {
     params.append('account_no', no);
     this.$axios({
         method: 'post',
-        url:  '/api/api/customer/getReserv',
+        url:  '/api/customer/getReserv',
         headers: {
           'Content-type': 'application/x-www-form-urlencoded'
         },

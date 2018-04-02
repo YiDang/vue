@@ -186,17 +186,21 @@ def book_flight(go, back, account_no, passengers):
     cursor = conn.cursor()
     isFull = 0
     res = {}
+    # print go, back, account_no, passengers
+    
+    _trip_no = 2 if len(back)>=1 else 1
+    
     try:
         _account_no = account_no
         _dep_date = go['date']
         _reserv_date = get_today()
         _book_fare = go['price']
-        _book_fare +=  back['price'] if back != None else 0
+        _book_fare +=  back['price'] if len(back)>=1 else 0
         _book_fare *= len(passengers)
         _total_fare = _book_fare * 1.1
-        _trip_no = 2 if back!=None else 1
+        _trip_no = 2 if len(back)>=1 else 1
         _trips = [go, back]
-
+        
         # INSERT INTO RESERVATION TABLE
         cursor.execute('SELECT MAX(reservation_no) From Reservation')
         _reservation_no =  cursor.fetchone()[0] + 1
@@ -219,13 +223,14 @@ def book_flight(go, back, account_no, passengers):
                     else:
                         for p in range(len(passengers)):
                             passenger = passengers[p]
-                            rn = random.randint(0,1)
-                            if (rn):
-                                sn = ""
-                            else:
-                                sn = "1"
-                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", sn , t + 1])
-        print isFull
+                            # print passenger
+                            # rn = random.randint(0,1)
+                            # if (rn):
+                            #     sn = ""
+                            # else:
+                            #     sn = "1"
+                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", reserved , t + 1])
+        print "is full" if isFull  else "not full"
         if(not isFull):
             res = {"result":True, "message":"Booking Completed"}
     except Exception as e:
