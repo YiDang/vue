@@ -526,137 +526,35 @@ def book_flight():
 
 @application.route('/api/customer/searchFlight',methods=['POST','GET'])
 def searchFlight():
-    conn = mysql.connect()
-    cursor = conn.cursor()
-    res_final_list = []
-    try:
-        _dep = request.form['depart']
-        _arr = request.form['destination']
-        _roundtrip = request.form['trip']
-        _date1 = model.get_db_date(request.form['date1'])
-        _date2 = None
-        loop = 1
-        if(_roundtrip == '1'):
-            _date2 = model.get_db_date(request.form['date2'])
-            loop = 2
-        dep = [_dep,_arr]
-        arr = [_arr,_dep]
-        dates = [_date1,_date2]
-        real_dates = [request.form['date1'],request.form['date2']]
-        for i in range(loop):
-            ii = 0
-            flight_id = []
-            flight_dict = {}
-            res_list = []
-            loop_dep = dep[i]
-            loop_arr = arr[i]
-            loop_date = dates[i]
-            res_tmp = []
-            cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where SUBSTRING(FlightInfoAll.departure, 1, 3) = %s and SUBSTRING(FlightInfoAll.arrival,  1, 3) = %s ; ", [loop_dep, loop_arr] )
-            for data in cursor.fetchall():
-                if(data):
-                    flight_id.append(data[0])
-                    flight_dict[data[0]] = ii
-                    res_list.append({})
-                    res_list[flight_dict[data[0]]]['flight_id'] = data[0]
-                    res_list[flight_dict[data[0]]]['departure'] = data[1]
-                    res_list[flight_dict[data[0]]]['arrival'] = data[2]
-                    dur = data[3].split(" ")
-                    res_list[flight_dict[data[0]]]['duration'] =  dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
-                    res_list[flight_dict[data[0]]]['next_day_arr'] = data[4]
-                    res_list[flight_dict[data[0]]]['stop_count'] = data[5]
-                    res_list[flight_dict[data[0]]]['price'] = round(model.get_fair(data[6],request.form['date1']),2)
-                    res_list[flight_dict[data[0]]]['total_distance'] = data[7]
-                    res_list[flight_dict[data[0]]]['stops'] = []
-                    res_list[flight_dict[data[0]]]['date'] = real_dates[i]
-                    ii+=1
-            for fid in flight_id:
-                # print fid
-                cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s;',[fid,loop_date])
-                stop = 1
-                for data in cursor.fetchall():
-                    if(data):
-                        dict = {}
-                        dict['stop'] = stop
-                        dur = data[3].split(" ")
-                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
-                        dict['departure_airport'] = data[4]
-                        dict['departure_time'] = data[5]
-                        dict['arrival_airport'] = data[6]
-                        dict['arrival_time'] = data[7]
-                        dict['flight_no'] = data[8]
-                        dict['airlineName'] = data[9]
-                        dict['airlineCode'] = data[10]
-                        dict['distance'] = data[2]
-                        dict['legs'] = data[1]
-                        res_list[flight_dict[fid]]['stops'].append(dict)
-                        stop += 1
-            for fid in flight_id:
-                if(len(res_list[flight_dict[fid]]['stops']) < 1):
-                    res_list[flight_dict[fid]] = None
-            res_final_list.append(res_list)
-        ii = 0
-        for i in range(loop):
-            hot_Flight_Id = None
-            res_list = []
-            loop_dep = dep[i]
-            loop_arr = arr[i]
-            print "+++++++++++ "+loop_arr,loop_dep
+    _dep = request.form['depart']
+    _arr = request.form['destination']
+    _roundtrip = request.form['trip']
+    _date1 = request.form['date1']
+    _date2 = None  
+    go_exist = False
+    back_exist = False 
+    if(_roundtrip == '1'):
+        _date2 = request.form['date2']
+    res_all = []
+    while (not go_exist):
+        res = test.searchFlight(_dep, _arr, _date1)
+        if(len(res)<1):
+            _date1 = model.get_next_day(_date1)
+        else:
+            go_exist = True
+            res_all.append(res)
+    while(_date2!=None and not back_exist):
+        res = test.searchFlight(_arr, _dep, _date2)
+        if(len(res)<1):
+            _date2 = model.get_next_day(_date2)
+        else:
+            back_exist = True
+            res_all.append(res)
 
-            loop_date = dates[i]
-            cursor.callproc('sp_getHotFlight',(loop_dep,loop_arr,loop_date))
-            for data in cursor.fetchall():
-                if(data):
-                    hot_Flight_Id = data[0]
-            if(hot_Flight_Id==None):
-                res_final_list.append(res_list)
-                continue
-            else:
-                res_list.append({})
-                cursor.execute("SELECT idFlightInfo,departure,arrival,duration,nextDayArrival,stops,price, total_distance FROM  cs539_dev.FlightInfoAll where idFlightInfo = %s limit 1;", [hot_Flight_Id] )
-                for data in cursor.fetchall():
-                    if(data):
-                        res_list[ii]['flight_id'] = data[0]
-                        res_list[ii]['departure'] = data[1]
-                        res_list[ii]['arrival'] = data[2]
-                        dur = data[3].split(" ")
-                        res_list[ii]['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
-                        res_list[ii]['next_day_arr'] = data[4]
-                        res_list[ii]['stop_count'] = data[5]
-                        res_list[ii]['price'] = round(model.get_fair(data[6],real_dates[i]),2)
-                        res_list[ii]['total_distance'] = data[7]
-                        res_list[ii]['stops'] = []
-                        res_list[ii]['date'] = real_dates[i]
-
-                cursor.execute('SELECT  idFlight,idLegs,distance,duration,departure_airport,departure_time,arrival_airport,arrival_time,flight_no,airlineName,airlineCode from cs539_dev.LegsInfo where idFlight = %s and departure_date = %s ;',[hot_Flight_Id,loop_date])
-                stop = 1
-                for data in cursor.fetchall():
-                    if(data):
-                        dict = {}
-                        dict['stop'] = stop
-                        dur = data[3].split(" ")
-                        dict['duration'] = dur[0] + dur[1][0] + " " + dur[2] + dur[3][0] + " " + dur[4] + dur[5][0]
-                        dict['departure_airport'] = data[4]
-                        dict['departure_time'] = data[5]
-                        dict['arrival_airport'] = data[6]
-                        dict['arrival_time'] = data[7]
-                        dict['flight_no'] = data[8]
-                        dict['airlineName'] = data[9]
-                        dict['airlineCode'] = data[10]
-                        dict['distance'] = data[2]
-                        dict['legs'] = data[1]
-                        res_list[ii]['stops'].append(dict)
-                        stop += 1
-                ii+=1
-                res_final_list[i] = res_list + res_final_list[i]
-    except Exception as e:
-        print e
-        res['error'] = 'Search Error'
-    finally:
-        cursor.close()
-        conn.close()
-        print "Length of serach result", len(res_final_list)
-        return jsonify(res_final_list)
+    res_all[0] = test.search_hot_flight(_dep,_arr,_date1) + res_all[0]
+    if(_date2 != None):        
+        res_all[1] = test.search_hot_flight(_arr,_dep,_date1) + res_all[1]
+    return jsonify(res_all)
 
 
 # Finished
@@ -669,7 +567,6 @@ def get_reserv():
     res_list = []
     try:
         account_no = request.form['account_no']
-        print "==================== ", account_no
         cursor.execute('SELECT DISTINCT name,ssn,Reservation.reservation_no, FlightInfoAll.departure, FlightInfoAll.arrival FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE Reservation.account_no= %s;',[account_no])
         # res_no = []
         res_dict = {}
@@ -681,6 +578,7 @@ def get_reserv():
                     res_list.append({})
                     res_dict[data[2]] = i
                     res_list[res_dict[data[2]]]['id'] = data[2]
+                    print data[2]
                     res_list[res_dict[data[2]]]['passenger_info'] = []
                     res_list[res_dict[data[2]]]['stops'] = {}
                     res_list[res_dict[data[2]]]['stops']['go'] = []
@@ -694,7 +592,7 @@ def get_reserv():
                 temp['ssn'] = data[1]
                 res_list[res_dict[data[2]]]["passenger_info"].append(temp)
 
-        cursor.execute('SELECT distinct departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, trip_no, duration ,distance, date, reservation_no   from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
+        cursor.execute('SELECT distinct departure_airport,arrival_airport,departure_time,arrival_time,flight_no, airlineCode, airlineName, booking_fee, total_fare, trip_no, duration ,distance, date, reservation_no , seat_no  from Reservation natural join Reservation_Leg natural join LegsInfo where account_no = %s;',[account_no])
         for data in cursor.fetchall():
                 dict = {}
                 dict['departure_airport'] = data[0]
@@ -718,9 +616,11 @@ def get_reserv():
                 res_list[j]['price']= data[8]
                 if(data[9]==1):
                     res_list[j]['stops']['go'].append(dict)
+                    
                 else:
                     res_list[j]['stops']['back'].append(dict)
                     res_list[j]['RoundTrip'] = "RoundTrip"
+
     except Exception as e:
         res['error'] = 'Search Error'
     finally:

@@ -184,6 +184,8 @@ def delete_customer(conn,account_no):
 def book_flight(go, back, account_no, passengers):
     conn = db_conn()
     cursor = conn.cursor()
+    isFull = 0
+    res = {}
     try:
         _account_no = account_no
         _dep_date = go['date']
@@ -205,12 +207,27 @@ def book_flight(go, back, account_no, passengers):
            flight_id = _trips[t]['flight_id']
            # passenger_info = passengers[t]
            stops = _trips[t]['stops']
-           for p in range(len(passengers)):
-                passenger = passengers[p]
-                for leg in range(len(stops)):
+           if(not isFull):
+                for leg in range(len(stops)):   
                     idLegs = stops[leg]['legs']
-                    cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", 1, t + 1])
-
+                    cursor.callproc('sp_isFlightFull',(_dep_date,flight_id,idLegs,len(passengers)))
+                    data = cursor.fetchone()
+                    isFull, totalBooked, capacity = data[0], data[1], data[2]
+                    if(isFull == 1):
+                        cursor.execute("Delete from Reservation order by reservation_no desc limit 1")
+                        res =  {"result":False, "message":("No Available Seats, "+ str(totalBooked) + "/" + str(capacity) + " have been booked.")}
+                    else:
+                        for p in range(len(passengers)):
+                            passenger = passengers[p]
+                            rn = random.randint(0,1)
+                            if (rn):
+                                sn = ""
+                            else:
+                                sn = "1"
+                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", sn , t + 1])
+        print isFull
+        if(not isFull):
+            res = {"result":True, "message":"Booking Completed"}
     except Exception as e:
         print  e
         return jsonify({"result":False,"message":"Error: Cannot Complete Booking"})
@@ -218,6 +235,6 @@ def book_flight(go, back, account_no, passengers):
         cursor.close()
         conn.commit()
         conn.close()
-        return jsonify({"result":True, "message":"Booking Completed"})
+        return jsonify(res)
 
 ########################### ALL Funtion above is based on the pymysql ##################################
