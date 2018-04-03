@@ -297,24 +297,26 @@ def get_delay_flight(conn):
 #     print "good"
 # else:
 #     print "bad"
-# conn = db_conn()
-# # conn
-# # #rec = sales_report(conn)
-# # for i in range(10):
-# # date = '%' + '3' + '/%/' + '2018'
-# # sql_2 = "SELECT airlineName, CAST(SUM(total_fare) AS DECIMAL(10,2)) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
-# # rec = db_select(sql_2,conn)
-# # print rec
-# # date = '%' + '3' + '/%/' + '2018'
-# # sql_1 = "SELECT airlineName, count(*) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
-# rec = sales_report(conn)
-# # print rec
-# # _number_flight = db_select(sql_1,conn)
-# # for index in range(len(_number_flight)):
-# #     print index
-# # print _number_flight
-# #     rec = show_customer(conn,1)
-# #     print rec
-# # #print rec
-# db_close(conn)
+#conn = db_conn()
+# conn
+# #rec = sales_report(conn)
+# for i in range(10):
+# date = '%' + '3' + '/%/' + '2018'
+# sql_2 = "SELECT airlineName, CAST(SUM(total_fare) AS DECIMAL(10,2)) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+# rec = db_select(sql_2,conn)
+# print rec
+# date = '%' + '3' + '/%/' + '2018'
+# sql_1 = "SELECT airlineName, count(*) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
+#rec = sales_report(conn)
+#print(rec)
+# for i in range(1000):
+#     print(i)
+# _number_flight = db_select(sql_1,conn)
+# for index in range(len(_number_flight)):
+#     print index
+# print _number_flight
+#     rec = show_customer(conn,1)
+#     print rec
+# #print rec
+#db_close(conn)
 
