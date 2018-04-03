@@ -9,13 +9,11 @@ import user_db
 import ast
 import test
 mysql = MySQL()
-application = Flask(__name__,
-            static_folder = "./flight/dist/static",
-            template_folder = "./flight/dist")
+application = Flask(__name__)
 
-@application.route('/', defaults={'path': ''})
-@application.route('/<path:path>')
-def catch_all(path):
+
+@application.route('')
+def catch_all():
     return render_template("index.html")
 
 # MySQL configurations
