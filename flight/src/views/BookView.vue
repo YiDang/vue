@@ -5,10 +5,26 @@
 				<el-row type="flex" class="row-bg" justify="center" :gutter="20">
 
 				<el-col :span="3">
-					<el-input placeholder="From airport" v-model="form.depart"></el-input>
+					<!-- <el-input placeholder="From airport" v-model="form.depart"></el-input> -->
+          <el-autocomplete
+          class="inline-input"
+          v-model="form.depart"
+          :fetch-suggestions="querySearch"
+          placeholder="From airport"
+          :trigger-on-focus="false"
+          @select="handleSelect"
+          ></el-autocomplete>
 				</el-col>
 				<el-col :span="3">
-					<el-input placeholder="To airport" v-model="form.destination"></el-input>
+					<!-- <el-input placeholder="To airport" v-model="form.destination"></el-input> -->
+          <el-autocomplete
+          class="inline-input"
+          v-model="form.destination"
+          :fetch-suggestions="querySearch"
+          placeholder="From airport"
+          :trigger-on-focus="false"
+          @select="handleSelect"
+          ></el-autocomplete>
 				</el-col>
 
 				<el-col :span="5">
@@ -150,7 +166,8 @@ export default {
       passengers:[],
       t1picked:{},
       t2picked:{},
-      traveltype:''
+      traveltype:'',
+      airports:[]
     }
   },
   methods: {
@@ -257,6 +274,21 @@ export default {
     },
     handleClick:function(row){
       row.reserved='Y'
+    },
+    querySearch(queryString, cb) {
+      console.log(queryString)
+      var airports = this.airports;
+      var results = queryString ? airports.filter(this.createFilter(queryString)) : airports;
+
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (airports) => {
+        return (airports.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
+    handleSelect(item) {
+      console.log(item);
     }
   },
   computed: {
@@ -319,6 +351,20 @@ export default {
       b=b&&this.passengers.length!=0
       return b
     }
-  }
+  },
+  created: function() {
+    console.log("created")
+    
+    this.$axios({
+        method: 'post',
+        url:  prefix + '/api/manager/listAllAirports',
+        headers: {
+          'Content-type': 'application/x-www-form-urlencoded'
+        },
+      }).then(response => {
+        console.log("airport data",response.data)
+        this.airports=response.data
+      })
+    }
 }
 </script>
