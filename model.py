@@ -18,6 +18,11 @@ def get_db_date(dt):
 def get_today():
     return datetime.today().strftime('%m/%d/%Y')
 
+def get_next_day(dt):
+    date_format = '%m/%d/%Y'
+    date_formalized = datetime.strptime(dt, date_format)   
+    date_formalized +=  timedelta(days=1)
+    return date_formalized.strftime('%m/%d/%Y')
 
 def convert_date(dt):
     dt_list = dt.split(" ")
@@ -223,12 +228,6 @@ def book_flight(go, back, account_no, passengers):
                     else:
                         for p in range(len(passengers)):
                             passenger = passengers[p]
-                            # print passenger
-                            # rn = random.randint(0,1)
-                            # if (rn):
-                            #     sn = ""
-                            # else:
-                            #     sn = "1"
                             cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", passenger['reserved'] , t + 1])
         print "is full" if isFull  else "not full"
         if(not isFull):
