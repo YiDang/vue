@@ -9,16 +9,14 @@ import user_db
 import ast
 import test
 mysql = MySQL()
-application = Flask(__name__,
+application = Flask(__name__)
+    # static_folder = "./flight/dist/static/",
+    # template_folder = "./flight/dist/")
 
-    static_folder = "./flight/dist/static",
-            template_folder = "./flight/dist")
 
-
-@application.route('/', defaults={'path': ''})
-@application.route('/<path:path>')
-def catch_all(path):
-    return render_template("index.html")
+@application.route('/')
+def catch_all():
+    return render_template('index.html')
 
 
 # MySQL configurations
@@ -28,10 +26,10 @@ application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
 
-@application.route('/',defaults={'path':''})
-@application.route('/<path:path>')
-def cath_all(path):
-    return render_template("index.html")
+# @application.route('/',defaults={'path':''})
+# @application.route('/<path:path>')
+# def cath_all(path):
+#     return render_template("index.html")
 
 # sign up new user
 @application.route('/api/signUp',methods=['POST','GET'])
@@ -639,5 +637,5 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host='172.31.206.121',debug=True)
 

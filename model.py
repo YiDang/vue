@@ -229,7 +229,7 @@ def book_flight(go, back, account_no, passengers):
                             #     sn = ""
                             # else:
                             #     sn = "1"
-                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", reserved , t + 1])
+                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", passenger['reserved'] , t + 1])
         print "is full" if isFull  else "not full"
         if(not isFull):
             res = {"result":True, "message":"Booking Completed"}
