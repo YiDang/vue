@@ -184,7 +184,6 @@ export default {
     },
     input:function(){
         this.revenue=[]
-        this.input=''
         this.vip=[]
       if(this.groupby=='flight'){
             this.form.flight = this.input

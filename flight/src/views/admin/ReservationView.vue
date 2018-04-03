@@ -164,7 +164,7 @@ export default {
         },
         data: params
       }).then(response => {
-        console.log(response.data)
+        console.log("respose",response.data)
         this.listw84page = response.data
         // console.log(response.status)
         // console.log(response.statusText)
