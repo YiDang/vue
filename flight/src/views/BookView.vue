@@ -185,7 +185,7 @@ export default {
         data: params
       }).then(response => {
         console.log('international?',response.data)
-        if(response.data[0].domestic=='true') this.traveltype='You are looking for a DOMESTIC trip'
+        if(response.data[0].domestic==true) this.traveltype='You are looking for a DOMESTIC trip'
           else this.traveltype='You are looking for an INTERNATIONAL trip'
       })
 
@@ -247,7 +247,8 @@ export default {
         this.passengers.push(this.newPsg)
         this.newPsg={
          ssn:'',
-         name:''
+         name:'',
+         reserved:'N'
        }
       }
     },
