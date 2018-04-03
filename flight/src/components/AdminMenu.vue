@@ -20,7 +20,8 @@
           <el-menu-item index="/activeflights">Active Flights</el-menu-item>
           <el-menu-item index="/seatreserve">Seats Reservation</el-menu-item>
           <el-menu-item index="/flightsofairport">Flights of Airport</el-menu-item>
-          <el-menu-item index="/ontime">ETA</el-menu-item>
+          <el-menu-item index="/ontime">Delayed</el-menu-item>
+          <el-menu-item index="/ontimep">Delayed</el-menu-item>
         </el-menu-item-group>
       </el-submenu>
     </el-menu>
