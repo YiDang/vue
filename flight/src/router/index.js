@@ -14,6 +14,7 @@ import ActiveFlightsView from '@/views/admin/ActiveFlightsView'
 import AllFlightsView from '@/views/admin/AllFlightsView'
 import FlightsOfAirportView from '@/views/admin/FlightsOfAirportView'
 import OnTimeView from '@/views/admin/OnTimeView'
+import OnTimePView from '@/views/admin/OnTimePView'
 import ReservationView from '@/views/admin/ReservationView'
 import RevenueView from '@/views/admin/RevenueView'
 import SalesReportView from '@/views/admin/SalesReportView'
@@ -89,6 +90,11 @@ let router = new Router({
                 path: '/ontime',
                 name: 'OnTimeView',
                 component: OnTimeView
+              },
+              {
+                path: '/ontimep',
+                name: 'OnTimePView',
+                component: OnTimePView
               },
               {
                 path: '/reservation',
