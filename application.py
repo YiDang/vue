@@ -18,18 +18,12 @@ application = Flask(__name__,
 def catch_all(path):
     return render_template("index.html")
 
-
 # MySQL configurations
 application.config['MYSQL_DATABASE_USER'] = 'admin'
 application.config['MYSQL_DATABASE_PASSWORD'] = '***cs539***'
 application.config['MYSQL_DATABASE_DB'] = 'cs539_dev'
 application.config['MYSQL_DATABASE_HOST'] = 'cs539-sp18.cwvtn5eogw8i.us-east-1.rds.amazonaws.com'
 mysql.init_app(application)
-
-# @application.route('/',defaults={'path':''})
-# @application.route('/<path:path>')
-# def cath_all(path):
-#     return render_template("index.html")
 
 # sign up new user
 @application.route('/api/signUp',methods=['POST','GET'])
@@ -208,6 +202,22 @@ def list_all_flights():
             dic["duration"] = data[5]
             dic["airlineCode"] = data[6]
             res.append(dic)
+    except Exception as e:
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
+@application.route('/api/manager/listAllAirports',methods=['POST','GET'])
+def list_all_airports():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("(SELECT DISTINCT(arrival_airport) FROM LegsInfo) UNION (SELECT DISTINCT(departure_airport) FROM LegsInfo)")
+        for data in cursor:
+            res.append({"value":data[0]})
     except Exception as e:
         res = ['Search Error']
     finally:
@@ -536,23 +546,27 @@ def searchFlight():
     if(_roundtrip == '1'):
         _date2 = request.form['date2']
     res_all = []
-    while (not go_exist):
+    go_count = 0
+    back_count = 0
+    while (not go_exist and go_count < 7):
         res = test.searchFlight(_dep, _arr, _date1)
         if(len(res)<1):
             _date1 = model.get_next_day(_date1)
+            go_count += 1
         else:
             go_exist = True
             res_all.append(res)
-    while(_date2!=None and not back_exist):
+
+    while(_date2!=None and not back_exist and back_count < 7):
         res = test.searchFlight(_arr, _dep, _date2)
         if(len(res)<1):
             _date2 = model.get_next_day(_date2)
         else:
             back_exist = True
             res_all.append(res)
-
-    res_all[0] = test.search_hot_flight(_dep,_arr,_date1) + res_all[0]
-    if(_date2 != None):        
+    if(go_count < 7):
+        res_all[0] = test.search_hot_flight(_dep,_arr,_date1) + res_all[0]
+    if(_date2 != None and back_count < 7):        
         res_all[1] = test.search_hot_flight(_arr,_dep,_date1) + res_all[1]
     return jsonify(res_all)
 
@@ -639,6 +653,6 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host='172.31.224.95', debug=True)
 
 
