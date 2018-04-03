@@ -240,7 +240,7 @@ def sales_report(conn,month = '3',year = '2018'):
             if((_total_flight[index][1] == None) and (_number_flight[index][1] == 0)):
                 rec.append(({'name':_total_flight[index][0],'# of flight': 0,'value':0}))
             else:
-                rec.append(({'name':_total_flight[index][0],'# of flight': _number_flight[index][1],'value':_total_flight[index][1]}))
+                rec.append(({'name':_total_flight[index][0],'# of flight': _number_flight[index][1],'value':float(_total_flight[index][1])}))
     else:
         return False
     return rec
@@ -297,7 +297,7 @@ def get_delay_flight(conn):
 #     print "good"
 # else:
 #     print "bad"
-#conn = db_conn()
+conn = db_conn()
 # conn
 # #rec = sales_report(conn)
 # for i in range(10):
@@ -307,8 +307,8 @@ def get_delay_flight(conn):
 # print rec
 # date = '%' + '3' + '/%/' + '2018'
 # sql_1 = "SELECT airlineName, count(*) as numberflight FROM Reservation INNER JOIN Reservation_Leg ON Reservation.reservation_no = Reservation_Leg.reservation_no INNER JOIN LegsInfo ON Reservation_Leg.idLegs = LegsInfo.idLegs WHERE Reservation.date LIKE '%s' GROUP BY LegsInfo.airlineName"%(date)
-#rec = sales_report(conn)
-#print(rec)
+rec = sales_report(conn)
+print(rec)
 # for i in range(1000):
 #     print(i)
 # _number_flight = db_select(sql_1,conn)
@@ -318,5 +318,5 @@ def get_delay_flight(conn):
 #     rec = show_customer(conn,1)
 #     print rec
 # #print rec
-#db_close(conn)
+db_close(conn)
 
