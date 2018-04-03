@@ -12,7 +12,7 @@ mysql = MySQL()
 application = Flask(__name__)
 
 
-@application.route('')
+@application.route('/')
 def catch_all():
     return render_template("index.html")
 
