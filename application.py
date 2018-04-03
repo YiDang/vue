@@ -637,9 +637,6 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     application.run(host="172.31.215.112",debug=True)
-=======
-    application.run(host='172.31.206.121',debug=True)
->>>>>>> 071c119e7324165af2c0012677af31ecf6eeb36f
+
 
