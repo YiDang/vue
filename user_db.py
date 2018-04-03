@@ -245,16 +245,39 @@ def sales_report(conn,month = '3',year = '2018'):
         return False
     return rec
 
-def get_delay_flight(conn):
+
+def get_delay_flight_detail(conn,start,end):
     #sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs where CAST(delay AS SIGNED) > 0"
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(*), If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC")
+    count = cursor.fetchall()
+    #sql = "SELECT count(*), If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC"
+    cursor.close()
+
+    cursor1 = conn.cursor()
+    cursor1.callproc('sp_showDelay', [start, end])
+    rec = cursor1.fetchall()
+    #sql = "SELECT count(*), If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC"
+    #sql2 = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC LIMIT '%s','%s' " %(start,end)
+    cursor1.close()
+    # count = db_select(sql,conn)
+    # rec = db_select(sql2,conn)
+    if(rec and count):
+        return (count,rec)
+    else:
+        return False
+
+
+def get_delay_flight(conn):
+
     sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC"
+    #sql2 = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC LIMIT '%s','%s' " %(start,end)
     rec = db_select(sql,conn)
     if(rec):
         return rec
     else:
         return False
 
-        
 
 #sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
 #compare_data("3/18/2017")
@@ -318,5 +341,9 @@ def get_delay_flight(conn):
 #     rec = show_customer(conn,1)
 #     print rec
 # #print rec
+# conn = db_conn()
+# rec = get_delay_flight(conn,0,10)
+# print rec[0]
+# print rec[1]
 # db_close(conn)
 
