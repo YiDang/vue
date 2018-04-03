@@ -215,6 +215,22 @@ def list_all_flights():
         conn.close()
     return jsonify(res)
 
+@application.route('/api/manager/listAllAirports',methods=['POST','GET'])
+def list_all_airports():
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    res = []
+    try:
+        cursor.execute("(SELECT DISTINCT(arrival_airport) FROM LegsInfo) UNION (SELECT DISTINCT(departure_airport) FROM LegsInfo)")
+        for data in cursor:
+            res.append({"value":data[0]})
+    except Exception as e:
+        res = ['Search Error']
+    finally:
+        cursor.close()
+        conn.close()
+    return jsonify(res)
+
 #finished
 @application.route('/api/manager/listReservation',methods=['POST','GET'])
 def list_reservation():
@@ -639,6 +655,6 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host='172.31.224.95', debug=True)
 
 
