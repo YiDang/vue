@@ -230,14 +230,15 @@ def list_reservation():
         if typeval=="name":
             cursor.execute("SELECT DISTINCT reservation_no FROM Reservation_Leg WHERE name=%s", (inputval))
             for reservation_no in cursor.fetchall():
+                dic = {}
+                dic["passenger_info"] = []
 
                 cursor.execute("SELECT DISTINCT name, Reservation.date, total_fare, LegsInfo.idFlight, FlightInfoAll.departure, FlightInfoAll.arrival, Reservation_Leg.trip_no, Reservation.reservation_no FROM Reservation_Leg JOIN Reservation JOIN LegsInfo JOIN FlightInfoAll ON Reservation.reservation_no=Reservation_Leg.reservation_no AND Reservation_Leg.idLegs=LegsInfo.idLegs  AND LegsInfo.idFlight=FlightInfoAll.idFlightInfo WHERE name=%s AND Reservation.reservation_no=%s", (inputval, reservation_no[0]))
 
-                dic = {}
                 dic["reservation_no"] = reservation_no[0]
                 dic["stops"] = {"go":[],"back":[]}
                 for data in cursor.fetchall():
-                    dic["passenger_info"] = [data[0]]
+                    dic["passenger_info"].append({"name":data[0]})
                     dic["date"] = data[1]
                     dic["isCurrent"] = isDateFuture(data[1])
                     dic["price"] = data[2]
@@ -275,12 +276,13 @@ def list_reservation():
                 for record in cursor.fetchall():
                     reservation_no = record[0]
                     if reservation_no in reservation_no_set:
-                        res[-1]["passenger_info"].append(record[1])
+                        res[-1]["passenger_info"].append({"name":record[1]})
                     else:
                         dic = {}
                         dic["stops"] = {"go":[],"back":[]}
                         dic["reservation_no"] = record[0]
-                        dic["passenger_info"] = [record[1]]
+                        dic["passenger_info"] = []
+                        dic["passenger_info"].append({"name":record[1]})
                         reservation_no_set.add(reservation_no)
                         dic["date"] = record[2]
                         dic["price"] = record[3]
@@ -639,5 +641,5 @@ def get_best_seller():
 
 
 if __name__ == "__main__":
-    application.run(debug=True)
+    application.run(host='172.31.224.95',debug=True)
 
