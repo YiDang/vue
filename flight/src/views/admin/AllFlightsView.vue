@@ -89,7 +89,7 @@ export default {
           'Content-type': 'application/x-www-form-urlencoded'
         },
       }).then(response => {
-        console.log(response.data)
+        console.log('data',response.data)
         this.listw84page = response.data
         // console.log(response.status)
         // console.log(response.statusText)

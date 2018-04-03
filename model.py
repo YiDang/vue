@@ -184,17 +184,23 @@ def delete_customer(conn,account_no):
 def book_flight(go, back, account_no, passengers):
     conn = db_conn()
     cursor = conn.cursor()
+    isFull = 0
+    res = {}
+    # print go, back, account_no, passengers
+    
+    _trip_no = 2 if len(back)>=1 else 1
+    
     try:
         _account_no = account_no
         _dep_date = go['date']
         _reserv_date = get_today()
         _book_fare = go['price']
-        _book_fare +=  back['price'] if back != None else 0
+        _book_fare +=  back['price'] if len(back)>=1 else 0
         _book_fare *= len(passengers)
         _total_fare = _book_fare * 1.1
-        _trip_no = 2 if back!=None else 1
+        _trip_no = 2 if len(back)>=1 else 1
         _trips = [go, back]
-
+        
         # INSERT INTO RESERVATION TABLE
         cursor.execute('SELECT MAX(reservation_no) From Reservation')
         _reservation_no =  cursor.fetchone()[0] + 1
@@ -205,12 +211,28 @@ def book_flight(go, back, account_no, passengers):
            flight_id = _trips[t]['flight_id']
            # passenger_info = passengers[t]
            stops = _trips[t]['stops']
-           for p in range(len(passengers)):
-                passenger = passengers[p]
-                for leg in range(len(stops)):
+           if(not isFull):
+                for leg in range(len(stops)):   
                     idLegs = stops[leg]['legs']
-                    cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", 1, t + 1])
-
+                    cursor.callproc('sp_isFlightFull',(_dep_date,flight_id,idLegs,len(passengers)))
+                    data = cursor.fetchone()
+                    isFull, totalBooked, capacity = data[0], data[1], data[2]
+                    if(isFull == 1):
+                        cursor.execute("Delete from Reservation order by reservation_no desc limit 1")
+                        res =  {"result":False, "message":("No Available Seats, "+ str(totalBooked) + "/" + str(capacity) + " have been booked.")}
+                    else:
+                        for p in range(len(passengers)):
+                            passenger = passengers[p]
+                            # print passenger
+                            # rn = random.randint(0,1)
+                            # if (rn):
+                            #     sn = ""
+                            # else:
+                            #     sn = "1"
+                            cursor.execute('INSERT INTO Reservation_Leg VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)',[_reservation_no, idLegs, passenger['ssn'],passenger['name'], flight_id, 4, "Y", passenger['reserved'] , t + 1])
+        print "is full" if isFull  else "not full"
+        if(not isFull):
+            res = {"result":True, "message":"Booking Completed"}
     except Exception as e:
         print  e
         return jsonify({"result":False,"message":"Error: Cannot Complete Booking"})
@@ -218,6 +240,6 @@ def book_flight(go, back, account_no, passengers):
         cursor.close()
         conn.commit()
         conn.close()
-        return jsonify({"result":True, "message":"Booking Completed"})
+        return jsonify(res)
 
 ########################### ALL Funtion above is based on the pymysql ##################################
