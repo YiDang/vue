@@ -530,23 +530,27 @@ def searchFlight():
     if(_roundtrip == '1'):
         _date2 = request.form['date2']
     res_all = []
-    while (not go_exist):
+    go_count = 0
+    back_count = 0
+    while (not go_exist and go_count < 7):
         res = test.searchFlight(_dep, _arr, _date1)
         if(len(res)<1):
             _date1 = model.get_next_day(_date1)
+            go_count += 1
         else:
             go_exist = True
             res_all.append(res)
-    while(_date2!=None and not back_exist):
+
+    while(_date2!=None and not back_exist and back_count < 7):
         res = test.searchFlight(_arr, _dep, _date2)
         if(len(res)<1):
             _date2 = model.get_next_day(_date2)
         else:
             back_exist = True
             res_all.append(res)
-
-    res_all[0] = test.search_hot_flight(_dep,_arr,_date1) + res_all[0]
-    if(_date2 != None):        
+    if(go_count < 7):
+        res_all[0] = test.search_hot_flight(_dep,_arr,_date1) + res_all[0]
+    if(_date2 != None and back_count < 7):        
         res_all[1] = test.search_hot_flight(_arr,_dep,_date1) + res_all[1]
     return jsonify(res_all)
 
