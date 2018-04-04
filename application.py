@@ -695,6 +695,6 @@ def get_best_seller():
 
 if __name__ == "__main__":
     #application.run(host='172.31.224.95', debug=True)
-    application.run(host='172.31.215.112', debug=True)
+    application.run(host='localhost', debug=True)
 
 

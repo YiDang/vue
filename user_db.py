@@ -279,6 +279,16 @@ def get_delay_flight(conn):
         return False
 
 
+def test_delay(conn,start,end):
+    # sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%m/%d/%Y') DESC, TIME_FORMAT(departure_time, '%h:%i') DESC"
+    sql = "SELECT *, If( CAST(delay AS SIGNED)>0, 'Delayed','On Time') as isDelayed FROM HistoryLegs ORDER BY str_to_date(departure_date, '%%m/%%d/%%Y') DESC, TIME_FORMAT(departure_time, '%%h:%%i') DESC LIMIT %s,%s " %(start,end)
+    print sql
+    rec = db_select(sql,conn)
+    if(rec):
+        return rec
+    else:
+        return False
+
 #sql= SELECT CAST(SUM(total_fare) AS DECIMAL(10,2)) as total FROM Reservation WHERE date LIKE '%3/%/%' AND reservation_no IN (SELECT reservation_no FROM Reservation_Leg WHERE idLegs IN  (SELECT idLegs FROM LegsInfo WHERE airlineName = 'Delta'))
 #compare_data("3/18/2017")
 
@@ -342,8 +352,7 @@ def get_delay_flight(conn):
 #     print rec
 # #print rec
 # conn = db_conn()
-# rec = get_delay_flight(conn,0,10)
-# print rec[0]
-# print rec[1]
+# rec = test_delay(conn,0,10)
+# print rec
 # db_close(conn)
 
