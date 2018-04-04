@@ -9,13 +9,11 @@ import user_db
 import ast
 import test
 mysql = MySQL()
-application = Flask(__name__,
-            static_folder = "./flight/dist/static",
-            template_folder = "./flight/dist")
+application = Flask(__name__)
 
-@application.route('/', defaults={'path': ''})
-@application.route('/<path:path>')
-def catch_all(path):
+
+@application.route('/')
+def catch_all():
     return render_template("index.html")
 
 # MySQL configurations
@@ -695,6 +693,10 @@ def get_best_seller():
 
 if __name__ == "__main__":
     #application.run(host='172.31.224.95', debug=True)
+<<<<<<< HEAD
     application.run(host='localhost', debug=True)
+=======
+    application.run(debug=True)
+>>>>>>> 3f0cd035b4f1f49e55675efb67e3af4bde14bf1a
 
 
